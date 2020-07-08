@@ -1,12 +1,12 @@
 using Documenter, MvSim
 
 makedocs(
-    sitename="MvSim Docs",
-    doctest=false,
-    clean=true
+    sitename="MvSim.jl",
+    modules = [MvSim],
+    doctest=false
 )
 
 deploydocs(
     repo = "github.com/adknudson/MvSim.jl.git",
-    devurl = "develop"
+    versions = ["stable" => "master", "dev" => "develop"]
 )
