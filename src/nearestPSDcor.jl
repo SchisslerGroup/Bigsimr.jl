@@ -174,13 +174,39 @@ function jacobian(x, Ω₀, P; PERTURBATION=1e-9)
 end
 
 
-function nearestSPDcor(R;
+"""
+    nearestPSDcor(R)
+
+Compute the nearest positive semidefinite correlation matrix given a symmetric
+correlation matrix `R`. This algorithm is based off of work by Qi and Sun 2006.
+Matlab, C, R, and Python code can be found [on Sun's page](https://www.polyu.edu.hk/ama/profile/dfsun/index.html#Codes).
+The algorithm has also been implemented in Fortran in the NAG library.
+
+# Arguments
+- `τ::Real`: a [small] nonnegative number used to enforce a minimum eigenvalue.
+- `δ::Real`: the error tolerance for the stopping condition.
+
+# Examples
+```
+import LinearAlgebra: eigvals
+# Define a negative definite correlation matrix
+ρ = [1.00 0.82 0.56 0.44
+     0.82 1.00 0.28 0.85
+     0.56 0.28 1.00 0.22
+     0.44 0.85 0.22 1.00]
+eigvals(ρ)
+
+r = nearestPSDcor(ρ)
+eigvals(r)
+```
+"""
+function nearestPSDcor(R;
     τ::Real=1e-5,
     iter_outer=200,
     iter_inner=20,
     N=200,
-    ϵ::Real=1e-2,  # pre-cg error tol
     δ::Real=1e-6,  # error tol
+    ϵ::Real=1e-2,  # pre-cg error tol
     σ::Real=1e-4)  # Newton method line search tol
 
     n = size(R, 1)
