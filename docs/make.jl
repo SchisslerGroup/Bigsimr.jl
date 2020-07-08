@@ -8,5 +8,5 @@ makedocs(
 
 deploydocs(
     repo = "github.com/adknudson/MvSim.jl.git",
-    versions = ["stable" => "master", "dev" => "develop"]
+    devurl = "develop"
 )
