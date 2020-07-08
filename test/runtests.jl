@@ -1,7 +1,7 @@
 using MvSim
 using Test
 
-import LinearAlgebra: eigvals, diag, isposdef
+import LinearAlgebra: eigvals, diag
 
 @testset "MvSim.jl" begin
     S = [0.99 0.78 0.59 0.44
@@ -24,7 +24,7 @@ import LinearAlgebra: eigvals, diag, isposdef
     @test all(λ .≥ 0)
 
     # Test that it returns the nearest positive semidefinite correlation matrix
-    ρhat = nearestSPDcor(ρ)
+    ρhat = nearestPSDcor(ρ)
     λ = eigvals(ρhat)
     @test all(λ .≥ 0)
     @test all(diag(ρhat) .≈ 1.0)

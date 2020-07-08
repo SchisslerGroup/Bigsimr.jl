@@ -1,13 +1,15 @@
 module MvSim
 
-import LinearAlgebra: diagind, diagm, diag, eigen, norm, pinv, I
+using Distributions
 
-include("nearestSPDcor.jl")
-include("utils.jl")
+import LinearAlgebra: diagind, diagm, diag, eigen, norm, pinv, I
 
 export
     cov2cor,
     rcor,
-    nearestSPDcor
+    nearestPSDcor
+
+include("utils.jl")
+include("nearestPSDcor.jl")
 
 end
