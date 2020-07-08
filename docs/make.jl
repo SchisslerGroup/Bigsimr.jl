@@ -5,3 +5,8 @@ makedocs(
     doctest=false,
     clean=true
 )
+
+deploydocs(
+    repo = "github.com/adknudson/MvSim.jl.git",
+    devurl = "develop"
+)
