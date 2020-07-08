@@ -8,16 +8,17 @@ julia:
   - nightly
 os:
   - linux
-  - osx
-  - windows
 arch:
   - x64
+dist:
+  - bionic
 cache:
   directories:
     - ~/.julia/artifacts
 jobs:
   fast_finish: true
   allow_failures:
+    - julia: 1.0
     - julia: nightly
 after_success:
   - |
