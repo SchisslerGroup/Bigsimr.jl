@@ -1,3 +1,7 @@
 using Documenter, MvSim
 
-makedocs(sitename=" ")
+makedocs(
+    sitename="MvSim Docs",
+    doctest=false,
+    clean=true
+)

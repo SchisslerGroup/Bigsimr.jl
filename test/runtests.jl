@@ -1,7 +1,7 @@
 using MvSim
 using Test
 
-import LinearAlgebra: eigvals, diag, isposdef
+import LinearAlgebra: eigvals, diag
 
 @testset "MvSim.jl" begin
     S = [0.99 0.78 0.59 0.44
