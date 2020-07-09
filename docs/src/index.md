@@ -2,7 +2,6 @@
 
 ```@contents
 Pages = ["main_functions.md", "utilities.md"]
-
 ```
 
 ## Index

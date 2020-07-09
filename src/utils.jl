@@ -60,6 +60,9 @@ Then
 
 ```math
 H_{n}(x) = 2^{\\frac{n}{2}} He_{n}\\left(\\sqrt{2} x\\right)
+```
+
+```math
 He_{n}(x) = 2^{-\\frac{n}{2}} H_{n}\\left(\\frac{x}{\\sqrt{2}}\\right)
 ```
 """
