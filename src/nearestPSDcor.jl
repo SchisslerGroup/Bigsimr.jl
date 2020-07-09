@@ -234,7 +234,7 @@ function nearestPSDcor(R;
     Ω₀ = set_omega(λ)
     x₀ = copy(y)
 
-    X .= PCA(X, λ, P)
+    X       .= PCA(X, λ, P)
     val_R    = 0.5 * norm(R, 2)^2
     val_dual = val_R - f₀
     val_obj  = 0.5 * norm(X - R, 2)^2
@@ -260,9 +260,9 @@ function nearestPSDcor(R;
 
         k_inner = 0
         while (k_inner ≤ iter_inner) && (f > f₀ + σ*slope*0.5^k_inner + 1e-6)
-            k_inner .+= 1
-            y     .= x₀ + d * 0.5^k_inner
-            X     .= R + diagm(y)
+            k_inner += 1
+            y    .= x₀ + d * 0.5^k_inner
+            X    .= R + diagm(y)
             λ, P  = eigen(X)
             λ    .= reverse(λ)
             P    .= reverse(P, dims=2)
