@@ -4,7 +4,7 @@ struct CorPair
 end
 
 """
-    cor2cor(ρ::T, from::String=nothing, to::String=nothing) where {T <: Real}
+    cor2cor(ρ::T, from::String, to::String) where {T <: Real}
 
 Convert from one type of correlation matrix to another. The possible correlation
 types are _pearson_, _spearman_, or _kendall_. If an invalid pair is given, return
@@ -35,7 +35,7 @@ end
 
 
 """
-    cov2cor(rho::AbstractArray)
+    cov2cor(Σ::AbstractArray)
 
 Convert a covariance matrix to a correlation matrix. Ensure that the resulting
 matrix is symmetric and has diagonals equal to 1.0.
