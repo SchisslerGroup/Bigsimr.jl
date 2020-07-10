@@ -1,8 +1,3 @@
-struct CorPair
-    from::String
-    to::String
-end
-
 """
     cor2cor(ρ::T, from::String, to::String) where {T <: Real}
 
@@ -17,15 +12,14 @@ function cor2cor(ρ::T, from::String, to::String) where {T <: Real}
         return ρ
     end
 
-    cor_pair = CorPair(from, to)
-    @match cor_pair begin
-        CorPair("pearson", "spearman") => (6 / π) .* asin.(ρ ./ 2)
-        CorPair("pearson", "kendall")  => (2 / π) .* asin.(ρ)
-        CorPair("spearman", "pearson") => 2 * sin.(ρ .* π / 6)
-        CorPair("spearman", "kendall") => (2 / π) .* asin.(2 * sin.(ρ .* π ./ 6))
-        CorPair("kendall", "pearson")  => sin.(ρ .* π / 2)
-        CorPair("kendall", "spearman") => (6 / π) .* asin.(sin.(ρ .* π ./ 2) ./ 2)
-        CorPair(f, t) => throw(ArgumentError("No matching conversion from '$f' to '$t'. 'from' and 'to' must be any combination of 'pearson', 'spearman', or 'kendall'"))
+    @match (from, to) begin
+        ("pearson", "spearman") => (6 / π) .* asin.(ρ ./ 2)
+        ("pearson", "kendall")  => (2 / π) .* asin.(ρ)
+        ("spearman", "pearson") => 2 * sin.(ρ .* π / 6)
+        ("spearman", "kendall") => (2 / π) .* asin.(2 * sin.(ρ .* π ./ 6))
+        ("kendall", "pearson")  => sin.(ρ .* π / 2)
+        ("kendall", "spearman") => (6 / π) .* asin.(sin.(ρ .* π ./ 2) ./ 2)
+        (f, t) => throw(ArgumentError("No matching conversion from '$f' to '$t'. 'from' and 'to' must be any combination of 'pearson', 'spearman', or 'kendall'"))
     end
 end
 
@@ -86,19 +80,55 @@ end
 
 
 """
-    rcor(d::Integer, k::Integer=1)
+    rcor(d::Integer, α::Real=1.0)
 
-Generate a random correlation matrix of size ``d×d``. the parameter `k` is used
-to set the factor loadings for ``W``. The code has been adapted from user *amoeba*
-from [StackExchange](https://stats.stackexchange.com/questions/124538/how-to-generate-a-large-full-rank-random-correlation-matrix-with-some-strong-cor)
+Generate a random positive definite correlation matrix of size ``d×d``. The
+parameter `α` is used to determine the autocorrelation in the correlation
+coefficients.
+
+Reference
+- Joe H (2006). Generating random correlation matrices based on partial
+  correlations. J. Mult. Anal. Vol. 97, 2177--2189.
 """
-function rcor(d::Integer, k::Integer=1)
-    W = randn(Float64, d, k)
-    S = W * W' + diagm(rand(Float64, d))
-    S2 = diagm(1 ./ sqrt.(diag(S)))
-    S2 .= S2 * S * S2
-    setdiag!(S2, 1.0)
-    S2
+function rcor(d::Integer, α::Real=1.0)
+    if d == 1
+        return ones(1, 1)
+    elseif d == 2
+        ρ = rand(Uniform(-1.0, 1.0))
+        return Array([1 ρ; ρ 1])
+    else
+
+        function rjm(A, a)
+            b     = size(A, 1)
+            idx   = 2 ≤ b-1 ? range(2, b-1, step=1) : range(2, b-1, step=-1)
+            ρ₁    = A[idx, 1]
+            ρ₃    = A[idx, b]
+            R₂    = A[idx, idx]
+            Rᵢ    = pinv(R₂)
+            rcond = 2 * rand(Beta(a, a)) - 1
+            t13   = ρ₁' * Rᵢ * ρ₃
+            t11   = ρ₁' * Rᵢ * ρ₁
+            t33   = ρ₃' * Rᵢ * ρ₃
+            t13[1] + rcond * √((1 - t11[1]) * (1 - t33[1]))
+        end
+
+        R = Array{Float64}(I, d, d)
+
+        for i=1:d-1
+            α₀ = α + (d-2) / 2
+            R[i, i+1] = 2 * rand(Beta(α₀, α₀)) - 1
+            R[i+1, i] = R[i, i+1]
+        end
+
+        for m=2:d-1, j=1:d-m
+            r_sub = R[j:j+m, j:j+m]
+            α₀ = α + (d - m - 1) / 2
+            R[j, j+m] = rjm(r_sub, α₀)
+            R[j+m, j] = R[j, j+m]
+        end
+
+        return R
+    end
 end
 
 
