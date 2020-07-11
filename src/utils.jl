@@ -138,10 +138,10 @@ end
 
 
 """
-    z2x(d::Distribution, x::AbstractArray)
+    z2x(d::UnivariateDistribution, x::AbstractArray)
 
 Convert samples from a standard normal distribution to a given marginal distribution.
 """
-function z2x(d::Distribution, x::AbstractArray)
+function z2x(d::UnivariateDistribution, x::AbstractArray)
     quantile.(d, cdf.(Normal(0,1), x))
 end

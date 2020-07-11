@@ -187,7 +187,7 @@ The algorithm has also been implemented in Fortran in the NAG library.
 - `δ::Real`: the error tolerance for the stopping condition.
 
 # Examples
-```
+```julia
 import LinearAlgebra: eigvals
 # Define a negative definite correlation matrix
 ρ = [1.00 0.82 0.56 0.44

@@ -1,8 +1,9 @@
 # Utilities
 
 ```@docs
-cor2cor(ρ::T, from::String, to::String) where {T <: Real}
-cov2cor(Σ::AbstractArray)
-hermite(x, n::Int, probabilists::Bool=true)
-rcor(d::Integer, α::Real=1.0)
+cor2cor(::T, ::String, ::String) where {T <: Real}
+cov2cor(::AbstractArray)
+get_coefs(::UnivariateDistribution, ::Integer)
+hermite(x, ::Int, ::Bool=true)
+rcor(::Integer, α::Real=1.0)
 ```
