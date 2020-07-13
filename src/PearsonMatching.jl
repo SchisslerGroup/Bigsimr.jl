@@ -1,5 +1,5 @@
 """
-    get_coefs(margin::UnivariateDistribution, n::Integer)
+    get_coefs(margin::UnivariateDistribution, n::Int)
 
 Get the ``n^{th}`` degree Hermite Polynomial expansion coefficients for
 ``F^{-1}[Φ(⋅)]`` where ``F^{-1}`` is the inverse CDF of a probability
@@ -16,7 +16,7 @@ input and the output:
 \\frac{1}{\\sqrt{\\pi} \\cdot k!}\\sum_{s=1}^{m}w_s H_k (t_s\\sqrt{2}) F_{i}^{-1}\\left[\\Phi(t_s)\\right]
 ```
 """
-function get_coefs(margin::UnivariateDistribution, n::Integer)
+function get_coefs(margin::UnivariateDistribution, n::Int)
     c = Array{Float64,1}(undef, n + 1)
     m = n + 4
     t, w = gausshermite(m)
@@ -29,41 +29,39 @@ function get_coefs(margin::UnivariateDistribution, n::Integer)
 end
 
 """
-function rho_z(
+function ρz(
     ρx,
-    marginᵢ::UnivariateDistribution,
-    marginⱼ::UnivariateDistribution,
-    μᵢ,
-    μⱼ;
+    dA::ContinuousUnivariateDistribution,
+    dB::ContinuousUnivariateDistribution,
+    μA,
+    μB,
+    σA,
+    σB,
     n::Int = 3,
 )
 
-Estimate the input correlation coefficient ρ_z given the marginal CDFs of
-(Xᵢ, Xⱼ), and the desired correlation coefficient ρ_x
+Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
+continuous univariate distributions and the desired correlation coefficient `ρx`.
 """
-function rho_z(
+function ρz(
     ρx,
-    marginᵢ::UnivariateDistribution,
-    marginⱼ::UnivariateDistribution,
-    μᵢ,
-    μⱼ,
-    σᵢ,
-    σⱼ;
+    dA::ContinuousUnivariateDistribution,
+    dB::ContinuousUnivariateDistribution,
+    μA,
+    μB,
+    σA,
+    σB,
     n::Int = 3,
 )
-    μᵢ = mean(marginᵢ)
-    σᵢ = std(marginᵢ)
-    μⱼ = mean(marginⱼ)
-    σⱼ = std(marginⱼ)
 
     # Eq (25)
     k = 0:1:n
-    a = get_coefs(marginᵢ, n)
-    b = get_coefs(marginⱼ, n)
+    a = get_coefs(dA, n)
+    b = get_coefs(dB, n)
 
     # Eq (22)
-    c1 = -μᵢ * μⱼ
-    c2 = 1 / (σᵢ * σⱼ)
+    c1 = -μA * μB
+    c2 = 1 / (σA * σB)
     kab = factorial.(k) .* a .* b
     ρx_l = c1 * c2 + c2 * sum((-1) .^ k .* kab)
     ρx_u = c1 * c2 + c2 * sum(kab)
@@ -90,20 +88,67 @@ function rho_z(
 end
 
 
-function rho_z_bounds_cc(marginᵢ, marginⱼ; n::Int = 3)
-    μᵢ = mean(marginᵢ)
-    σᵢ = std(marginᵢ)
-    μⱼ = mean(marginⱼ)
-    σⱼ = std(marginⱼ)
+"""
+function ρz(
+    ρx,
+    dA::ContinuousUnivariateDistribution,
+    dB::ContinuousUnivariateDistribution,
+    μA,
+    μB,
+    σA,
+    σB,
+    n::Int = 3,
+)
+
+Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
+continuous univariate distributions and the desired correlation coefficient `ρx`.
+"""
+function ρz(
+    ρx,
+    dA::DiscreteUnivariateDistribution,
+    dB::DiscreteUnivariateDistribution,
+    μA,
+    μB,
+    σA,
+    σB,
+    n::Int = 3,
+)
+    minA = minimum(dA)
+    maxA = maximum(dA)
+    minB = minimum(dB)
+    maxB = maximum(dB)
+
+end
+
+function ρz(ρx, dA::UnivariateDistribution, dB::UnivariateDistribution, n::Int=3)
+    μA = mean(dA)
+    μB = mean(dB)
+    σA = std(dA)
+    σB = std(dB)
+    ρz(ρx, dA, dB, μA, μB, σA, σB, n)
+end
+
+# Explicit Cases
+function ρz(ρx, dA::UnivariateDistribution, dB::UnivariateDistribution, n::Int)
+    @mat2 * sin(ρx * π / 6)
+end
+
+
+
+function ρz_bounds(dA, dB; n::Int = 3)
+    μA = mean(dA)
+    σA = std(dA)
+    μB = mean(dB)
+    σB = std(dB)
 
     # Eq (25)
     k = 0:1:n
-    a = get_coefs(marginᵢ, n)
-    b = get_coefs(marginⱼ, n)
+    a = get_coefs(dA, n)
+    b = get_coefs(dB, n)
 
     # Eq (22)
-    c1 = -μᵢ * μⱼ
-    c2 = 1 / (σᵢ * σⱼ)
+    c1 = -μA * μB
+    c2 = 1 / (σA * σB)
     kab = factorial.(k) .* a .* b
     ρx_l = c1 * c2 + c2 * sum((-1) .^ k .* kab)
     ρx_u = c1 * c2 + c2 * sum(kab)
