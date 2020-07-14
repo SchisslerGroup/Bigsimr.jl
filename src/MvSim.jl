@@ -29,7 +29,6 @@ export
     # utilities
     cor2cor,
     cov2cor,
-    get_coefs,
     hermite,
     rcor,
 

@@ -18,6 +18,14 @@ function cor2cor(ρ::T, from::Symbol, to::Symbol) where {T <: Real}
     end
 end
 
+
+"""
+    cor2cor(A::AbstractMatrix{T}, from::Symbol, to::Symbol) where {T <: Real}
+
+Convert from one type of correlation matrix to another. The possible correlation
+types are _Pearson_ (`:P`), _Spearman_ (`:S`), or _Kendall_ (`:K`). If an invalid
+pair is given, throw an error.
+"""
 function cor2cor(A::AbstractMatrix{T}, from::Symbol, to::Symbol) where {T <: Real}
     cor2cor.(A, from, to)
 end
@@ -133,6 +141,11 @@ function promote(A::AbstractArray{T, 2}, x::S) where {T<:Real, S<:Real}
     (Array{TS, 2}(A), TS(x))
 end
 
+"""
+    setdiag(A::AbstractMatrix{T}, x::S) where {T<:Real, S<:Real}
+
+Set the diagonal elements of an AbstractMatrix to a value. Return the new matrix.
+"""
 function setdiag(A::AbstractMatrix{T}, x::S) where {T<:Real, S<:Real}
     A, x = promote(A, x)
     @inbounds A[diagind(A)] .= x

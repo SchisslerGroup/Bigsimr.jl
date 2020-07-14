@@ -147,16 +147,7 @@ end
 
 # Continuous case -------------------------------------------------------------
 """
-function ρz(
-    ρx,
-    dA::ContinuousUnivariateDistribution,
-    dB::ContinuousUnivariateDistribution,
-    μA,
-    μB,
-    σA,
-    σB,
-    n::Int=3
-)
+    ρz(ρx, dA::ContinuousUnivariateDistribution, dB::ContinuousUnivariateDistribution, μA, μB, σA, σB, n::Int=3)
 
 Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
 continuous univariate distributions and the desired correlation coefficient `ρx`.
@@ -195,7 +186,13 @@ function ρz(
 end
 
 
-# Shorthand for continuous case
+"""
+    ρz(ρx, dA::ContinuousUnivariateDistribution, dB::ContinuousUnivariateDistribution, n::Int=3)
+
+Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
+continuous univariate distributions and the desired correlation coefficient `ρx`.
+Calculate the mean and variance for each distribution.
+"""
 function ρz(ρx, dA::ContinuousUnivariateDistribution, dB::ContinuousUnivariateDistribution, n::Int=3)
     μA = mean(dA)
     μB = mean(dB)
@@ -207,18 +204,7 @@ end
 
 # Discrete case ---------------------------------------------------------------
 """
-function ρz(
-    ρx,
-    dA::DiscreteUnivariateDistribution,
-    dB::DiscreteUnivariateDistribution,
-    σA,
-    σB,
-    minA,
-    minB,
-    maxA,
-    maxB,
-    n::Int=3
-)
+    ρz(ρx, dA::DiscreteUnivariateDistribution, dB::DiscreteUnivariateDistribution, σA, σB, minA, minB, maxA, maxB, n::Int=3)
 
 Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
 discrete univariate distributions and the desired correlation coefficient `ρx`.
@@ -264,7 +250,13 @@ function ρz(
 end
 
 
-# Shorthand for discrete case
+"""
+    ρz(ρx, dA::DiscreteUnivariateDistribution, dB::DiscreteUnivariateDistribution, n::Int=3)
+
+Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
+discrete univariate distributions and the desired correlation coefficient `ρx`.
+Calculate the variance, minimum, and maximum for each distribution.
+"""
 function ρz(ρx, dA::DiscreteUnivariateDistribution, dB::DiscreteUnivariateDistribution, n::Int=3)
     σA = std(dA)
     σB = std(dB)
@@ -278,16 +270,7 @@ end
 
 # Mixed case ------------------------------------------------------------------
 """
-    function ρz(
-        ρx,
-        dA::DiscreteUnivariateDistribution,
-        dB::ContinuousUnivariateDistribution,
-        σA,
-        σB,
-        minA,
-        maxA,
-        n::Int=3
-    )
+    ρz(ρx, dA::DiscreteUnivariateDistribution, dB::ContinuousUnivariateDistribution, σA, σB, minA, maxA, n::Int=3)
 
 Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
 mixed support univariate distributions and the desired correlation coefficient `ρx`.
@@ -323,16 +306,7 @@ end
 
 
 """
-    function ρz(
-        ρx,
-        dA::ContinuousUnivariateDistribution,
-        dB::DiscreteUnivariateDistribution,
-        σA,
-        σB,
-        minB,
-        maxB,
-        n::Int=3
-    )
+    ρz(ρx, dA::ContinuousUnivariateDistribution, dB::DiscreteUnivariateDistribution, σA, σB, minB, maxB, n::Int=3)
 
 Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
 mixed support univariate distributions and the desired correlation coefficient `ρx`.
@@ -351,7 +325,13 @@ function ρz(
 end
 
 
-# Fallback for mixed case
+"""
+    ρz(ρx, dA::DiscreteUnivariateDistribution, dB::ContinuousUnivariateDistribution, n::Int=3)
+
+Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
+mixed support univariate distributions and the desired correlation coefficient `ρx`.
+Calculate the support as needed.
+"""
 function ρz(
     ρx,
     dA::DiscreteUnivariateDistribution,
@@ -365,6 +345,14 @@ function ρz(
     ρz(ρx, dA, dB, σA, σB, minA, maxA, n)
 end
 
+
+"""
+    ρz(ρx, dA::ContinuousUnivariateDistribution, dB::DiscreteUnivariateDistribution, n::Int=3)
+
+Estimate the input correlation coefficient `ρz` given the marginal CDFs of two
+mixed support univariate distributions and the desired correlation coefficient `ρx`.
+Calculate the support as needed.
+"""
 function ρz(
     ρx,
     dA::ContinuousUnivariateDistribution,
