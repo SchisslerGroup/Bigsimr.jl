@@ -1,3 +1,6 @@
+"""
+    gradient(y, λ₀, P, b₀)
+"""
 function gradient(y, λ₀, P, b₀)
     n = length(λ₀)
     r = sum(λ₀ .> 0)
@@ -21,6 +24,9 @@ function gradient(y, λ₀, P, b₀)
 end
 
 
+"""
+    PCA(X, λ, P)
+"""
 function PCA(X, λ, P)
     n = size(P, 1)
     r = sum(λ .> 0)
@@ -46,6 +52,11 @@ function PCA(X, λ, P)
 end
 
 
+"""
+    pre_cg(b, c, Ω₀, P, ϵ, N)
+
+Pre- Conjugate Gradient method.
+"""
 function pre_cg(b, c, Ω₀, P, ϵ, N)
     n = size(P, 1)
 
@@ -89,6 +100,9 @@ function pre_cg(b, c, Ω₀, P, ϵ, N)
 end
 
 
+"""
+    precond_matrix(Ω₀, P)
+"""
 function precond_matrix(Ω₀, P)
     n    = size(P, 1)
     r, s = size(Ω₀)
@@ -120,6 +134,9 @@ function precond_matrix(Ω₀, P)
 end
 
 
+"""
+    set_omega(λ)
+"""
 function set_omega(λ)
     n = length(λ)
     r = sum(λ .> 0)
@@ -141,6 +158,9 @@ function set_omega(λ)
 end
 
 
+"""
+    jacobian(x, Ω₀, P; PERTURBATION=1e-9)
+"""
 function jacobian(x, Ω₀, P; PERTURBATION=1e-9)
     n    = size(P, 1)
     r, s = size(Ω₀)
@@ -175,7 +195,14 @@ end
 
 
 """
-    nearestPSDcor(R)
+    nearestPSDcor(R;
+        τ::Real=1e-5,
+        iter_outer=200,
+        iter_inner=20,
+        N=200,
+        δ::Real=1e-6,
+        ϵ::Real=1e-2,
+        σ::Real=1e-4)
 
 Compute the nearest positive semidefinite correlation matrix given a symmetric
 correlation matrix `R`. This algorithm is based off of work by Qi and Sun 2006.
@@ -187,7 +214,7 @@ The algorithm has also been implemented in Fortran in the NAG library.
 - `δ::Real`: the error tolerance for the stopping condition.
 
 # Examples
-```
+```julia
 import LinearAlgebra: eigvals
 # Define a negative definite correlation matrix
 ρ = [1.00 0.82 0.56 0.44

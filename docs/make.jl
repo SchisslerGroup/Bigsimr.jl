@@ -1,9 +1,10 @@
 using Documenter, MvSim
+using Distributions
 
 makedocs(
-    sitename="MvSim.jl",
-    modules = [MvSim],
-    doctest=false
+    sitename = "MvSim.jl",
+    modules  = [MvSim],
+    doctest  = false
 )
 
 deploydocs(
