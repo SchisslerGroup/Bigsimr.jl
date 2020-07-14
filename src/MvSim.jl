@@ -9,10 +9,16 @@ import IntervalRootFinding: roots
 import LinearAlgebra: diagind, diagm, diag, eigen, norm, pinv, I
 import Memoize: @memoize
 import Polynomials: Polynomial
-import Statistics: mean, std, quantile
+import Statistics: mean, std, quantile, clampcor
+
+const P = "pearson"
+const S = "spearman"
+const K = "kendall"
 
 export
     nearestPSDcor,
+    ρz,
+    ρz_bounds,
 
     # Types
     MixedMultivariateDistribution,
