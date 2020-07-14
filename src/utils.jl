@@ -1,29 +1,24 @@
 """
-    cor2cor(ρ::T, from::String, to::String) where {T <: Real}
+    cor2cor(ρ::T, from::Symbol, to::Symbol) where {T <: Real}
 
 Convert from one type of correlation matrix to another. The possible correlation
-types are _pearson_, _spearman_, or _kendall_. If an invalid pair is given, return
-the original correlation matrix.
+types are _Pearson_ (`:P`), _Spearman_ (`:S`), or _Kendall_ (`:K`). If an invalid
+pair is given, throw an error.
 """
-function cor2cor(ρ::T, from::String, to::String) where {T <: Real}
-    from, to = lowercase(from), lowercase(to)
-
-    if from == to
-        return ρ
-    end
-
+function cor2cor(ρ::T, from::Symbol, to::Symbol) where {T <: Real}
     @match (from, to) begin
-        ("pearson", "spearman") => (6 / π) .* asin.(ρ ./ 2)
-        ("pearson", "kendall")  => (2 / π) .* asin.(ρ)
-        ("spearman", "pearson") => 2 * sin.(ρ .* π / 6)
-        ("spearman", "kendall") => (2 / π) .* asin.(2 * sin.(ρ .* π ./ 6))
-        ("kendall", "pearson")  => sin.(ρ .* π / 2)
-        ("kendall", "spearman") => (6 / π) .* asin.(sin.(ρ .* π ./ 2) ./ 2)
-        (f, t) => throw(ArgumentError("No matching conversion from '$f' to '$t'. 'from' and 'to' must be any combination of 'pearson', 'spearman', or 'kendall'"))
+        (:P, :S) => (6 / π) .* asin.(ρ ./ 2)
+        (:P, :K) => (2 / π) .* asin.(ρ)
+        (:S, :P) => 2 * sin.(ρ .* π / 6)
+        (:S, :K) => (2 / π) .* asin.(2 * sin.(ρ .* π ./ 6))
+        (:K, :P) => sin.(ρ .* π / 2)
+        (:K, :S) => (6 / π) .* asin.(sin.(ρ .* π ./ 2) ./ 2)
+        (_, _)   => ρ
+        (f, t) => throw(ArgumentError("No matching conversion from '$f' to '$t'. 'from' and 'to' must be any combination of Pearson (:P), Spearman (:S), or Kendall (:K)"))
     end
 end
 
-function cor2cor(A::AbstractArray{T}, from::String, to::String) where {T <: Real}
+function cor2cor(A::AbstractMatrix{T}, from::Symbol, to::Symbol) where {T <: Real}
     cor2cor.(A, from, to)
 end
 
@@ -34,11 +29,11 @@ end
 Convert a covariance matrix to a correlation matrix. Ensure that the resulting
 matrix is symmetric and has diagonals equal to 1.0.
 """
-function cov2cor(Σ::AbstractArray)
+function cov2cor(Σ::AbstractMatrix{T}) where T
     D = pinv(diagm(sqrt.(diag(Σ))))
     D .= D * Σ * D
-    setdiag!(D, 1.0)
-    (D + D') / 2
+    D .= setdiag(D, one(T))
+    (D + D') / T(2)
 end
 
 
@@ -132,8 +127,16 @@ function rcor(d::Integer, α::Real=1.0)
 end
 
 
-function setdiag!(A::AbstractMatrix, x::Real)
+# Type promotion for setdiag()
+function promote(A::AbstractArray{T, 2}, x::S) where {T<:Real, S<:Real}
+    TS = promote_type(T, S)
+    (Array{TS, 2}(A), TS(x))
+end
+
+function setdiag(A::AbstractMatrix{T}, x::S) where {T<:Real, S<:Real}
+    A, x = promote(A, x)
     @inbounds A[diagind(A)] .= x
+    A
 end
 
 

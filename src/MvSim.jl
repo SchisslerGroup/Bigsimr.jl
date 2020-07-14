@@ -10,10 +10,12 @@ import LinearAlgebra: diagind, diagm, diag, eigen, norm, pinv, I
 import Memoize: @memoize
 import Polynomials: Polynomial
 import Statistics: mean, std, quantile, clampcor
+import Base: promote
 
-const P = "pearson"
-const S = "spearman"
-const K = "kendall"
+const CorrelationTypes = Dict(
+    :P => "Pearson",
+    :S => "Spearman",
+    :K => "Kendall")
 
 export
     nearestPSDcor,
@@ -22,13 +24,17 @@ export
 
     # Types
     MixedMultivariateDistribution,
+    CorrelationTypes,
 
     # utilities
     cor2cor,
     cov2cor,
     get_coefs,
     hermite,
-    rcor
+    rcor,
+
+    # Extended Base utilities
+    promote
 
 include("utils.jl")
 include("MixedMultivariateDistribution.jl")

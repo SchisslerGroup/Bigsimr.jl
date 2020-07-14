@@ -82,6 +82,9 @@ end
 Calculate the ``n^{th}`` derivative of `G` at `0` where ``ρ_x = G(ρ_z)``
 """
 function Gn0m(n::Int, A, α, dB, σAσB_inv)
+    if n == 0
+        return 0
+    end
     M = length(A)
     accu = 0.0
     for r=1:M
