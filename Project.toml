@@ -18,6 +18,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Distributions = "0.23"
 Match = "1.1"
 Memoize = "0.4"
+Polynomials = "1.1"
 julia = "1.4"
 
 [extras]
