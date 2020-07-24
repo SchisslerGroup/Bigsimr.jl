@@ -3,18 +3,18 @@
 ## Nearest Correlation Matrix
 
 ```@docs
-nearestPSDcor(R)
+cor_nearPSD(R)
 ```
 
 ### Utilities
 
 ```@docs
-MvSim.gradient(y, λ₀, P, b₀)
-MvSim.PCA(X, λ, P)
-MvSim.pre_cg(b, c, Ω₀, P, ϵ, N)
-MvSim.precond_matrix(Ω₀, P)
-MvSim.set_omega(λ)
-MvSim.jacobian(x, Ω₀, P; PERTURBATION=1e-9)
+MvSim.npsd_gradient(y, λ₀, P, b₀)
+MvSim.npsd_pca(X, λ, P)
+MvSim.npsd_pre_cg(b, c, Ω₀, P, ϵ, N)
+MvSim.npsd_precond_matrix(Ω₀, P)
+MvSim.npsd_set_omega(λ)
+MvSim.npsd_jacobian(x, Ω₀, P; PERTURBATION=1e-9)
 ```
 
 ## Pearson Matching

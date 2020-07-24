@@ -6,10 +6,10 @@ using Match
 
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
-import LinearAlgebra: diagind, diagm, diag, eigen, norm, pinv, I
+import LinearAlgebra: diagind, diagm, diag, eigen, norm2, pinv, I
 import Memoize: @memoize
 import Polynomials: Polynomial
-import Statistics: mean, std, quantile, clampcor
+import Statistics: mean, std, quantile
 import Base: promote
 
 const CorrelationTypes = Dict(
@@ -18,7 +18,7 @@ const CorrelationTypes = Dict(
     :K => "Kendall")
 
 export
-    nearestPSDcor,
+    cor_nearPSD,
     ρz,
     ρz_bounds,
 
@@ -37,7 +37,7 @@ export
 
 include("utils.jl")
 include("MixedMultivariateDistribution.jl")
-include("nearestPSDcor.jl")
+include("cor_nearPSD.jl")
 include("PearsonMatching.jl")
 
 end

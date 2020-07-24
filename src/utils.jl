@@ -32,16 +32,17 @@ end
 
 
 """
-    cov2cor(Σ::AbstractArray)
+    cov2cor!(Σ::Matrix{Float64})
 
 Convert a covariance matrix to a correlation matrix. Ensure that the resulting
 matrix is symmetric and has diagonals equal to 1.0.
 """
-function cov2cor(Σ::AbstractMatrix{T}) where T
+function cov2cor!(Σ::Matrix{Float64})
     D = pinv(diagm(sqrt.(diag(Σ))))
-    D .= D * Σ * D
-    D .= setdiag(D, one(T))
-    (D + D') / T(2)
+    Σ .= D * Σ * D
+    @. Σ = 0.5 * (Σ + Σ')
+    setdiag!(Σ, one(Float64))
+    nothing
 end
 
 
@@ -83,6 +84,23 @@ end
 
 
 """
+    _rjm(A, a)
+"""
+function _rjm(A, a)
+    b     = size(A, 1)
+    idx   = 2 ≤ b-1 ? range(2, b-1, step=1) : range(2, b-1, step=-1)
+    ρ₁    = A[idx, 1]
+    ρ₃    = A[idx, b]
+    R₂    = A[idx, idx]
+    Rᵢ    = pinv(R₂)
+    rcond = 2 * rand(Beta(a, a)) - 1
+    t13   = ρ₁' * Rᵢ * ρ₃
+    t11   = ρ₁' * Rᵢ * ρ₁
+    t33   = ρ₃' * Rᵢ * ρ₃
+    t13[1] + rcond * √((1 - t11[1]) * (1 - t33[1]))
+end
+
+"""
     rcor(d::Integer, α::Real=1.0)
 
 Generate a random positive definite correlation matrix of size ``d×d``. The
@@ -101,20 +119,6 @@ function rcor(d::Integer, α::Real=1.0)
         return Array([1 ρ; ρ 1])
     else
 
-        function rjm(A, a)
-            b     = size(A, 1)
-            idx   = 2 ≤ b-1 ? range(2, b-1, step=1) : range(2, b-1, step=-1)
-            ρ₁    = A[idx, 1]
-            ρ₃    = A[idx, b]
-            R₂    = A[idx, idx]
-            Rᵢ    = pinv(R₂)
-            rcond = 2 * rand(Beta(a, a)) - 1
-            t13   = ρ₁' * Rᵢ * ρ₃
-            t11   = ρ₁' * Rᵢ * ρ₁
-            t33   = ρ₃' * Rᵢ * ρ₃
-            t13[1] + rcond * √((1 - t11[1]) * (1 - t33[1]))
-        end
-
         R = Array{Float64}(I, d, d)
 
         for i=1:d-1
@@ -126,7 +130,7 @@ function rcor(d::Integer, α::Real=1.0)
         for m=2:d-1, j=1:d-m
             r_sub = R[j:j+m, j:j+m]
             α₀ = α + (d - m - 1) / 2
-            R[j, j+m] = rjm(r_sub, α₀)
+            R[j, j+m] = _rjm(r_sub, α₀)
             R[j+m, j] = R[j, j+m]
         end
 
@@ -150,6 +154,11 @@ function setdiag(A::AbstractMatrix{T}, x::S) where {T<:Real, S<:Real}
     A, x = promote(A, x)
     @inbounds A[diagind(A)] .= x
     A
+end
+
+function setdiag!(A::Matrix{Float64}, x::Float64)
+    @inbounds A[diagind(A)] .= x
+    nothing
 end
 
 

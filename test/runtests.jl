@@ -6,17 +6,6 @@ using Polynomials
 import LinearAlgebra: eigvals, diag, isposdef
 
 @testset "Utilities" begin
-    @testset "Covariance to Correlation" begin
-        S = [0.99 0.78 0.59 0.44
-             0.78 0.92 0.28 0.81
-             0.59 0.28 1.12 0.23
-             0.44 0.81 0.23 0.99]
-
-        ρ = cov2cor(S)
-        @test all(diag(ρ) .==  1.0)   # Correlation must have 1's on diagonal
-        @test ρ == ρ'                # Correlation must be symmetric
-        @test all(-1.0 .≤ ρ .≤ 1.0)  # Correlation must be in [-1, 1]
-    end
 
     @testset "Hermite Polynomials" begin
         He5(x) = x.^5 .- 10x.^3 .+ 15x     # Known Probabilists 5th degree

@@ -224,9 +224,6 @@ function ρz(
     TA = eltype(dA)
     TB = eltype(dB)
 
-    maxA = isinf(maxA) ? TA(quantile(dA, 0.995)) : maxA
-    maxB = isinf(maxB) ? TB(quantile(dB, 0.995)) : maxB
-
     # Support sets
     A = range(minA, maxA, step=1.0)
     B = range(minB, maxB, step=1.0)
