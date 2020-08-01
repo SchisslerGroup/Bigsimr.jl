@@ -20,13 +20,13 @@ end
 
 
 """
-    cor2cor(A::AbstractMatrix{T}, from::Symbol, to::Symbol) where {T <: Real}
+    cor2cor(A::Matrix{T}, from::Symbol, to::Symbol) where {T <: Real}
 
 Convert from one type of correlation matrix to another. The possible correlation
 types are _Pearson_ (`:P`), _Spearman_ (`:S`), or _Kendall_ (`:K`). If an invalid
 pair is given, throw an error.
 """
-function cor2cor(A::AbstractMatrix{T}, from::Symbol, to::Symbol) where {T <: Real}
+function cor2cor(A::Matrix{T}, from::Symbol, to::Symbol) where {T <: Real}
     cor2cor.(A, from, to)
 end
 
@@ -101,7 +101,7 @@ function _rjm(A, a)
 end
 
 """
-    rcor(d::Integer, α::Real=1.0)
+    rcor(d::Int, α::Real=1.0)
 
 Generate a random positive definite correlation matrix of size ``d×d``. The
 parameter `α` is used to determine the autocorrelation in the correlation
@@ -111,7 +111,7 @@ Reference
 - Joe H (2006). Generating random correlation matrices based on partial
   correlations. J. Mult. Anal. Vol. 97, 2177--2189.
 """
-function rcor(d::Integer, α::Real=1.0)
+function rcor(d::Int, α::Real=1.0)
     if d == 1
         return ones(1, 1)
     elseif d == 2
@@ -119,7 +119,7 @@ function rcor(d::Integer, α::Real=1.0)
         return Array([1 ρ; ρ 1])
     else
 
-        R = Array{Float64}(I, d, d)
+        R = Matrix{Float64}(I, d, d)
 
         for i=1:d-1
             α₀ = α + (d-2) / 2
@@ -146,11 +146,11 @@ function promote(A::AbstractArray{T, 2}, x::S) where {T<:Real, S<:Real}
 end
 
 """
-    setdiag(A::AbstractMatrix{T}, x::S) where {T<:Real, S<:Real}
+    setdiag(A::Matrix{T}, x::S) where {T<:Real, S<:Real}
 
-Set the diagonal elements of an AbstractMatrix to a value. Return the new matrix.
+Set the diagonal elements of a Matrix to a value. Return the new matrix.
 """
-function setdiag(A::AbstractMatrix{T}, x::S) where {T<:Real, S<:Real}
+function setdiag(A::Matrix{T}, x::S) where {T<:Real, S<:Real}
     A, x = promote(A, x)
     @inbounds A[diagind(A)] .= x
     A

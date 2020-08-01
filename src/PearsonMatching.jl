@@ -28,8 +28,11 @@ function get_coefs(margin::UnivariateDistribution, n::Int)
     c
 end
 
+"""
+    Hϕ(x::T, n::Int) where T<:Real
 
-# We need to account for when x is ±∞ otherwise Julia will return NaN for 0×∞
+We need to account for when x is ±∞ otherwise Julia will return NaN for 0×∞
+"""
 function Hϕ(x::T, n::Int) where T<:Real
     if isinf(x)
         zero(T)

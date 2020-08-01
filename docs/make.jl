@@ -1,5 +1,4 @@
 using Documenter, MvSim
-using Distributions
 
 makedocs(
     sitename = "MvSim.jl",

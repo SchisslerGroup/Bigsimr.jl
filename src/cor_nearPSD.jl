@@ -1,5 +1,5 @@
 """
-    npsd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64})
+    npsd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
 """
 function npsd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
     r = sum(λ₀ .> 0)
@@ -20,7 +20,7 @@ end
 
 
 """
-    npsd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64})
+    npsd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
 """
 function npsd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
     r = sum(λ .> 0)
@@ -47,7 +47,7 @@ end
 
 
 """
-    npsd_pre_cg(b, c, Ω₀, P, precg_err_tol, N)
+    npsd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
 
 Pre- Conjugate Gradient method.
 """
@@ -92,7 +92,7 @@ end
 
 
 """
-    npsd_precond_matrix(Ω₀, P)
+    npsd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
 """
 function npsd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
     r, s = size(Ω₀)
@@ -120,7 +120,7 @@ end
 
 
 """
-    npsd_set_omega(λ::Vector{Float64})
+    npsd_set_omega(λ::Vector{Float64}, n::Int)
 """
 function npsd_set_omega(λ::Vector{Float64}, n::Int)
     r = sum(λ .> 0)
@@ -143,7 +143,7 @@ end
 
 
 """
-    npsd_jacobian(x, Ω₀, P; PERTURBATION=1e-9)
+    npsd_jacobian(x, Ω₀, P, n; PERTURBATION=1e-9)
 """
 function npsd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int; PERTURBATION::Float64=1e-9)
     r, s = size(Ω₀)
