@@ -68,7 +68,7 @@ function npsd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float
             @. d = z + d * (rz1 / rz2)
         end
 
-        w .= npsd_jacobian(d, Ω₀, P)
+        w .= npsd_jacobian(d, Ω₀, P, n)
 
         denom = sum(d .* w)
         normr = norm2(r)

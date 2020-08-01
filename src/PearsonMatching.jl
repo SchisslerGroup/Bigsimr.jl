@@ -105,7 +105,7 @@ Compute the lower and upper bounds of possible correlations for a pair of
 univariate distributions. The value `n` determines the accuracy of the approximation
 of the two distributions.
 """
-function ρz_bounds(dA::UnivariateDistribution, dB::UnivariateDistribution; n::Int=7)
+function ρz_bounds(dA::UnivariateDistribution, dB::UnivariateDistribution, n::Int=7)
     μA = mean(dA)
     σA = std(dA)
     μB = mean(dB)

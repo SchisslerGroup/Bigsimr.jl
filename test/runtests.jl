@@ -118,7 +118,7 @@ end
          0.44 0.85 0.22 1.00]
 
     # Test that it returns the nearest positive semidefinite correlation matrix
-    ρ_hat = nearestPSDcor(ρ)
+    ρ_hat = cor_nearPSD(ρ)
     λ = eigvals(ρ_hat)
     @test all(λ .≥ 0)
     @test all(diag(ρ_hat) .== 1.0)
