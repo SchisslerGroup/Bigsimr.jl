@@ -140,9 +140,9 @@ end
 
 
 # Type promotion for setdiag()
-function promote(A::AbstractArray{T, 2}, x::S) where {T<:Real, S<:Real}
+function promote(A::Matrix{T}, x::S) where {T<:Real, S<:Real}
     TS = promote_type(T, S)
-    (Array{TS, 2}(A), TS(x))
+    (Matrix{TS}(A), TS(x))
 end
 
 """

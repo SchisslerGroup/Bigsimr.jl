@@ -178,14 +178,14 @@ end
 
 
 """
-    cor_nearPSD(R::Matrix{Float64}{T};
+    cor_nearPSD(R::Matrix{Float64};
         τ::Float64=1e-5,
         iter_outer::Int=200,
         iter_inner::Int=20,
         N::Int=200,
         err_tol::Float64=1e-6,
         precg_err_tol::Float64=1e-2,
-        newton_err_tol::Float64=1e-4) where {T <: Float64}
+        newton_err_tol::Float64=1e-4)
 
 Compute the nearest positive semidefinite correlation matrix given a symmetric
 correlation matrix `R`. This algorithm is based off of work by Qi and Sun 2006.

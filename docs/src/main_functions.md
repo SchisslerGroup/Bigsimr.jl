@@ -3,25 +3,25 @@
 ## Nearest Correlation Matrix
 
 ```@docs
-cor_nearPSD(R::Matrix{Float64}{T};
+cor_nearPSD(R::Matrix{Float64};
     τ::Float64=1e-5,
     iter_outer::Int=200,
     iter_inner::Int=20,
     N::Int=200,
     err_tol::Float64=1e-6,
     precg_err_tol::Float64=1e-2,
-    newton_err_tol::Float64=1e-4) where {T <: Float64}
+    newton_err_tol::Float64=1e-4)
 ```
 
 ### Utilities
 
 ```@docs
-npsd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
-npsd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
-npsd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
-npsd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
-npsd_set_omega(λ::Vector{Float64}, n::Int)
-npsd_jacobian(x, Ω₀, P, n; PERTURBATION=1e-9)
+MvSim.npsd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
+MvSim.npsd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
+MvSim.npsd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
+MvSim.npsd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
+MvSim.npsd_set_omega(λ::Vector{Float64}, n::Int)
+MvSim.npsd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int; PERTURBATION::Float64=1e-9)
 ```
 
 ## Pearson Matching
