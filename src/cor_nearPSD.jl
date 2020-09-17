@@ -210,7 +210,7 @@ r = cor_nearPSD(ρ)
 eigvals(r)
 ```
 """
-function cor_nearPSD(R::Matrix{Float64};
+function cor_nearPSD(R::Matrix{Float64}; # [n,n]
     τ::Float64=1e-5,
     iter_outer::Int=200,
     iter_inner::Int=20,
@@ -222,29 +222,29 @@ function cor_nearPSD(R::Matrix{Float64};
     n = size(R, 1)
 
     # Make R symmetric
-    @. R = 0.5 * (R + R')
+    @. R = 0.5 * (R + R') # [n,n]
 
     b = ones(Float64, n)
     if τ > 0
         b .-= τ
-        R .-= Matrix{Float64}(τ*I, n, n)
+        R .-= Matrix{Float64}(τ*I, n, n) # [n,n]
     end
     b₀ = copy(b)
 
-    y    = zeros(Float64, n)
-    X    = R .+ diagm(y)
-    λ, P = eigen(X) # returns values in ascending order, but need descending
-    λ   .= reverse(λ)
-    P   .= reverse(P, dims=2)
+    y    = zeros(Float64, n) # [n, 1]
+    X    = R .+ diagm(y) # [n, n]
+    λ, P = eigen(X) # returns values in ascending order, but need descending || [n,1], [n,n]
+    λ   .= reverse(λ) # [n, 1]
+    P   .= reverse(P, dims=2) # [n,n]
 
-    f₀, Fy = npsd_gradient(y, λ, P, b₀, n)
-    f      = f₀
-    b     .= b₀ .- Fy
+    f₀, Fy = npsd_gradient(y, λ, P, b₀, n) # [1], [n,1]
+    f      = f₀ 
+    b     .= b₀ .- Fy # [n,1]
 
-    Ω₀ = npsd_set_omega(λ, n)
-    x₀ = copy(y)
+    Ω₀ = npsd_set_omega(λ, n) # [n,n] or [r,s]
+    x₀ = copy(y) # [n,1]
 
-    X       .= npsd_pca(X, λ, P, n)
+    X       .= npsd_pca(X, λ, P, n) # [n,n]
     val_R    = 0.5 * norm2(R)^2
     val_dual = val_R - f₀
     val_obj  = 0.5 * norm2(X - R)^2
@@ -255,36 +255,36 @@ function cor_nearPSD(R::Matrix{Float64};
     Δnb    = normb / normb0
 
     k = 0
-    c = Vector{Float64}(undef, n)
-    d = Vector{Float64}(undef, n)
+    c = Vector{Float64}(undef, n) # [n,1]
+    d = Vector{Float64}(undef, n) # [n,1]
     while (gap > err_tol) && (Δnb > err_tol) && (k < iter_outer)
-        c .= npsd_precond_matrix(Ω₀, P, n)
-        d .= npsd_pre_cg(b, c, Ω₀, P, precg_err_tol, N, n)
+        c .= npsd_precond_matrix(Ω₀, P, n) # [n,1]
+        d .= npsd_pre_cg(b, c, Ω₀, P, precg_err_tol, N, n) # [n,1]
 
         slope = sum((Fy .- b₀) .* d)
 
         y    .= x₀ .+ d
-        X    .= R .+ diagm(y)
-        λ, P  = eigen(X)
-        λ    .= reverse(λ)
-        P    .= reverse(P, dims=2)
-        f, Fy = npsd_gradient(y, λ, P, b₀, n)
+        X    .= R .+ diagm(y) # [n,n]
+        λ, P  = eigen(X) # [n,1], [n,n]
+        λ    .= reverse(λ) # [n,1]
+        P    .= reverse(P, dims=2) # [n,n]
+        f, Fy = npsd_gradient(y, λ, P, b₀, n) # [1], [n,1]
 
         k_inner = 0
         while (k_inner ≤ iter_inner) && (f > f₀ + newton_err_tol*slope*0.5^k_inner + 1e-6)
             k_inner += 1
-            y    .= x₀ + d * 0.5^k_inner
-            X    .= R .+ diagm(y)
-            λ, P  = eigen(X)
-            λ    .= reverse(λ)
-            P    .= reverse(P, dims=2)
-            f, Fy = npsd_gradient(y, λ, P, b₀, n)
+            y    .= x₀ + d * 0.5^k_inner # [n,1]
+            X    .= R .+ diagm(y) # [n,n]
+            λ, P  = eigen(X) # [n,1], [n,n]
+            λ    .= reverse(λ) # [n,1], [n,n]
+            P    .= reverse(P, dims=2) # [n,n]
+            f, Fy = npsd_gradient(y, λ, P, b₀, n) # [1], [n,1]
         end
 
-        x₀ .= y
+        x₀ .= y # [n,1]
         f₀  = f
 
-        X       .= npsd_pca(X, λ, P, n)
+        X       .= npsd_pca(X, λ, P, n) # [n,n]
         val_dual = val_R - f₀
         val_obj  = 0.5 * norm2(X - R)^2
         gap      = (val_obj - val_dual) / (1 + abs(val_dual) + abs(val_obj))
@@ -292,12 +292,12 @@ function cor_nearPSD(R::Matrix{Float64};
         normb    = norm2(b)
         Δnb      = normb / normb0
 
-        Ω₀ = npsd_set_omega(λ, n)
+        Ω₀ = npsd_set_omega(λ, n) # [n,n] or [r,s]
 
         k += 1
     end
 
-    X .+= Matrix{Float64}(τ*I, n, n)
+    X .+= Matrix{Float64}(τ*I, n, n) # [n,n]
     cov2cor!(X)
     X
 end
