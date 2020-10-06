@@ -13,8 +13,7 @@ import Statistics: mean, std, quantile, cor, cov2cor!, clampcor
 import StatsBase: corspearman, corkendall
 import Base: promote
 
-abstract type AbstractCorrelation end
-abstract type Correlation <: AbstractCorrelation end
+abstract type Correlation end
 struct Pearson  <: Correlation end
 struct Spearman <: Correlation end
 struct Kendall  <: Correlation end
