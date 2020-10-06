@@ -1,52 +1,4 @@
 """
-    cor2cor(ρ::T, from::Symbol, to::Symbol) where {T <: Real}
-
-Convert from one type of correlation matrix to another. The possible correlation
-types are _Pearson_ (`:P`), _Spearman_ (`:S`), or _Kendall_ (`:K`). If an invalid
-pair is given, throw an error.
-"""
-function cor2cor(ρ::T, from::Symbol, to::Symbol) where {T <: Real}
-    @match (from, to) begin
-        (:P, :S) => (6 / π) .* asin.(ρ ./ 2)
-        (:P, :K) => (2 / π) .* asin.(ρ)
-        (:S, :P) => 2 * sin.(ρ .* π / 6)
-        (:S, :K) => (2 / π) .* asin.(2 * sin.(ρ .* π ./ 6))
-        (:K, :P) => sin.(ρ .* π / 2)
-        (:K, :S) => (6 / π) .* asin.(sin.(ρ .* π ./ 2) ./ 2)
-        (_, _)   => ρ
-        (f, t) => throw(ArgumentError("No matching conversion from '$f' to '$t'. 'from' and 'to' must be any combination of Pearson (:P), Spearman (:S), or Kendall (:K)"))
-    end
-end
-
-
-"""
-    cor2cor(A::Matrix{T}, from::Symbol, to::Symbol) where {T <: Real}
-
-Convert from one type of correlation matrix to another. The possible correlation
-types are _Pearson_ (`:P`), _Spearman_ (`:S`), or _Kendall_ (`:K`). If an invalid
-pair is given, throw an error.
-"""
-function cor2cor(A::Matrix{T}, from::Symbol, to::Symbol) where {T <: Real}
-    cor2cor.(A, from, to)
-end
-
-
-"""
-    cov2cor!(Σ::Matrix{Float64})
-
-Convert a covariance matrix to a correlation matrix. Ensure that the resulting
-matrix is symmetric and has diagonals equal to 1.0.
-"""
-function cov2cor!(Σ::Matrix{Float64})
-    D = pinv(diagm(sqrt.(diag(Σ))))
-    Σ .= D * Σ * D
-    @. Σ = 0.5 * (Σ + Σ')
-    setdiag!(Σ, one(Float64))
-    nothing
-end
-
-
-"""
     hermite(x, n::Int, probabilists::Bool=true)
 
 Compute the Hermite polynomials of degree `n`. Compute the Probabilists' version
@@ -64,7 +16,7 @@ H_{n}(x) = 2^{\\frac{n}{2}} He_{n}\\left(\\sqrt{2} x\\right)
 He_{n}(x) = 2^{-\\frac{n}{2}} H_{n}\\left(\\frac{x}{\\sqrt{2}}\\right)
 ```
 """
-function hermite(x, n::Int, probabilists::Bool=true)
+function hermite(x, n::Int; probabilists::Bool=true)
     @memoize function _h(x, n)
         if n == 0
             return length(x) > 1 ? ones(length(x)) : 1
@@ -79,62 +31,6 @@ function hermite(x, n::Int, probabilists::Bool=true)
         return _h(x, n)
     else
         return 2^(n/2) * _h(x*√2, n)
-    end
-end
-
-
-"""
-    _rjm(A, a)
-"""
-function _rjm(A, a)
-    b     = size(A, 1)
-    idx   = 2 ≤ b-1 ? range(2, b-1, step=1) : range(2, b-1, step=-1)
-    ρ₁    = A[idx, 1]
-    ρ₃    = A[idx, b]
-    R₂    = A[idx, idx]
-    Rᵢ    = pinv(R₂)
-    rcond = 2 * rand(Beta(a, a)) - 1
-    t13   = ρ₁' * Rᵢ * ρ₃
-    t11   = ρ₁' * Rᵢ * ρ₁
-    t33   = ρ₃' * Rᵢ * ρ₃
-    t13[1] + rcond * √((1 - t11[1]) * (1 - t33[1]))
-end
-
-"""
-    rcor(d::Int, α::Real=1.0)
-
-Generate a random positive definite correlation matrix of size ``d×d``. The
-parameter `α` is used to determine the autocorrelation in the correlation
-coefficients.
-
-Reference
-- Joe H (2006). Generating random correlation matrices based on partial
-  correlations. J. Mult. Anal. Vol. 97, 2177--2189.
-"""
-function rcor(d::Int, α::Real=1.0)
-    if d == 1
-        return ones(1, 1)
-    elseif d == 2
-        ρ = rand(Uniform(-1.0, 1.0))
-        return Array([1 ρ; ρ 1])
-    else
-
-        R = Matrix{Float64}(I, d, d)
-
-        for i=1:d-1
-            α₀ = α + (d-2) / 2
-            R[i, i+1] = 2 * rand(Beta(α₀, α₀)) - 1
-            R[i+1, i] = R[i, i+1]
-        end
-
-        for m=2:d-1, j=1:d-m
-            r_sub = R[j:j+m, j:j+m]
-            α₀ = α + (d - m - 1) / 2
-            R[j, j+m] = _rjm(r_sub, α₀)
-            R[j+m, j] = R[j, j+m]
-        end
-
-        return R
     end
 end
 
