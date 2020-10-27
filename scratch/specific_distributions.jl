@@ -1,24 +1,23 @@
-
 using Distributions
 using Match
 
-function ρz(dA::UnivariateDistribution, dB::UnivariateDistribution)
+function ρz(dA::UD, dB::UD)
     println("Generic function. Should not ever be called")
 end
 
-function ρz(dA::ContinuousUnivariateDistribution, dB::ContinuousUnivariateDistribution)
+function ρz(dA::CUD, dB::CUD)
     println("Both continuous")
 end
 
-function ρz(dA::DiscreteUnivariateDistribution, dB::DiscreteUnivariateDistribution)
+function ρz(dA::DUD, dB::DUD)
     println("Both discrete")
 end
 
-function ρz(dA::ContinuousUnivariateDistribution, dB::DiscreteUnivariateDistribution)
+function ρz(dA::CUD, dB::DUD)
     println("Mixed support")
 end
 
-ρz(dA::DiscreteUnivariateDistribution, dB::ContinuousUnivariateDistribution) = ρz(dB, dA)
+ρz(dA::DUD, dB::CUD) = ρz(dB, dA)
 
 
 ρz(Beta(2, 3), Normal(12, 4.5))
@@ -28,7 +27,7 @@ end
 ρz(Uniform(2, 3), Uniform(0, 1))
 ρz(Uniform(0, 1), Uniform(0, 1))
 
-function ρz_test(ρx, dA::UnivariateDistribution, dB::UnivariateDistribution)
+function ρz_test(ρx, dA::UD, dB::UD)
     ρz_val = @match (dA, dB) begin
         (Uniform(0, 1), Uniform(0, 1)) => 2 * sin(ρx * π / 6)
 
@@ -54,12 +53,7 @@ function ρz_test(ρx, dA::UnivariateDistribution, dB::UnivariateDistribution)
         (A, B) => ρz(A, B)
     end
 
-    if isnothing(ρz_val)
-        # Do more stuff
-        println("More complex algorithm required.")
-    else
-        ρz_val
-    end
+    return isnothing(ρz_val) ? NaN : ρz_val
 end
 
 

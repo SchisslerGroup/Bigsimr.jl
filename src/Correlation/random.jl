@@ -25,7 +25,7 @@ function _rjm(T::Type, A, a)
     return t13[1] + rcond * √((1 - t11[1]) * (1 - t33[1]))
 end
 
-function cor_randPD(::Type{T}, d::Int, α::Real=1.0) where {T<:AbstractFloat}
+function cor_randPD(T::Type{<:AbstractFloat}, d::Int, α::Real=1.0)
     if d == 1
         return ones(T, 1, 1)
     elseif d == 2
@@ -50,9 +50,6 @@ function cor_randPD(::Type{T}, d::Int, α::Real=1.0) where {T<:AbstractFloat}
         return R
     end
 end
-cor_randPD(           d::Int, α::Real)                          = cor_randPD(Float64, d, α)
-cor_randPD(::Type{T}, d::Int         ) where {T<:AbstractFloat} = cor_randPD(T,       d, 1)
-cor_randPD(           d::Int         )                          = cor_randPD(Float64, d, 1)
 
 
 """
@@ -62,7 +59,7 @@ Compute a random positive semidefinite correlation matrix
 """
 function cor_randPSD end
 
-function cor_randPSD(::Type{T}, d::Int, k::Int) where {T<:AbstractFloat}
+function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int)
     if d == 1
         return ones(T, 1, 1)
     end
@@ -75,6 +72,3 @@ function cor_randPSD(::Type{T}, d::Int, k::Int) where {T<:AbstractFloat}
     S2 = diagm(1 ./ sqrt.(diag(S)))
     clampcor.(S2 * S * S2)
 end
-cor_randSPD(           d::Int, k::Int)                          = cor_randPD(Float64, d, k)
-cor_randSPD(::Type{T}, d::Int        ) where {T<:AbstractFloat} = cor_randPD(T,       d, 1)
-cor_randSPD(           d::Int        )                          = cor_randPD(Float64, d, 1)

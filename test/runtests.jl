@@ -11,8 +11,8 @@ import LinearAlgebra: eigvals, diag, isposdef
         He5(x) = x.^5 .- 10x.^3 .+ 15x     # Known Probabilists 5th degree
         H5(x) = 32x.^5 .- 160x.^3 .+ 120x  # Known Physicists 5th degree
         x = 200 * rand(100) .- 100
-        @test all(hermite(x, 5) .≈ He5(x))
-        @test all(hermite(x, 5, false) .≈ H5(x))
+        @test all(hermite.(x, 5) .≈ He5(x))
+        @test all(hermite.(x, 5, false) .≈ H5(x))
     end
 
     @testset "Random Correlation Generation" begin
@@ -26,52 +26,52 @@ import LinearAlgebra: eigvals, diag, isposdef
     end
 
     @testset "Correlation to correlation conversion" begin
-        rs = rcor(4)
-        rk = rcor(4)
-        rp = rcor(4)
-        rsk = cor2cor(rs, :S, :K)
-        rsp = cor2cor(rs, :S, :P)
-        rks = cor2cor(rk, :K, :S)
-        rkk = cor2cor(rk, :K, :K)
-        rkp = cor2cor(rk, :K, :P)
-        rps = cor2cor(rp, :P, :S)
-        rpk = cor2cor(rp, :P, :K)
-        rpp = cor2cor(rp, :P, :P)
-        rss = cor2cor(rs, :S, :S)
+        rs = cor_randPD(4)
+        rk = cor_randPD(4)
+        rp = cor_randPD(4)
+        rpp = cor_convert(rp, Pearson,  Pearson)
+        rps = cor_convert(rp, Pearson,  Spearman)
+        rpk = cor_convert(rp, Pearson,  Kendall)
+        rsp = cor_convert(rs, Spearman, Pearson)
+        rss = cor_convert(rs, Spearman, Spearman)
+        rsk = cor_convert(rs, Spearman, Kendall)
+        rkp = cor_convert(rk, Kendall,  Pearson)
+        rks = cor_convert(rk, Kendall,  Spearman)
+        rkk = cor_convert(rk, Kendall,  Kendall)
 
         @test rs == rss
         @test rk == rkk
         @test rp == rpp
 
-        @test cor2cor(0.0, :S, :K) ≈ 0.0
-        @test cor2cor(0.0, :S, :P) ≈ 0.0
-        @test cor2cor(0.0, :K, :S) ≈ 0.0
-        @test cor2cor(0.0, :K, :K) ≈ 0.0
-        @test cor2cor(0.0, :K, :P) ≈ 0.0
-        @test cor2cor(0.0, :P, :S) ≈ 0.0
-        @test cor2cor(0.0, :P, :K) ≈ 0.0
-        @test cor2cor(0.0, :P, :P) ≈ 0.0
-        @test cor2cor(0.0, :S, :S) ≈ 0.0
+        @test cor_convert(0.0, Spearman, Kendall)  ≈ 0.0
+        @test cor_convert(0.0, Spearman, Pearson)  ≈ 0.0
+        @test cor_convert(0.0, Kendall,  Spearman) ≈ 0.0
+        @test cor_convert(0.0, Kendall,  Kendall)  ≈ 0.0
+        @test cor_convert(0.0, Kendall,  Pearson)  ≈ 0.0
+        @test cor_convert(0.0, Pearson,  Spearman) ≈ 0.0
+        @test cor_convert(0.0, Pearson,  Kendall)  ≈ 0.0
+        @test cor_convert(0.0, Pearson,  Pearson)  ≈ 0.0
+        @test cor_convert(0.0, Spearman, Spearman) ≈ 0.0
 
-        @test cor2cor(1.0, :S, :K) ≈ 1.0
-        @test cor2cor(1.0, :S, :P) ≈ 1.0
-        @test cor2cor(1.0, :K, :S) ≈ 1.0
-        @test cor2cor(1.0, :K, :K) ≈ 1.0
-        @test cor2cor(1.0, :K, :P) ≈ 1.0
-        @test cor2cor(1.0, :P, :S) ≈ 1.0
-        @test cor2cor(1.0, :P, :K) ≈ 1.0
-        @test cor2cor(1.0, :P, :P) ≈ 1.0
-        @test cor2cor(1.0, :S, :S) ≈ 1.0
+        @test cor_convert(1.0, Spearman, Kendall)  ≈ 1.0
+        @test cor_convert(1.0, Spearman, Pearson)  ≈ 1.0
+        @test cor_convert(1.0, Kendall,  Spearman) ≈ 1.0
+        @test cor_convert(1.0, Kendall,  Kendall)  ≈ 1.0
+        @test cor_convert(1.0, Kendall,  Pearson)  ≈ 1.0
+        @test cor_convert(1.0, Pearson,  Spearman) ≈ 1.0
+        @test cor_convert(1.0, Pearson,  Kendall)  ≈ 1.0
+        @test cor_convert(1.0, Pearson,  Pearson)  ≈ 1.0
+        @test cor_convert(1.0, Spearman, Spearman) ≈ 1.0
 
-        @test cor2cor(-1.0, :S, :K) ≈ -1.0
-        @test cor2cor(-1.0, :S, :P) ≈ -1.0
-        @test cor2cor(-1.0, :K, :S) ≈ -1.0
-        @test cor2cor(-1.0, :K, :K) ≈ -1.0
-        @test cor2cor(-1.0, :K, :P) ≈ -1.0
-        @test cor2cor(-1.0, :P, :S) ≈ -1.0
-        @test cor2cor(-1.0, :P, :K) ≈ -1.0
-        @test cor2cor(-1.0, :P, :P) ≈ -1.0
-        @test cor2cor(-1.0, :S, :S) ≈ -1.0
+        @test cor_convert(-1.0, Spearman, Kendall)  ≈ -1.0
+        @test cor_convert(-1.0, Spearman, Pearson)  ≈ -1.0
+        @test cor_convert(-1.0, Kendall,  Spearman) ≈ -1.0
+        @test cor_convert(-1.0, Kendall,  Kendall)  ≈ -1.0
+        @test cor_convert(-1.0, Kendall,  Pearson)  ≈ -1.0
+        @test cor_convert(-1.0, Pearson,  Spearman) ≈ -1.0
+        @test cor_convert(-1.0, Pearson,  Kendall)  ≈ -1.0
+        @test cor_convert(-1.0, Pearson,  Pearson)  ≈ -1.0
+        @test cor_convert(-1.0, Spearman, Spearman) ≈ -1.0
     end
 
     type_set = (Float64, Float32, Float16,
@@ -92,14 +92,14 @@ import LinearAlgebra: eigvals, diag, isposdef
     @testset "Normal to Marginal" begin
         # Standard normal to standard normal should be invariant
         z = rand(Normal(0, 1), 100000)
-        @test z ≈ MvSim.z2x(Normal(0, 1), z)
+        @test z ≈ MvSim.normal_to_margin(Normal(0, 1), z)
 
         d1 = Binomial(20, 0.2)
         d2 = Poisson(3)
         d3 = Normal(12, π)
-        x1 = MvSim.z2x(d1, z)
-        x2 = MvSim.z2x(d2, z)
-        x3 = MvSim.z2x(d3, z)
+        x1 = MvSim.normal_to_margin(d1, z)
+        x2 = MvSim.normal_to_margin(d2, z)
+        x3 = MvSim.normal_to_margin(d3, z)
         f1 = fit_mle(Binomial, 20, x1)
         f2 = fit_mle(Poisson, x2)
         f3 = fit_mle(Normal, x3)
@@ -117,8 +117,8 @@ end
          0.56 0.28 1.00 0.22
          0.44 0.85 0.22 1.00]
 
-    # Test that it returns the nearest positive semidefinite correlation matrix
-    ρ_hat = cor_nearPSD(ρ)
+    # Test that it returns the nearest positive definite correlation matrix
+    ρ_hat = cor_nearPD(ρ)
     λ = eigvals(ρ_hat)
     @test all(λ .≥ 0)
     @test all(diag(ρ_hat) .== 1.0)
@@ -146,11 +146,11 @@ end
         P4 = coeffs(fromroots([-5, 5, r4]))
         P5 = coeffs(fromroots([nextfloat(1.0), prevfloat(-1.0)]))
 
-        @test MvSim.solvePoly_pmOne(P1) ≈ r1 atol=0.0001
-        @test MvSim.solvePoly_pmOne(P2) ≈ r2 atol=0.0001
-        @test MvSim.solvePoly_pmOne(P3) ≈ r3 atol=0.0001
-        @test MvSim.solvePoly_pmOne(P4) ≈ r4 atol=0.0001
-        @test isnan(MvSim.solvePoly_pmOne(P5))
+        @test MvSim.solve_poly_pm_one(P1) ≈ r1 atol=0.0001
+        @test MvSim.solve_poly_pm_one(P2) ≈ r2 atol=0.0001
+        @test MvSim.solve_poly_pm_one(P3) ≈ r3 atol=0.0001
+        @test MvSim.solve_poly_pm_one(P4) ≈ r4 atol=0.0001
+        @test isnan(MvSim.solve_poly_pm_one(P5))
     end
 
     dA = Beta(2, 3)

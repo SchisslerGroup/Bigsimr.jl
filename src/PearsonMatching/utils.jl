@@ -16,16 +16,16 @@ input and the output:
 \\frac{1}{\\sqrt{\\pi} \\cdot k!}\\sum_{s=1}^{m}w_s H_k (t_s\\sqrt{2}) F_{i}^{-1}\\left[\\Phi(t_s)\\right]
 ```
 """
-function get_coefs(margin::UnivariateDistribution, n::Int)
+function get_coefs(margin::UD, n::Int)
     c = Array{Float64,1}(undef, n + 1)
     m = n + 4
     t, w = gausshermite(m)
-    for k = 0:1:n
+    @threads for k ∈ 0:n
         # need to do a change of variable
-        X = z2x(margin, t * √2)
-        c[k+1] = (1 / √π) * sum(w .* hermite(t * √2, k) .* X) / factorial(k)
+        X = normal_to_margin(margin, t * √2)
+        @inbounds c[k+1] = (1 / √π) * sum(w .* hermite(t * √2, k) .* X) / factorial(k)
     end
-    c
+    return c
 end
 
 
@@ -34,12 +34,8 @@ end
 
 We need to account for when x is ±∞ otherwise Julia will return NaN for 0×∞
 """
-function Hϕ(x::T, n::Int) where T<:Real
-    if isinf(x)
-        zero(T)
-    else
-        hermite(x, n) * pdf(Normal(), x)
-    end
+function Hϕ(x::Real, n::Int)
+    return isinf(x) ? zero(x) : hermite(x, n) * pdf(Normal(), x)
 end
 
 
@@ -76,7 +72,7 @@ function Gn0d(n::Int, A, B, α, β, σAσB_inv)
         r10 = Hϕ(α[r+1], n-1) * Hϕ(β[s],   n-1)
         accu += A[r]*B[s] * (r11 + r00 - r01 - r10)
     end
-    accu * σAσB_inv
+    return accu * σAσB_inv
 end
 
 
@@ -96,25 +92,21 @@ function Gn0m(n::Int, A, α, dB, σAσB_inv)
     end
     m = n + 4
     t, w = gausshermite(m)
-    X = MvSim.z2x(dB, t * √2)
+    X = MvSim.normal_to_margin(dB, t * √2)
     S = (1 / √π) * sum(w .* hermite(t * √2, n) .* X)
-    -σAσB_inv * accu * S
+    return -σAσB_inv * accu * S
 end
 
 
 """
-    solvePoly_pmOne(coef)
+    solve_poly_pm_one(coef)
 
 Solve a polynomial equation on the interval [-1, 1].
 """
-function solvePoly_pmOne(coef)
+function solve_poly_pm_one(coef)
     n = length(coef) - 1
     P(x) = Polynomial(coef)(x)
     dP(x) = Polynomial((1:n) .* coef[2:end])(x)
     r = roots(P, dP, -1..1)
-    if length(r) == 0
-        NaN
-    else
-        mid(r[1].interval)
-    end
+    return length(r) == 0 ? NaN : mid(r[1].interval)
 end

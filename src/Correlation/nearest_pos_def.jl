@@ -33,12 +33,12 @@ function npsd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n
     elseif r == n
         return X
     elseif r ≤ s
-        P₁   = P[:, 1:r]
+        P₁   = @view P[:, 1:r]
         λ₁   = sqrt.(λ[1:r])
         P₁λ₁ = P₁ .* λ₁'
         return P₁λ₁ * P₁λ₁'
     else
-        P₂   = P[:, (r+1):n]
+        P₂   = @view P[:, (r+1):n]
         λ₂   = sqrt.(-λ[(r+1):n])
         P₂λ₂ = P₂ .* λ₂'
         return X .+ P₂λ₂ * P₂λ₂'
@@ -104,8 +104,8 @@ function npsd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
     end
 
     H  = (P.^2)'
-    H₁ = H[1:r,:]
-    H₂ = H[(r+1):n,:]
+    H₁ = @view H[1:r,:]
+    H₂ = @view H[(r+1):n,:]
 
     if r < s
         H12 = H₁' * Ω₀
@@ -132,8 +132,8 @@ function npsd_set_omega(λ::Vector{Float64}, n::Int)
         return ones(Float64, n, n)
     else
         M  = Matrix{Float64}(undef, r, s)
-        λᵣ = λ[1:r]
-        λₛ = λ[(r+1):n]
+        λᵣ = @view λ[1:r]
+        λₛ = @view λ[(r+1):n]
         for j in 1:s, i in 1:r
             @inbounds M[i,j] = λᵣ[i] / (λᵣ[i] - λₛ[j])
         end
@@ -154,8 +154,8 @@ function npsd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Flo
         return x .* (1.0 + PERTURBATION)
     end
 
-    P₁ = P[:, 1:r]
-    P₂ = P[:, (r+1):n]
+    P₁ = @view P[:, 1:r]
+    P₂ = @view P[:, (r+1):n]
 
     if r < s
         H₁ = diagm(x) * P₁
@@ -177,8 +177,16 @@ function npsd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Flo
 end
 
 
+function cov2cor(C::AbstractMatrix)
+    s = sqrt.(1.0 ./ diag(C) )
+    corr = transpose(s .* transpose(C) ) .* s
+    corr[diagind(corr) ] .= 1.0
+    return corr
+end
+
+
 """
-    cor_nearPSD(R::Matrix{Float64};
+    cor_nearPD(R::Matrix{Float64};
         τ::Float64=1e-5,
         iter_outer::Int=200,
         iter_inner::Int=20,
@@ -187,7 +195,7 @@ end
         precg_err_tol::Float64=1e-2,
         newton_err_tol::Float64=1e-4)
 
-Compute the nearest positive semidefinite correlation matrix given a symmetric
+Compute the nearest positive definite correlation matrix given a symmetric
 correlation matrix `R`. This algorithm is based off of work by Qi and Sun 2006.
 Matlab, C, R, and Python code can be found [on Sun's page](https://www.polyu.edu.hk/ama/profile/dfsun/index.html#Codes).
 The algorithm has also been implemented in Fortran in the NAG library.
@@ -206,11 +214,11 @@ import LinearAlgebra: eigvals
      0.44 0.85 0.22 1.00]
 eigvals(ρ)
 
-r = cor_nearPSD(ρ)
+r = cor_nearPD(ρ)
 eigvals(r)
 ```
 """
-function cor_nearPSD(R::Matrix{Float64}; # [n,n]
+function cor_nearPD(R::Matrix{Float64}; # [n,n]
     τ::Float64=1e-5,
     iter_outer::Int=200,
     iter_inner::Int=20,
@@ -298,6 +306,5 @@ function cor_nearPSD(R::Matrix{Float64}; # [n,n]
     end
 
     X .+= Matrix{Float64}(τ*I, n, n) # [n,n]
-    cov2cor!(X)
-    X
+    cov2cor(X)
 end

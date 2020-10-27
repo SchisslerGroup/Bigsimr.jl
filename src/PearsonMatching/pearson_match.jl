@@ -1,63 +1,15 @@
-import Distributions: UnivariateDistribution, 
-ContinuousUnivariateDistribution, 
-DiscreteUnivariateDistribution
-
-
-include("PearsonMatching_utils.jl")
-
-
-const UD  = UnivariateDistribution
-const CUD = ContinuousUnivariateDistribution
-const DUD = DiscreteUnivariateDistribution
-
-
 """
-    ρz_bounds
-
-Compute the lower and upper bounds of possible correlations for a pair of
-univariate distributions. The value `n` determines the accuracy of the 
-approximation of the two distributions.
-"""
-function ρz_bounds end
-
-function ρz_bounds(dA::UD, dB::UD, μA, μB, σA, σB; n::Integer)
-    k = 0:1:n
-    a = get_coefs(dA, n)
-    b = get_coefs(dB, n)
-
-    c1 = -μA * μB
-    c2 = 1 / (σA * σB)
-    kab = factorial.(k) .* a .* b
-    ρx_l = c1 * c2 + c2 * sum((-1) .^ k .* kab)
-    ρx_u = c1 * c2 + c2 * sum(kab)
-
-    clamp.((ρx_l, ρx_u), -1, 1)
-end
-
-ρz_bounds(dA::UD, dB::UD, μA, μB, σA, σB) = ρz_bounds(dA, dB, μA, μB, σA, σB; n=7)
-
-function ρz_bounds(dA::UD, dB::UD)
-    μA = mean(dA)
-    σA = std(dA)
-    μB = mean(dB)
-    σB = std(dB)
-    ρz_bounds(dA, dB, μA, μB, σA, σB)
-end
-
-
-"""
-    ρz(ρx, dA::UD, dB::UD; n::Integer=7)
+    ρz(ρx::Real, dA::UD, dB::UD; n::Int=7)
 
 Compute the pearson correlation coefficient that is necessary to achieve the
 target correlation given a pair of marginal distributions.
 """
-function ρz(ρx, dA::UD, dB::UD; n::Integer)
+function ρz(ρx::Real, dA::UD, dB::UD; n::Int=7)
     _ρz(ρx, dA, dB, n)
 end
 
-ρz(ρx, dA::UD, dB::UD) = ρz(ρx, dA, dB; n=7)
 
-function _ρz(ρx, dA::CUD, dB::CUD, n)
+function _ρz(ρx::Real, dA::CUD, dB::CUD, n::Int)
     μA = mean(dA)
     μB = mean(dB)
     σA = std(dA)
@@ -74,17 +26,17 @@ function _ρz(ρx, dA::CUD, dB::CUD, n)
     coef = c2 .* [a[k+1] * b[k+1] * factorial(k) for k = 1:n]
     coef = [c1 * c2 + c2 * a[1] * b[1] - ρx; coef]
 
-    r = solvePoly_pmOne(coef)
+    r = solve_poly_pm_one(coef)
     if isnan(r)
         ρx_l = c1 * c2 + c2 * sum((-1) .^ k .* kab)
         ρx_u = c1 * c2 + c2 * sum(kab)
-        clamp(clamp(ρx, ρx_l, ρx_u), -1, 1)
+        return clamp(clamp(ρx, ρx_l, ρx_u), -1, 1)
     else
-        r
+        return r
     end
 end
 
-function _ρz(ρx, dA::DUD, dB::DUD, n)
+function _ρz(ρx::Real, dA::DUD, dB::DUD, n::Int)
     σA = std(dA)
     σB = std(dB)
     minA = minimum(dA)
@@ -108,16 +60,16 @@ function _ρz(ρx, dA::DUD, dB::DUD, n)
     coef = [Gn0d(i, A, B, α, β, c2) / factorial(i) for i=1:n]
     coef = [-ρx; coef]
 
-    r = solvePoly_pmOne(coef)
+    r = solve_poly_pm_one(coef)
     if isnan(r)
         ρx_l, ρx_u = ρz_bounds(dA, dB)
-        clamp(ρx, ρx_l, ρx_u)
+        return clamp(ρx, ρx_l, ρx_u)
     else
-        r
+        return r
     end
 end
 
-function _ρz(ρx, dA::DUD, dB::CUD, n)
+function _ρz(ρx::Real, dA::DUD, dB::CUD, n::Int)
     σA = std(dA)
     σB = std(dB)
     minA = minimum(dA)
@@ -133,13 +85,13 @@ function _ρz(ρx, dA::DUD, dB::CUD, n)
     coef = [Gn0m(i, A, α, dB, c2) / factorial(i) for i=1:n]
     coef = [-ρx; coef]
 
-    r = solvePoly_pmOne(coef)
+    r = solve_poly_pm_one(coef)
     if isnan(r)
         ρx_l, ρx_u = ρz_bounds(dA, dB)
-        clamp(ρx, ρx_l, ρx_u)
+        return clamp(ρx, ρx_l, ρx_u)
     else
-        r
+        return r
     end
 end
 
-_ρz(ρx, dA::CUD, dB::DUD, n) = _ρz(ρx, dB, dA, n)
+_ρz(ρx::Real, dA::CUD, dB::DUD, n::Int) = _ρz(ρx, dB, dA, n)

@@ -7,5 +7,5 @@ cov2cor!(Σ::Matrix{Float64})
 hermite(x, n::Int, probabilists::Bool=true)
 rcor(d::Int, α::Real=1.0)
 MvSim.setdiag(A::Matrix{T}, x::S) where {T<:Real, S<:Real}
-MvSim.z2x(d::UnivariateDistribution, x::AbstractArray)
+MvSim.normal_to_margin(d::UnivariateDistribution, x::AbstractArray)
 ```

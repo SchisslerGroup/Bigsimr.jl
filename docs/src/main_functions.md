@@ -3,7 +3,7 @@
 ## Nearest Correlation Matrix
 
 ```@docs
-cor_nearPSD(R::Matrix{Float64};
+cor_nearPD(R::Matrix{Float64};
     τ::Float64=1e-5,
     iter_outer::Int=200,
     iter_inner::Int=20,
@@ -57,5 +57,5 @@ MvSim.Hϕ(x::T, n::Int) where T<:Real
 MvSim.Gn0d(::Int, A, B, α, β, σAσB_inv)
 MvSim.Gn0m(::Int, A, α, dB, σAσB_inv)
 MvSim.ρz_bounds(::UnivariateDistribution, ::UnivariateDistribution, ::Int)
-MvSim.solvePoly_pmOne(coef)
+MvSim.solve_poly_pm_one(coef)
 ```

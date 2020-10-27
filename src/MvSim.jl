@@ -2,41 +2,41 @@ module MvSim
 
 using Distributions
 using IntervalArithmetic
-using Match
 
+import Base: promote
+import Base.Threads: @threads
+import Match: @match
+import Memoize: @memoize
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
 import LinearAlgebra: diagind, diagm, diag, eigen, norm2, pinv, I
-import Memoize: @memoize
 import Polynomials: Polynomial
-import Statistics: mean, std, quantile, cor, cov2cor!, clampcor
+import Statistics: mean, std, quantile, cor, clampcor
 import StatsBase: corspearman, corkendall
-import Base: promote
 
-abstract type Correlation end
-struct Pearson  <: Correlation end
-struct Spearman <: Correlation end
-struct Kendall  <: Correlation end
+const UD  = UnivariateDistribution
+const CUD = ContinuousUnivariateDistribution
+const DUD = DiscreteUnivariateDistribution
+
+struct MvDistribution
+    R::Matrix{<:Real}
+    margins::Vector{<:UD}
+    C::Type{<:Correlation}
+end
 
 export
-    cor_nearPSD,
-    cor_randPSD,
-    cor_randPD,
-    
-    # Pearson correlation matching
-    ρz,
-    ρz_bounds,
+rvec, MvDistribution,
+# utilities
+hermite,
+# Extended Base utilities
+promote
 
-    # utilities
-    hermite,
-
-    # Extended Base utilities
-    promote
-
+include("rand_vec.jl")
+include("hermite.jl")
 include("utils.jl")
-include("cor_nearPSD.jl")
-include("cor_rand.jl")
-include("cor_utils.jl")
-include("PearsonMatching.jl")
+
+include("Correlation/Correlation.jl")
+include("PearsonMatching/PearsonMatching.jl")
+include("Parallel/Parallel.jl")
 
 end
