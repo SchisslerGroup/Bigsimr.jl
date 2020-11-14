@@ -4,6 +4,7 @@ authors = ["Alex Knudson <aknudson@nevada.unr.edu>"]
 version = "0.3.1"
 
 [deps]
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
 IntervalArithmetic = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
@@ -12,7 +13,10 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Match = "7eb4fadd-790c-5f42-8a69-bfa0b872bfbf"
 Memoize = "c03570c3-d221-55d1-a50c-7939bbd78826"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
+SharedArrays = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 Distributions = "0.23, 0.24"

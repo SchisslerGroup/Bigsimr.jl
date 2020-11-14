@@ -9,7 +9,7 @@
 A Julia package for simulating high-dimensional multivariate data with a target correlation and arbitrary marginal distributions. *MvSim* works with any distribution implemented in *Distributions.jl* or any user-defined distribution derived from *Distributions* univariate classes. Additionally, *MvSim* accounts for different target correlations:
 
 - Pearson: employs a matching algorithm (Xioa and Zhou 2019) to account for the non-linear transformation in the Normal-To-Anything (NORTA) step
-- Spearman and Kendall: Use explicit transformations (Avramidis et al. 2009, Lebrun and Dutfoy 2009) and calculate the nearest positive semidefinite correlation matrix (Qi and Sun 2006) before doing the NORTA step
+- Spearman and Kendall: Use explicit transformations (Avramidis et al. 2009, Lebrun and Dutfoy 2009) and calculate the nearest positive definite correlation matrix (Qi and Sun 2006) before doing the NORTA step
 
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
