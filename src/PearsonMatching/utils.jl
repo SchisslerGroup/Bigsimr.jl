@@ -23,7 +23,7 @@ function get_coefs(margin::UD, n::Int)
     @threads for k ∈ 0:n
         # need to do a change of variable
         X = normal_to_margin(margin, t * √2)
-        @inbounds c[k+1] = (1 / √π) * sum(w .* hermite(t * √2, k) .* X) / factorial(k)
+        @inbounds c[k+1] = (1 / √π) * sum(w .* hermite.(t * √2, k) .* X) / factorial(k)
     end
     return c
 end
@@ -93,7 +93,7 @@ function Gn0m(n::Int, A, α, dB, σAσB_inv)
     m = n + 4
     t, w = gausshermite(m)
     X = MvSim.normal_to_margin(dB, t * √2)
-    S = (1 / √π) * sum(w .* hermite(t * √2, n) .* X)
+    S = (1 / √π) * sum(w .* hermite.(t * √2, n) .* X)
     return -σAσB_inv * accu * S
 end
 

@@ -1,7 +1,7 @@
 """
-    npsd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
+    npd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
 """
-function npsd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
+function npd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
     r = sum(λ₀ .> 0)
     λ = copy(λ₀)
 
@@ -9,9 +9,6 @@ function npsd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Flo
         return (zero(Float64), zeros(Float64, n))
     else
         λ[λ .< 0] .= 0
-        # 1) M[:,j] = P[:,j] * λ[j]
-        # 2) M = M .* P
-        # 3) Fy = rowsums(M)
         Fy = vec(sum((P .* λ') .* P, dims=2))
         f  = 0.5 * sum(λ.^2) - sum(b₀ .* y)
         return (f, Fy)
@@ -20,9 +17,9 @@ end
 
 
 """
-    npsd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
+    npd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
 """
-function npsd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
+function npd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
     r = sum(λ .> 0)
     s = n - r
 
@@ -47,11 +44,11 @@ end
 
 
 """
-    npsd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
+    npd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
 
 Pre- Conjugate Gradient method.
 """
-function npsd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
+function npd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
     ϵ_b = ϵ * norm2(b)
 
     r   = copy(b)
@@ -68,7 +65,7 @@ function npsd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float
             @. d = z + d * (rz1 / rz2)
         end
 
-        w .= npsd_jacobian(d, Ω₀, P, n)
+        w .= npd_jacobian(d, Ω₀, P, n)
 
         denom = sum(d .* w)
         normr = norm2(r)
@@ -92,9 +89,9 @@ end
 
 
 """
-    npsd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
+    npd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
 """
-function npsd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
+function npd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
     r, s = size(Ω₀)
 
     c = ones(Float64, n)
@@ -120,9 +117,9 @@ end
 
 
 """
-    npsd_set_omega(λ::Vector{Float64}, n::Int)
+    npd_set_omega(λ::Vector{Float64}, n::Int)
 """
-function npsd_set_omega(λ::Vector{Float64}, n::Int)
+function npd_set_omega(λ::Vector{Float64}, n::Int)
     r = sum(λ .> 0)
     s = n - r
 
@@ -143,9 +140,9 @@ end
 
 
 """
-    npsd_jacobian(x, Ω₀, P, n; PERTURBATION=1e-9)
+    npd_jacobian(x, Ω₀, P, n; PERTURBATION=1e-9)
 """
-function npsd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int; PERTURBATION::Float64=1e-9)
+function npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int; PERTURBATION::Float64=1e-9)
     r, s = size(Ω₀)
 
     if r == 0
@@ -245,14 +242,14 @@ function cor_nearPD(R::Matrix{Float64}; # [n,n]
     λ   .= reverse(λ) # [n, 1]
     P   .= reverse(P, dims=2) # [n,n]
 
-    f₀, Fy = npsd_gradient(y, λ, P, b₀, n) # [1], [n,1]
+    f₀, Fy = npd_gradient(y, λ, P, b₀, n) # [1], [n,1]
     f      = f₀ 
     b     .= b₀ .- Fy # [n,1]
 
-    Ω₀ = npsd_set_omega(λ, n) # [n,n] or [r,s]
+    Ω₀ = npd_set_omega(λ, n) # [n,n] or [r,s]
     x₀ = copy(y) # [n,1]
 
-    X       .= npsd_pca(X, λ, P, n) # [n,n]
+    X       .= npd_pca(X, λ, P, n) # [n,n]
     val_R    = 0.5 * norm2(R)^2
     val_dual = val_R - f₀
     val_obj  = 0.5 * norm2(X - R)^2
@@ -266,8 +263,8 @@ function cor_nearPD(R::Matrix{Float64}; # [n,n]
     c = Vector{Float64}(undef, n) # [n,1]
     d = Vector{Float64}(undef, n) # [n,1]
     while (gap > err_tol) && (Δnb > err_tol) && (k < iter_outer)
-        c .= npsd_precond_matrix(Ω₀, P, n) # [n,1]
-        d .= npsd_pre_cg(b, c, Ω₀, P, precg_err_tol, N, n) # [n,1]
+        c .= npd_precond_matrix(Ω₀, P, n) # [n,1]
+        d .= npd_pre_cg(b, c, Ω₀, P, precg_err_tol, N, n) # [n,1]
 
         slope = sum((Fy .- b₀) .* d)
 
@@ -276,7 +273,7 @@ function cor_nearPD(R::Matrix{Float64}; # [n,n]
         λ, P  = eigen(X) # [n,1], [n,n]
         λ    .= reverse(λ) # [n,1]
         P    .= reverse(P, dims=2) # [n,n]
-        f, Fy = npsd_gradient(y, λ, P, b₀, n) # [1], [n,1]
+        f, Fy = npd_gradient(y, λ, P, b₀, n) # [1], [n,1]
 
         k_inner = 0
         while (k_inner ≤ iter_inner) && (f > f₀ + newton_err_tol*slope*0.5^k_inner + 1e-6)
@@ -286,13 +283,13 @@ function cor_nearPD(R::Matrix{Float64}; # [n,n]
             λ, P  = eigen(X) # [n,1], [n,n]
             λ    .= reverse(λ) # [n,1], [n,n]
             P    .= reverse(P, dims=2) # [n,n]
-            f, Fy = npsd_gradient(y, λ, P, b₀, n) # [1], [n,1]
+            f, Fy = npd_gradient(y, λ, P, b₀, n) # [1], [n,1]
         end
 
         x₀ .= y # [n,1]
         f₀  = f
 
-        X       .= npsd_pca(X, λ, P, n) # [n,n]
+        X       .= npd_pca(X, λ, P, n) # [n,n]
         val_dual = val_R - f₀
         val_obj  = 0.5 * norm2(X - R)^2
         gap      = (val_obj - val_dual) / (1 + abs(val_dual) + abs(val_obj))
@@ -300,7 +297,7 @@ function cor_nearPD(R::Matrix{Float64}; # [n,n]
         normb    = norm2(b)
         Δnb      = normb / normb0
 
-        Ω₀ = npsd_set_omega(λ, n) # [n,n] or [r,s]
+        Ω₀ = npd_set_omega(λ, n) # [n,n] or [r,s]
 
         k += 1
     end

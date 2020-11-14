@@ -1,11 +1,18 @@
-# Correlation wrappers for package-defined correlation types
-cor(x,    ::Pearson)  = cor(x)
-cor(x, y, ::Pearson)  = cor(x, y)
-cor(x,    ::Spearman) = corspearman(x)
-cor(x, y, ::Spearman) = corspearman(x, y)
-cor(x,    ::Kendall)  = corkendall(x)
-cor(x, y, ::Kendall)  = corkendall(x, y)
-cor(x::AbstractVector, ::Correlation) = cor(x)
+"""
+    cor(x, ::Type{<:Correlation})
+
+Compute the correlation matrix. The possible correlation
+    types are Pearson, Spearman, or Kendall.
+"""
+function cor end
+
+cor(x,    ::Type{Pearson})  = cor(x)
+cor(x, y, ::Type{Pearson})  = cor(x, y)
+cor(x,    ::Type{Spearman}) = corspearman(x)
+cor(x, y, ::Type{Spearman}) = corspearman(x, y)
+cor(x,    ::Type{Kendall})  = corkendall(x)
+cor(x, y, ::Type{Kendall})  = corkendall(x, y)
+# cor(x::AbstractVector, ::Correlation) = cor(x)
 
 """
     cor_convert(ρ::Real, from::Correlation, to::Correlation)

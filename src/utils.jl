@@ -6,7 +6,7 @@ end
 
 
 """
-    setdiag(A::Matrix{T}, x::S) where {T<:Real, S<:Real}
+    setdiag(A::Matrix{<:Real}, x::Real)
 
 Set the diagonal elements of a Matrix to a value. Return the new matrix.
 """
