@@ -9,6 +9,7 @@ import Match: @match
 import Memoize: @memoize
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
+import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, eigen, norm2, pinv, I, Symmetric
 import Polynomials: Polynomial
 import Statistics: mean, std, quantile, cor, clampcor
@@ -67,6 +68,6 @@ include("PearsonMatching/pearson_match.jl")
 include("PearsonMatching/pearson_bounds.jl")
 include("PearsonMatching/utils.jl")
 
-include("Parallel/Parallel.jl")
+# include("Parallel/Parallel.jl")
 
 end

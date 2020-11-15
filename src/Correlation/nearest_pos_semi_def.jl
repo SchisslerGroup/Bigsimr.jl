@@ -18,6 +18,22 @@ end
 
 """
     cor_nearPSD(A::Matrix{T}; n_iter::Int=100) where {T<:Real}
+
+# Examples
+```julia
+import LinearAlgebra: eigvals
+# Define a negative definite correlation matrix
+ρ = [
+    1.00 0.82 0.56 0.44
+    0.82 1.00 0.28 0.85
+    0.56 0.28 1.00 0.22
+    0.44 0.85 0.22 1.00
+]
+eigvals(ρ)
+
+r = cor_nearPSD(ρ, n_iter=100)
+eigvals(r)
+```
 """
 function cor_nearPSD(A::Matrix{T}; n_iter::Int=100) where {T<:Real}
     n = size(A, 1)

@@ -76,5 +76,5 @@ function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
     S2 = diagm(1 ./ sqrt.(diag(S)))
     R = clampcor.(S2 * S * S2)
     setdiag!(R, one(T))
-    return Symmetric(R)
+    return Matrix(Symmetric(R))
 end
