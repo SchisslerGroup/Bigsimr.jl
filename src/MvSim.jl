@@ -8,7 +8,8 @@ import Base.Threads: @threads
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
 import IterTools: subsets
-import LinearAlgebra: diagind, diagm, diag, eigen, norm2, pinv, I, Symmetric, cholesky
+import LinearAlgebra: diagind, diagm, diag, eigen, norm2, pinv, I, Symmetric, 
+                      cholesky
 import Match: @match
 import Memoize: @memoize
 import Polynomials: Polynomial
@@ -21,10 +22,12 @@ const UD  = UnivariateDistribution
 const CUD = ContinuousUnivariateDistribution
 const DUD = DiscreteUnivariateDistribution
 
+
 abstract type Correlation end
 struct Pearson  <: Correlation end
 struct Spearman <: Correlation end
 struct Kendall  <: Correlation end
+
 
 """
     MvDistribution(R, margins, C)
@@ -68,7 +71,5 @@ include("Correlation/utils.jl")
 include("PearsonMatching/pearson_match.jl")
 include("PearsonMatching/pearson_bounds.jl")
 include("PearsonMatching/utils.jl")
-
-# include("Parallel/Parallel.jl")
 
 end

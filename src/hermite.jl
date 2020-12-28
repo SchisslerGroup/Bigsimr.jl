@@ -26,6 +26,6 @@ H_{n}(x) = 2^{\\frac{n}{2}} He_{n}\\left(\\sqrt{2} x\\right)
 He_{n}(x) = 2^{-\\frac{n}{2}} H_{n}\\left(\\frac{x}{\\sqrt{2}}\\right)
 ```
 """
-function hermite(x::Real, n::Int; probabilists::Bool=true)
+function hermite(x::Real, n::Int, probabilists::Bool=true)
     return probabilists ? _h(x, n) : 2^(n/2) * _h(x*√2, n)
 end

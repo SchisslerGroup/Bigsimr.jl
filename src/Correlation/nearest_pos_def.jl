@@ -174,14 +174,6 @@ function npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Floa
 end
 
 
-function cov2cor(C::AbstractMatrix)
-    s = sqrt.(1.0 ./ diag(C) )
-    corr = transpose(s .* transpose(C) ) .* s
-    corr[diagind(corr) ] .= 1.0
-    return corr
-end
-
-
 """
     cor_nearPD(R::Matrix{Float64};
         τ::Float64=1e-5,
