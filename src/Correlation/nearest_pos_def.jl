@@ -295,5 +295,5 @@ function cor_nearPD(R::Matrix{Float64}; # [n,n]
     end
 
     X .+= Matrix{Float64}(τ*I, n, n) # [n,n]
-    cov2cor(X)
+    cor_constrain(X)
 end

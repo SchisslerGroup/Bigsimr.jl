@@ -47,8 +47,7 @@ function cor_randPD(T::Type{<:AbstractFloat}, d::Int, α::Real=1.0)
             R[j+m, j] = R[j, j+m]
         end
 
-        setdiag!(R, one(T)) 
-        return R
+        return cor_constrain(R)
     end
 end
 
@@ -74,7 +73,7 @@ function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
     W  = randn(T, d, k)
     S  = W * W' + diagm(rand(T, d))
     S2 = diagm(1 ./ sqrt.(diag(S)))
-    R = clampcor.(S2 * S * S2)
-    setdiag!(R, one(T))
-    return Matrix(Symmetric(R))
+    R = S2 * S * S2
+
+    cor_constrain(R)
 end

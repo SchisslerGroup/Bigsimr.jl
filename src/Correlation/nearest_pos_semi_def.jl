@@ -47,5 +47,5 @@ function cor_nearPSD(A::Matrix{T}; n_iter::Int=100) where {T<:Real}
         Yₖ = npsd_getPu(Xₖ, W)
     end
 
-    cov2cor(Yₖ)
+    cor_constrain(Yₖ)
 end

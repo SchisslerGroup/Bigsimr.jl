@@ -31,9 +31,9 @@ cor_convert(ρ, from::Type{Kendall},  to::Type{Spearman}) = @. (6 / π) * asin(s
 cor_convert(R::AbstractMatrix, from::Type{Correlation}, to::Type{Correlation}) = cor_convert.(R, from, to)
 
 
-function cov2cor(C::AbstractMatrix)
-    s = sqrt.(1.0 ./ diag(C) )
-    corr = transpose(s .* transpose(C) ) .* s
-    corr[diagind(corr) ] .= 1.0
-    return corr
+function cor_constrain(C::AbstractMatrix)
+    C = clampcor.(C)
+    C[diagind(C)] .= one(eltype(C))
+
+    return Matrix{eltype(C)}(Symmetric(C))
 end
