@@ -1,3 +1,17 @@
+function _rmvn(n::Int, ρ::Matrix{Float64})
+	Z = _randn(n, size(ρ, 1))
+	C = cholesky(ρ)
+	Z * C.U
+end
+
+function _randn(n::Int, d::Int)
+	Z = SharedMatrix{Float64}(n, d)
+	Threads.@threads for i in 1:n*d
+		Z[i] = randn(Float64)
+	end
+	sdata(Z)
+end
+
 """
     rvec(n, margins, ρ)
 
@@ -7,7 +21,7 @@ function rvec end
 
 function rvec(n::Int, margins::Vector{<:UD}, ρ::Matrix{<:Real})
     d = length(margins)
-    Z = rand(MvNormal(ρ), n)'
+    Z = _rmvn(n, ρ)
     @threads for i in 1:d
         @inbounds Z[:,i] = normal_to_margin(margins[i], Z[:,i])
     end

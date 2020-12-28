@@ -5,13 +5,14 @@ using IntervalArithmetic
 
 import Base: promote, rand
 import Base.Threads: @threads
-import Match: @match
-import Memoize: @memoize
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
 import IterTools: subsets
-import LinearAlgebra: diagind, diagm, diag, eigen, norm2, pinv, I, Symmetric
+import LinearAlgebra: diagind, diagm, diag, eigen, norm2, pinv, I, Symmetric, cholesky
+import Match: @match
+import Memoize: @memoize
 import Polynomials: Polynomial
+import SharedArrays: SharedMatrix, sdata
 import Statistics: mean, std, quantile, cor, clampcor
 import StatsBase: corspearman, corkendall
 

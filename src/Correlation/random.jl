@@ -64,12 +64,12 @@ Reference
 function cor_randPSD end
 
 function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
+    @assert d ≥ 1
+    @assert 1 ≤ k ≤ d
+
     if d == 1
         return ones(T, 1, 1)
     end
-
-    @assert d ≥ 1
-    @assert 1 ≤ k ≤ d
 
     W  = randn(T, d, k)
     S  = W * W' + diagm(rand(T, d))
