@@ -35,7 +35,7 @@ r = cor_nearPSD(ρ, n_iter=100)
 eigvals(r)
 ```
 """
-function cor_nearPSD(A::Matrix{T}; n_iter::Int=100) where {T<:Real}
+function cor_nearPSD(A::Matrix{T}; n_iter::Int=3) where {T<:Real}
     n = size(A, 1)
     W = Matrix{T}(I, size(A))
     δₛ = zeros(T, size(A))

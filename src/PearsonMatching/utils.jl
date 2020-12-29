@@ -17,7 +17,7 @@ input and the output:
 ```
 """
 function get_coefs(margin::UD, n::Int)
-    c = Array{Float64,1}(undef, n + 1)
+    c = zeros(Float64, n + 1)
     m = n + 4
     t, w = gausshermite(m)
     @threads for k ∈ 0:n

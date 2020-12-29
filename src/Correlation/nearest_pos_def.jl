@@ -59,7 +59,7 @@ function npd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float6
     p  = zeros(Float64, n)
     d  = copy(z)
 
-    w = Vector{Float64}(undef, n)
+    w = zeros(Float64, n)
     for k in 1:N
         if k > 1
             @. d = z + d * (rz1 / rz2)
@@ -123,33 +123,34 @@ function npd_set_omega(λ::Vector{Float64}, n::Int)
     r = sum(λ .> 0)
     s = n - r
 
-    if r == 0
-        return zeros(Float64, 0, 0)
-    elseif r == n
-        return ones(Float64, n, n)
-    else
-        M  = Matrix{Float64}(undef, r, s)
-        λᵣ = @view λ[1:r]
-        λₛ = @view λ[(r+1):n]
-        for j in 1:s, i in 1:r
-            @inbounds M[i,j] = λᵣ[i] / (λᵣ[i] - λₛ[j])
-        end
-        return M
+    r == 0 && return zeros(Float64, 0, 0)
+    r == n && return ones(Float64, n, n)
+    
+    M = zeros(Float64, r, s)
+    λᵣ = @view λ[1:r]
+    λₛ = @view λ[(r+1):n]
+    for j = 1:s, i = 1:r
+        @inbounds M[i,j] = λᵣ[i] / (λᵣ[i] - λₛ[j])
     end
+
+    return M
 end
 
 
 """
     npd_jacobian(x, Ω₀, P, n; PERTURBATION=1e-9)
 """
-function npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int; PERTURBATION::Float64=1e-9)
+function npd_jacobian(
+    x::Vector{Float64}, 
+    Ω₀::Matrix{Float64}, 
+    P::Matrix{Float64}, 
+    n::Int; 
+    PERTURBATION::Float64=1e-9)
+
     r, s = size(Ω₀)
 
-    if r == 0
-        return zeros(Float64, n)
-    elseif r == n
-        return x .* (1.0 + PERTURBATION)
-    end
+    r == 0 && return zeros(Float64, n)
+    r == n && return x .* (1.0 + PERTURBATION)
 
     P₁ = @view P[:, 1:r]
     P₂ = @view P[:, (r+1):n]
@@ -252,8 +253,8 @@ function cor_nearPD(R::Matrix{Float64}; # [n,n]
     Δnb    = normb / normb0
 
     k = 0
-    c = Vector{Float64}(undef, n) # [n,1]
-    d = Vector{Float64}(undef, n) # [n,1]
+    c = zeros(Float64, n) # [n,1]
+    d = zeros(Float64, n) # [n,1]
     while (gap > err_tol) && (Δnb > err_tol) && (k < iter_outer)
         c .= npd_precond_matrix(Ω₀, P, n) # [n,1]
         d .= npd_pre_cg(b, c, Ω₀, P, precg_err_tol, N, n) # [n,1]
