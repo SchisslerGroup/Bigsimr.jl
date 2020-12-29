@@ -1,7 +1,7 @@
 name = "MvSim"
 uuid = "8782c2a4-92bb-4214-98d7-3150cbd7a677"
 authors = ["Alex Knudson <aknudson@nevada.unr.edu>"]
-version = "0.4.1"
+version = "0.4.2"
 
 [deps]
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"

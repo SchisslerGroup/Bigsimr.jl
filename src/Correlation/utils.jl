@@ -37,3 +37,9 @@ function cor_constrain(C::AbstractMatrix)
 
     return Matrix{eltype(C)}(Symmetric(C))
 end
+
+
+function cov2cor(C::AbstractMatrix)
+    D = pinv(diagm(sqrt.(diag(C))))
+    return cor_constrain(D * C * D)
+end
