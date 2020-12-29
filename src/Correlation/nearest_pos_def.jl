@@ -224,7 +224,7 @@ function cor_nearPD(R::Matrix{Float64}; # [n,n]
     b = ones(Float64, n)
     if τ > 0
         b .-= τ
-        R[diagind(r)] .-= τ
+        R[diagind(R)] .-= τ
     end
     b₀ = copy(b)
 

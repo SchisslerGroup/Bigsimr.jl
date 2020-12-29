@@ -12,7 +12,7 @@ import LinearAlgebra: eigvals, diag, isposdef
         H5(x) = 32x.^5 .- 160x.^3 .+ 120x  # Known Physicists 5th degree
         x = 200 * rand(100) .- 100
         @test all(MvSim.hermite.(x, 5) .≈ He5(x))
-        @test all(MvSim.hermite.(x, 5, probabilists=false) .≈ H5(x))
+        @test all(MvSim.hermite.(x, 5, false) .≈ H5(x))
     end
 
     type_set = (Float64, Float32, Float16,
