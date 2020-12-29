@@ -1,16 +1,28 @@
+"""
+    _randn(n::Int, d::Int)
+
+Fast parallel generation of standard normal samples.
+"""
+function _randn(n::Int, d::Int)
+    Z = SharedMatrix{Float64}(n, d)
+    Threads.@threads for i in 1:n*d
+        Z[i] = randn(Float64)
+    end
+    sdata(Z)
+end
+
+
+"""
+    _rmvn(n::Int, ρ::Matrix{Float64})
+
+Fast parallel generation of multivariate standard normal samples.
+"""
 function _rmvn(n::Int, ρ::Matrix{Float64})
 	Z = _randn(n, size(ρ, 1))
 	C = cholesky(ρ)
 	Z * C.U
 end
 
-function _randn(n::Int, d::Int)
-	Z = SharedMatrix{Float64}(n, d)
-	Threads.@threads for i in 1:n*d
-		Z[i] = randn(Float64)
-	end
-	sdata(Z)
-end
 
 """
     rvec(n, margins, ρ)
@@ -19,7 +31,7 @@ Generate samples for a list of marginal distributions and a correaltion structur
 """
 function rvec end
 
-function rvec(n::Int, margins::Vector{<:UD}, ρ::Matrix{<:Real})
+function rvec(n::Int, ρ::Matrix{<:Real}, margins::Vector{<:UD}, )
     d = length(margins)
     Z = _rmvn(n, ρ)
     @threads for i in 1:d
@@ -34,6 +46,6 @@ end
 
 More general wrapper for `rvec`.
 """
-function Base.rand(D::MvDistribution, n::Int)
-    rvec(n, D.margins, D.R)
+function rand(D::MvDistribution, n::Int)
+    rvec(n, cor(D), margins(D))
 end

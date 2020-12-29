@@ -56,7 +56,7 @@ end
 @testset "Correlation Utilities" begin
 
     @testset "Random postive definite correlation matrix" begin
-        r = cor_randPD(Float64, 10)
+        r = cor_randPSD(10)
         @test all(diag(r) .== 1.0)
         @test r == r'
         @test all(-1.0 .≤ r .≤ 1.0)
@@ -108,9 +108,9 @@ end
     end
 
     @testset "Correlation to correlation conversion" begin
-        rs = cor_randPD(Float64, 4)
-        rk = cor_randPD(Float64, 4)
-        rp = cor_randPD(Float64, 4)
+        rs = cor_randPSD(4)
+        rk = cor_randPSD(4)
+        rp = cor_randPSD(4)
         rpp = cor_convert(rp, Pearson,  Pearson)
         rps = cor_convert(rp, Pearson,  Spearman)
         rpk = cor_convert(rp, Pearson,  Kendall)
@@ -190,44 +190,44 @@ end
     dB = Binomial(2, 0.2)
     dC = Binomial(20, 0.2)
     @testset "Continuous-Continuous" begin
-        @test -0.914 ≈ ρz(-0.9, dA, dA, n=3) atol=0.01
-        @test -0.611 ≈ ρz(-0.6, dA, dA, n=3) atol=0.01
-        @test -0.306 ≈ ρz(-0.3, dA, dA, n=3) atol=0.01
-        @test  0.304 ≈ ρz( 0.3, dA, dA, n=3) atol=0.01
-        @test  0.606 ≈ ρz( 0.6, dA, dA, n=3) atol=0.01
-        @test  0.904 ≈ ρz( 0.9, dA, dA, n=3) atol=0.01
+        @test -0.914 ≈ pearson_match(-0.9, dA, dA, n=3) atol=0.01
+        @test -0.611 ≈ pearson_match(-0.6, dA, dA, n=3) atol=0.01
+        @test -0.306 ≈ pearson_match(-0.3, dA, dA, n=3) atol=0.01
+        @test  0.304 ≈ pearson_match( 0.3, dA, dA, n=3) atol=0.01
+        @test  0.606 ≈ pearson_match( 0.6, dA, dA, n=3) atol=0.01
+        @test  0.904 ≈ pearson_match( 0.9, dA, dA, n=3) atol=0.01
     end
 
     @testset "Discrete-Discrete" begin
-        @test -0.937 ≈ ρz(-0.5, dB, dB, n=18) atol=0.01
-        @test -0.501 ≈ ρz(-0.3, dB, dB, n= 3) atol=0.01
-        @test -0.322 ≈ ρz(-0.2, dB, dB, n= 3) atol=0.01
-        @test  0.418 ≈ ρz( 0.3, dB, dB, n= 3) atol=0.01
-        @test  0.769 ≈ ρz( 0.6, dB, dB, n= 4) atol=0.01
-        @test  0.944 ≈ ρz( 0.8, dB, dB, n=18) atol=0.01
+        @test -0.937 ≈ pearson_match(-0.5, dB, dB, n=18) atol=0.01
+        @test -0.501 ≈ pearson_match(-0.3, dB, dB, n= 3) atol=0.01
+        @test -0.322 ≈ pearson_match(-0.2, dB, dB, n= 3) atol=0.01
+        @test  0.418 ≈ pearson_match( 0.3, dB, dB, n= 3) atol=0.01
+        @test  0.769 ≈ pearson_match( 0.6, dB, dB, n= 4) atol=0.01
+        @test  0.944 ≈ pearson_match( 0.8, dB, dB, n=18) atol=0.01
 
-        @test -0.939 ≈ ρz(-0.9, dC, dC) atol=0.01
-        @test -0.624 ≈ ρz(-0.6, dC, dC) atol=0.01
-        @test -0.311 ≈ ρz(-0.3, dC, dC) atol=0.01
-        @test  0.310 ≈ ρz( 0.3, dC, dC) atol=0.01
-        @test  0.618 ≈ ρz( 0.6, dC, dC) atol=0.01
-        @test  0.925 ≈ ρz( 0.9, dC, dC) atol=0.01
+        @test -0.939 ≈ pearson_match(-0.9, dC, dC) atol=0.01
+        @test -0.624 ≈ pearson_match(-0.6, dC, dC) atol=0.01
+        @test -0.311 ≈ pearson_match(-0.3, dC, dC) atol=0.01
+        @test  0.310 ≈ pearson_match( 0.3, dC, dC) atol=0.01
+        @test  0.618 ≈ pearson_match( 0.6, dC, dC) atol=0.01
+        @test  0.925 ≈ pearson_match( 0.9, dC, dC) atol=0.01
     end
 
     @testset "Mixed" begin
-        @test -0.890 ≈ ρz(-0.7, dB, dA) atol=0.01
-        @test -0.632 ≈ ρz(-0.5, dB, dA) atol=0.01
-        @test -0.377 ≈ ρz(-0.3, dB, dA) atol=0.01
-        @test  0.366 ≈ ρz( 0.3, dB, dA) atol=0.01
-        @test  0.603 ≈ ρz( 0.5, dB, dA) atol=0.01
-        @test  0.945 ≈ ρz( 0.8, dB, dA) atol=0.01
+        @test -0.890 ≈ pearson_match(-0.7, dB, dA) atol=0.01
+        @test -0.632 ≈ pearson_match(-0.5, dB, dA) atol=0.01
+        @test -0.377 ≈ pearson_match(-0.3, dB, dA) atol=0.01
+        @test  0.366 ≈ pearson_match( 0.3, dB, dA) atol=0.01
+        @test  0.603 ≈ pearson_match( 0.5, dB, dA) atol=0.01
+        @test  0.945 ≈ pearson_match( 0.8, dB, dA) atol=0.01
 
-        @test -0.928 ≈ ρz(-0.9, dC, dA) atol=0.01
-        @test -0.618 ≈ ρz(-0.6, dC, dA) atol=0.01
-        @test -0.309 ≈ ρz(-0.3, dC, dA) atol=0.01
-        @test  0.308 ≈ ρz( 0.3, dC, dA) atol=0.01
-        @test  0.613 ≈ ρz( 0.6, dC, dA) atol=0.01
-        @test  0.916 ≈ ρz( 0.9, dC, dA) atol=0.01
+        @test -0.928 ≈ pearson_match(-0.9, dC, dA) atol=0.01
+        @test -0.618 ≈ pearson_match(-0.6, dC, dA) atol=0.01
+        @test -0.309 ≈ pearson_match(-0.3, dC, dA) atol=0.01
+        @test  0.308 ≈ pearson_match( 0.3, dC, dA) atol=0.01
+        @test  0.613 ≈ pearson_match( 0.6, dC, dA) atol=0.01
+        @test  0.916 ≈ pearson_match( 0.9, dC, dA) atol=0.01
     end
 
 end

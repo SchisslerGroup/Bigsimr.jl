@@ -3,7 +3,7 @@ module MvSim
 using Distributions
 using IntervalArithmetic
 
-import Base: promote, rand
+import Base: promote, rand, eltype
 import Base.Threads: @threads
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
@@ -35,28 +35,33 @@ struct Kendall  <: Correlation end
 Simple data structure for storing a multivariate mixed distribution.
 """
 struct MvDistribution
-    R::Matrix{<:Real}
-    margins::Vector{<:UD}
+    ρ::Matrix{<:Real}
+    F::Vector{<:UD}
     C::Type{<:Correlation}
 end
+margins(D::MvDistribution) = D.F
+cor(D::MvDistribution)     = D.ρ
+cortype(D::MvDistribution) = D.C
+eltype(D::MvDistribution)  = eltype(D.ρ)
 
 
 export
 rvec, MvDistribution,
+margins, cor, cortype,
 # Pearson matching
-ρz, ρz_bounds,
+pearson_match, pearson_match_bounds,
 # Correlation Types
 Correlation, Pearson, Spearman, Kendall,
 # Correlation Utils
 cor,
 cor_nearPD,
 cor_nearPSD,
-cor_randPD,
 cor_randPSD,
 cor_convert,
 # Extended Base utilities
 promote,
-rand
+rand,
+eltype
 
 
 include("rand_vec.jl")

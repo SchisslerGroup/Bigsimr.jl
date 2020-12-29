@@ -8,6 +8,13 @@ MvSim.setdiag(A::Matrix{<:Real}, x::Real)
 MvSim.normal_to_margin(d::UnivariateDistribution, x::AbstractArray)
 ```
 
+## Random Multivariate Vector Utilities
+
+```@docs
+MvSim._randn(n::Int, d::Int)
+MvSim._rmvn(n::Int, ρ::Matrix{Float64})
+```
+
 ## Pearson Matching Utilities
 
 ```@docs
