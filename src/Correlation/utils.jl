@@ -45,7 +45,7 @@ function cov2cor(C::AbstractMatrix)
 end
 
 
-function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}; n::Int=100000)
+function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}; n::Int=100_000)
     a = rand(dA, n)
     b = rand(dB, n)
 
@@ -54,6 +54,7 @@ function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}; n::Int=100000)
 
     return (lower = lower, upper = upper)
 end
+cor_bounds(dA::UD, dB::UD; n::Int=100_000) = cor_bounds(dA, dB, Pearson; n=n)
 
 function cor_bounds(D::MvDistribution)
     d = length(D.F)
@@ -61,7 +62,7 @@ function cor_bounds(D::MvDistribution)
     lower, upper = similar(cor(D)), similar(cor(D))
 
     @threads for i in collect(subsets(1:d, Val{2}()))
-        l, u = cor_bounds(D.F[i[1]], D.F[i[2]])
+        l, u = cor_bounds(D.F[i[1]], D.F[i[2]], cortype(D))
         lower[i...] = l
         upper[i...] = u
     end
