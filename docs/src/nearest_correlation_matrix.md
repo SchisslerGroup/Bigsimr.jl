@@ -49,9 +49,21 @@ rvec(10, ρ̃ₚ, margins)
 
 What's more impressive is that computing the nearest correlation matrix in Julia is fast!
 
+<!-- Benchmark hard coded because it's faster on my machine than the Travis servers -->
 
-```@repl ncm
-@benchmark cor_nearPD(ρₚ)
+```julia
+julia> @benchmark cor_nearPD(ρₚ)
+#>BenchmarkTools.Trial: 
+  memory estimate:  8.14 MiB
+  allocs estimate:  160656
+  --------------
+  minimum time:     9.262 ms (0.00% GC)
+  median time:      9.821 ms (0.00% GC)
+  mean time:        11.853 ms (3.01% GC)
+  maximum time:     73.566 ms (0.00% GC)
+  --------------
+  samples:          422
+  evals/sample:     1
 ```
 
 Let's scale up to a larger correlation matrix:
@@ -61,7 +73,23 @@ m3000 = cor_randPSD(3000) |> m -> cor_convert(m, Spearman, Pearson)
 m3000_PD = cor_nearPD(m3000);
 isposdef(m3000)
 isposdef(m3000_PD)
-@benchmark cor_nearPD(m3000)
+```
+
+<!-- Benchmark hard coded because it's faster on my machine than the Travis servers -->
+
+```julia
+julia> @benchmark cor_nearPD(m3000)
+#>BenchmarkTools.Trial: 
+  memory estimate:  1.09 GiB
+  allocs estimate:  26089
+  --------------
+  minimum time:     2.388 s (1.71% GC)
+  median time:      2.477 s (3.24% GC)
+  mean time:        2.470 s (3.89% GC)
+  maximum time:     2.544 s (6.57% GC)
+  --------------
+  samples:          3
+  evals/sample:     1
 ```
 
 ~3 seconds to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excert from Defeng Sun's home page where his matlab code is:
