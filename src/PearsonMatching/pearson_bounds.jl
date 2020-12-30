@@ -18,7 +18,8 @@ function pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB; n::Integer=7)
     ρ_l = c1 * c2 + c2 * sum((-1) .^ k .* kab)
     ρ_u = c1 * c2 + c2 * sum(kab)
 
-    clampcor.((ρ_l, ρ_u))
+    ρ_l, ρ_u = clampcor.((ρ_l, ρ_u))
+    (lower = ρ_l, upper = ρ_u)
 end
 
 

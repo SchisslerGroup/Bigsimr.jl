@@ -50,7 +50,7 @@ export
 rvec, MvDistribution,
 margins, cor, cortype,
 # Pearson matching
-pearson_match, pearson_match_bounds,
+pearson_match, pearson_bounds,
 # Correlation Types
 Correlation, Pearson, Spearman, Kendall,
 # Correlation Utils
@@ -59,6 +59,7 @@ cor_nearPD,
 cor_nearPSD,
 cor_randPSD,
 cor_convert,
+cor_bounds,
 # Extended Base utilities
 promote,
 rand,

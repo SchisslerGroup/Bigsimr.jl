@@ -43,3 +43,31 @@ function cov2cor(C::AbstractMatrix)
     D = pinv(diagm(sqrt.(diag(C))))
     return cor_constrain(D * C * D)
 end
+
+
+function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}; n::Int=100000)
+    a = rand(dA, n)
+    b = rand(dB, n)
+
+    upper = cor(sort!(a), sort!(b), C)
+    lower = cor(a, reverse!(b), C)
+
+    return (lower = lower, upper = upper)
+end
+
+function cor_bounds(D::MvDistribution)
+    d = length(D.F)
+
+    lower, upper = similar(cor(D)), similar(cor(D))
+
+    @threads for i in collect(subsets(1:d, Val{2}()))
+        l, u = cor_bounds(D.F[i[1]], D.F[i[2]])
+        lower[i...] = l
+        upper[i...] = u
+    end
+
+    lower .= cor_constrain(Matrix{eltype(D)}(Symmetric(lower)))
+    upper .= cor_constrain(Matrix{eltype(D)}(Symmetric(upper)))
+
+    (lower = lower, upper = upper)
+end
