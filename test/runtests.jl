@@ -15,21 +15,6 @@ import LinearAlgebra: eigvals, diag, isposdef
         @test all(MvSim.hermite.(x, 5, false) .≈ H5(x))
     end
 
-    type_set = (Float64, Float32, Float16,
-                Int64, Int32, Int16, Int8)
-    @testset "A{$T1} → $T2" for T1 in type_set, T2 in type_set
-        A = rand(T1, 4, 4)
-        B = rand(T1, 4, 4)
-        u = typemax(T2)
-        l = typemin(T2)
-        A = MvSim.setdiag(A, u)
-        B = MvSim.setdiag(B, l)
-        @test eltype(A) == promote_type(eltype(A), T2)
-        @test eltype(B) == promote_type(eltype(B), T2)
-        @test diag(A) == fill(eltype(A)(u), 4)
-        @test diag(B) == fill(eltype(B)(l), 4)
-    end
-
     @testset "Normal to Marginal" begin
         # Standard normal to standard normal should be invariant
         z = rand(Normal(0, 1), 100000)

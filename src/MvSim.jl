@@ -5,6 +5,7 @@ using IntervalArithmetic
 
 import Base: promote, rand, eltype
 import Base.Threads: @threads
+import Random: randn, default_rng
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
 import IterTools: subsets
@@ -66,7 +67,6 @@ eltype
 
 include("rand_vec.jl")
 include("hermite.jl")
-include("utils.jl")
 
 include("Correlation/nearest_pos_def.jl")
 include("Correlation/nearest_pos_semi_def.jl")

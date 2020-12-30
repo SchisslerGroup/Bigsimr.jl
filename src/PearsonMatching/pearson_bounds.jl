@@ -43,8 +43,6 @@ function pearson_bounds(D::MvDistribution)
     end
 
     lower .= cor_constrain(Matrix{eltype(D)}(Symmetric(lower)))
-    setdiag!(lower, -one(eltype(D)))
-
     upper .= cor_constrain(Matrix{eltype(D)}(Symmetric(upper)))
 
     (lower = lower, upper = upper)
