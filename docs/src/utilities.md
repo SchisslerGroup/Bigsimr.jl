@@ -3,8 +3,7 @@
 ## General Utilities
 
 ```@docs
-MvSim.hermite(x::Real, n::Int; probabilists::Bool=true)
-MvSim.setdiag(A::Matrix{<:Real}, x::Real)
+MvSim.hermite(x::Real, n::Int, probabilists::Bool=true)
 MvSim.normal_to_margin(d::UnivariateDistribution, x::AbstractArray)
 ```
 

@@ -1,10 +1,9 @@
-# MvSim.jl Documentation
+# MvSim.jl Package
 
-```@contents
-Pages = ["main_functions.md", "utilities.md"]
-```
+The *MvSim* package provides a helpful set of tools for simulating high-dimensional multivariate data with arbitrary marginal distributions. Particularly, *MvSim* implements:
 
-## Index
-
-```@index
-```
+* Simulation of multivariate data via Gaussian copulas (NORTA algorithm)
+* Converting between different types of correlations (Pearson, Spearman, and Kendall)
+* Computing the nearest positive definite correlation matrix (quadratically convergent algorithm)
+* Pearson correlation matching to account for non-linear transformations
+* Generating random positive semi-definite correlation matrices

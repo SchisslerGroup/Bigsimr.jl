@@ -5,7 +5,18 @@ using Distributions
 makedocs(
     sitename = "MvSim.jl",
     modules  = [MvSim],
-    doctest  = false
+    doctest  = false,
+    pages    = [
+        "MvSim.jl" => "index.md",
+        "Guides" => [
+            "Getting Started" => "tutorial_getting_started.md",
+            "Pearson Matching" => "tutorial_pearson_matching.md"
+        ],
+        "Main Functions" => "main_functions.md",
+        "Utilities" => "utilities.md",
+        "Details" => "details.md",
+        "Index" => "function_index.md"
+    ]
 )
 
 deploydocs(
