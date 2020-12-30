@@ -1,4 +1,3 @@
-push!(LOAD_PATH,"../src/")
 using Documenter, MvSim
 using Distributions
 
@@ -9,8 +8,9 @@ makedocs(
     pages    = [
         "MvSim.jl" => "index.md",
         "Guides" => [
-            "Getting Started" => "tutorial_getting_started.md",
-            "Pearson Matching" => "tutorial_pearson_matching.md"
+            "Getting Started" => "getting_started.md",
+            "Pearson Matching" => "pearson_matching.md",
+            "Nearest Correlation Matrix" => "nearest_correlation_matrix.md"
         ],
         "Main Functions" => "main_functions.md",
         "Utilities" => "utilities.md",

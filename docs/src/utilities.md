@@ -4,7 +4,7 @@
 
 ```@docs
 MvSim.hermite(x::Real, n::Int, probabilists::Bool=true)
-MvSim.normal_to_margin(d::UnivariateDistribution, x::AbstractArray)
+MvSim.normal_to_margin(d::UnivariateDistribution, x::Float64)
 ```
 
 ## Random Multivariate Vector Utilities

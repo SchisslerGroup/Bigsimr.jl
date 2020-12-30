@@ -6,7 +6,7 @@ Fast parallel generation of standard normal samples.
 function _randn(n::Int, d::Int)
     Z = SharedMatrix{Float64}(n, d)
     @inbounds @threads for i in eachindex(Z)
-        Z[i] = randn(default_rng(), Float64)
+        Z[i] = randn(Float64)
     end
     sdata(Z)
 end

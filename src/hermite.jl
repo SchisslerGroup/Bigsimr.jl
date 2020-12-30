@@ -9,7 +9,7 @@
 end
 
 """
-    hermite(x, n::Int, probabilists::Bool=true)
+    hermite(x::Real, n::Int, probabilists::Bool=true)
 
 Compute the Hermite polynomials of degree `n`. Compute the Probabilists' version
 by default.
