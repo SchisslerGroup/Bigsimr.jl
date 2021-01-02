@@ -31,20 +31,27 @@ cor_convert(ρ::AbstractFloat, from::Type{Kendall},  to::Type{Spearman}) = (6 / 
 cor_convert(R::Matrix{<:AbstractFloat}, from::Type{<:Correlation}, to::Type{<:Correlation}) = cor_convert.(copy(R), from, to)
 
 
-function cor_constrain(C::AbstractMatrix)
-    C = clampcor.(C)
+function cor_constrain(C::Matrix{<:AbstractFloat})
+    C .= clampcor.(C)
+    C .= Symmetric(C)
     C[diagind(C)] .= one(eltype(C))
 
-    return Matrix{eltype(C)}(Symmetric(C))
+    return C
 end
 
 
-function cov2cor(C::AbstractMatrix)
-    D = pinv(diagm(sqrt.(diag(C))))
+function cov2cor(C::Matrix{<:AbstractFloat})
+    D = inv(diagm(sqrt.(diag(C))))
     return cor_constrain(D * C * D)
 end
 
 
+"""
+    cor_bounds
+
+Compute the pairwise theoretical lower and upper correlation bounds between
+distributions.
+"""
 function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}; n::Int=100_000)
     a = rand(dA, n)
     b = rand(dB, n)

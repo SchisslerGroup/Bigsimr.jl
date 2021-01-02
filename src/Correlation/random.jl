@@ -23,3 +23,6 @@ function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
     cor_constrain(R)
 end
 cor_randPSD(d::Int, k::Int=d) = cor_randPSD(Float64, d, k)
+
+cor_randPD(T::Type{<:AbstractFloat}, d::Int, k::Int=d) = cor_nearPD(cor_randPSD(T, d, k))
+cor_randPD(d::Int, k::Int=d) = cor_nearPD(cor_randPSD(d, k))

@@ -8,7 +8,7 @@ import Base.Threads: @threads
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
 import IterTools: subsets
-import LinearAlgebra: diagind, diagm, diag, eigen, norm2, pinv, I, Symmetric, 
+import LinearAlgebra: diagind, diagm, diag, eigen, norm, inv, I, Symmetric, 
                       cholesky
 import Match: @match
 import Memoize: @memoize
@@ -46,8 +46,8 @@ eltype(D::MvDistribution)  = eltype(D.ρ)
 
 
 export
-rvec, MvDistribution,
-margins, cor, cortype,
+rvec, 
+MvDistribution, margins, cortype,
 # Pearson matching
 pearson_match, pearson_bounds,
 # Correlation Types
@@ -55,8 +55,7 @@ Correlation, Pearson, Spearman, Kendall,
 # Correlation Utils
 cor,
 cor_nearPD,
-cor_nearPSD,
-cor_randPSD,
+cor_randPD, cor_randPSD,
 cor_convert,
 cor_bounds,
 # Extended Base utilities
@@ -69,7 +68,6 @@ include("rand_vec.jl")
 include("hermite.jl")
 
 include("Correlation/nearest_pos_def.jl")
-include("Correlation/nearest_pos_semi_def.jl")
 include("Correlation/random.jl")
 include("Correlation/utils.jl")
 
