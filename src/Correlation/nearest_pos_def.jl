@@ -1,187 +1,5 @@
 """
-    npd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
-"""
-function npd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
-    r = sum(λ₀ .> 0)
-    λ = copy(λ₀)
-
-    if r == 0
-        return (zero(Float64), zeros(Float64, n))
-    else
-        λ[λ .< 0] .= zero(Float64)
-        Fy = vec(sum((P .* λ') .* P, dims=2))
-        f  = 0.5 * sum(λ.^2) - sum(b₀ .* y)
-        return (f, Fy)
-    end
-end
-
-
-"""
-    npd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
-"""
-function npd_pca(b::Vector{Float64}, X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
-    r = sum(λ .> 0)
-    s = n - r
-
-    if r == 0
-        X .= zeros(Float64, n, n)
-    elseif r == n
-        # 
-    elseif r == 1
-        X .= (λ[1] * λ[1]) * (P[:,1] * P[:,1]')
-    elseif r ≤ s
-        P₁   = @view P[:, 1:r]
-        λ₁   = sqrt.(λ[1:r])
-        P₁λ₁ = P₁ .* λ₁' # each row of P₁ times λ₁
-        X .= P₁λ₁ * P₁λ₁'
-    else
-        P₂   = @view P[:, (r+1):n]
-        λ₂   = sqrt.(-λ[(r+1):n])
-        P₂λ₂ = P₂ .* λ₂' # each row of P₂ times λ₂
-        X .= X .+ P₂λ₂ * P₂λ₂'
-    end
-
-    d  = diag(X)
-    d .= max.(d, b)
-    X[diagind(X)] .= d
-    d .= sqrt.(b ./ d)
-    d₂ = d * d'
-    X .= X .* d₂
-    X
-end
-
-
-"""
-    npd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
-
-Pre- Conjugate Gradient method.
-"""
-function npd_pre_cg(
-    b::Vector{Float64}, 
-    c::Vector{Float64}, 
-    Ω₀::Matrix{Float64}, 
-    P::Matrix{Float64}, 
-    ϵ::Float64, 
-    N::Int, 
-    n::Int)
-
-    ϵ_b = ϵ * norm(b)
-
-    r   = copy(b)
-    z   = r ./ c
-    d   = copy(z)
-    rz1 = sum(r .* z)
-    rz2 = one(Float64)
-    p   = zeros(Float64, n)
-    w   = zeros(Float64, n)
-
-    for k in 1:N
-        if k > 1
-            d .= z + d * (rz1 / rz2)
-        end
-
-        w .= npd_jacobian(d, Ω₀, P, n)
-
-        denom = sum(d .* w)
-        normr = norm(r)
-        
-        denom ≤ 0 && return d / norm(d)
-        
-        α = rz1 / denom
-        p .+= α*d
-        r .-= α*w
-        
-        norm(r) ≤ ϵ_b && return p
-        
-        z .= r ./ c
-        rz2, rz1 = copy(rz1), sum(r .* z)
-    end
-    
-    return p
-end
-
-
-"""
-    npd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
-"""
-function npd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
-    r, s = size(Ω₀)
-
-    r == 0 || r == n && return ones(Float64, n)
-
-    H  = (P .* P)'
-    H₁ = @view H[1:r,:]
-    H₂ = @view H[r+1:n,:]
-
-    if r < s
-        H12 = H₁' * Ω₀
-        c   = sum(H₁, dims=1)'.^2 + 2.0 * sum(H12 .* H₂', dims=2)
-    else
-        H12 = (1.0 .- Ω₀) * H₂
-        c   = sum(H, dims=1)'.^2 - sum(H₂, dims=1)'.^2 - 2.0 * sum(H₁ .* H12, dims=1)'
-    end
-
-    c[c .< 1e-8] .= 1e-8
-    return vec(c)
-end
-
-
-"""
-    npd_set_omega(λ::Vector{Float64}, n::Int)
-"""
-function npd_set_omega(λ::Vector{Float64}, n::Int)
-    r = sum(λ .> 0)
-    s = n - r
-
-    r == 0 && return zeros(Float64, 0, 0)
-    r == n && return ones(Float64, n, n)
-    
-    M = zeros(Float64, r, s)
-    λᵣ = @view λ[1:r]
-    λₛ = @view λ[r+1:n]
-    for j = 1:s, i = 1:r
-        @inbounds M[i,j] = λᵣ[i] / (λᵣ[i] - λₛ[j])
-    end
-
-    return M
-end
-
-
-"""
-    npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
-"""
-function npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
-
-    r, s = size(Ω₀)
-    perturbation = 1e-10
-
-    r == 0 && return zeros(Float64, n)
-    r == n && return x .* (1.0 + perturbation)
-
-    P₁ = @view P[:, 1:r]
-    P₂ = @view P[:, r+1:n]
-
-    if r < s
-        H₁ = diagm(x) * P₁
-        Ω  = Ω₀ .* (H₁' * P₂)
-
-        HT₁ = P₁ * P₁' * H₁ + P₂ * Ω'
-        HT₂ = P₁ * Ω
-
-        return vec(sum(P .* [HT₁ HT₂], dims=2) + x .* perturbation)
-    else
-        H₂ = diagm(x) * P₂
-        Ω  = (1.0 .- Ω₀) .* (P₁' * H₂)
-
-        HT₁ = P₂ * Ω'
-        HT₂ = P₂ * H₂' * P₂ + P₁ * Ω
-
-        return vec(x .* (1.0 + perturbation) - sum(P .* [HT₁ HT₂], dims=2))
-    end
-end
-
-
-"""
+    cor_nearPD(R::Matrix{Float64}, τ::Float64=1e-6, tol::Float64=1e-6)
 
 Compute the nearest positive definite correlation matrix given a symmetric
 correlation matrix `R`. This algorithm is based off of work by Qi and Sun 2006.
@@ -189,21 +7,22 @@ Matlab, C, R, and Python code can be found [on Sun's page](https://www.polyu.edu
 The algorithm has also been implemented in Fortran in the NAG library.
 
 # Arguments
-- `τ::Float64`: a [small] nonnegative number used to enforce a minimum eigenvalue.
-- `tol::Float64`: the error tolerance for the dual gap
+- `R::Matrix{Float64}`: The input correlation matrix.
+- `τ::Float64`: A [small] nonnegative number used to enforce a minimum eigenvalue. Set to 0 to return a positive semidefinite matrix.
+- `tol::Float64`: The error tolerance for the dual gap.
 
 # Examples
 ```julia
-import LinearAlgebra: eigvals
+import LinearAlgebra: isposdef
 # Define a negative definite correlation matrix
 ρ = [1.00 0.82 0.56 0.44
      0.82 1.00 0.28 0.85
      0.56 0.28 1.00 0.22
      0.44 0.85 0.22 1.00]
-eigvals(ρ)
+isposdef(ρ)
 
 r = cor_nearPD(ρ)
-eigvals(r)
+isposdef(r)
 ```
 """
 function cor_nearPD(R::Matrix{Float64}, τ::Float64=1e-6, tol::Float64=1e-6)
@@ -293,4 +112,212 @@ function cor_nearPD(R::Matrix{Float64}, τ::Float64=1e-6, tol::Float64=1e-6)
 
     X[diagind(X)] .+= τ
     return cov2cor(X)
+end
+
+
+
+"""
+    npd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
+
+Return f(yₖ) and ∇f(yₖ) where
+
+```math
+f(y) = \\frac{1}{2} \\Vert (A + diag(y))_+ \\Vert_{F}^{2} - e^{T}y
+```
+
+and 
+
+```math
+\\nabla f(y) = Diag((A + diag(y))_+) - e
+```
+"""
+function npd_gradient(y::Vector{Float64}, λ₀::Vector{Float64}, P::Matrix{Float64}, b₀::Vector{Float64}, n::Int)
+    r = sum(λ₀ .> 0)
+    λ = copy(λ₀)
+
+    if r == 0
+        return (zero(Float64), zeros(Float64, n))
+    else
+        λ[λ .< 0] .= zero(Float64)
+        Fy = vec(sum((P .* λ') .* P, dims=2))
+        f  = 0.5 * sum(λ.^2) - sum(b₀ .* y)
+        return (f, Fy)
+    end
+end
+
+
+
+"""
+    npd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
+"""
+function npd_pca(b::Vector{Float64}, X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
+    r = sum(λ .> 0)
+    s = n - r
+
+    if r == 0
+        X .= zeros(Float64, n, n)
+    elseif r == n
+        # 
+    elseif r == 1
+        X .= (λ[1] * λ[1]) * (P[:,1] * P[:,1]')
+    elseif r ≤ s
+        P₁   = @view P[:, 1:r]
+        λ₁   = sqrt.(λ[1:r])
+        P₁λ₁ = P₁ .* λ₁' # each row of P₁ times λ₁
+        X .= P₁λ₁ * P₁λ₁'
+    else
+        P₂   = @view P[:, (r+1):n]
+        λ₂   = sqrt.(-λ[(r+1):n])
+        P₂λ₂ = P₂ .* λ₂' # each row of P₂ times λ₂
+        X .= X .+ P₂λ₂ * P₂λ₂'
+    end
+
+    d  = diag(X)
+    d .= max.(d, b)
+    X[diagind(X)] .= d
+    d .= sqrt.(b ./ d)
+    d₂ = d * d'
+    X .= X .* d₂
+    X
+end
+
+
+
+"""
+    npd_pre_cg(b::Vector{Float64}, c::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, ϵ::Float64, N::Int, n::Int)
+
+Preconditioned conjugate gradient method to solve Vₖdₖ = -∇f(yₖ)
+"""
+function npd_pre_cg(
+    b::Vector{Float64}, 
+    c::Vector{Float64}, 
+    Ω₀::Matrix{Float64}, 
+    P::Matrix{Float64}, 
+    ϵ::Float64, 
+    N::Int, 
+    n::Int)
+
+    ϵ_b = ϵ * norm(b)
+
+    r   = copy(b)
+    z   = r ./ c
+    d   = copy(z)
+    rz1 = sum(r .* z)
+    rz2 = one(Float64)
+    p   = zeros(Float64, n)
+    w   = zeros(Float64, n)
+
+    for k in 1:N
+        if k > 1
+            d .= z + d * (rz1 / rz2)
+        end
+
+        w .= npd_jacobian(d, Ω₀, P, n)
+
+        denom = sum(d .* w)
+        normr = norm(r)
+        
+        denom ≤ 0 && return d / norm(d)
+        
+        α = rz1 / denom
+        p .+= α*d
+        r .-= α*w
+        
+        norm(r) ≤ ϵ_b && return p
+        
+        z .= r ./ c
+        rz2, rz1 = copy(rz1), sum(r .* z)
+    end
+    
+    return p
+end
+
+
+
+"""
+    npd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
+
+Create the precondition matrix used in solving the linear system Vₖdₖ = -∇f(yₖ)
+in the conjugate gradient method.
+"""
+function npd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
+    r, s = size(Ω₀)
+
+    r == 0 || r == n && return ones(Float64, n)
+
+    H  = (P .* P)'
+    H₁ = @view H[1:r,:]
+    H₂ = @view H[r+1:n,:]
+
+    if r < s
+        H12 = H₁' * Ω₀
+        c   = sum(H₁, dims=1)'.^2 + 2.0 * sum(H12 .* H₂', dims=2)
+    else
+        H12 = (1.0 .- Ω₀) * H₂
+        c   = sum(H, dims=1)'.^2 - sum(H₂, dims=1)'.^2 - 2.0 * sum(H₁ .* H12, dims=1)'
+    end
+
+    c[c .< 1e-8] .= 1e-8
+    return vec(c)
+end
+
+
+
+"""
+    npd_set_omega(λ::Vector{Float64}, n::Int)
+
+Used in creating the precondition matrix.
+"""
+function npd_set_omega(λ::Vector{Float64}, n::Int)
+    r = sum(λ .> 0)
+    s = n - r
+
+    r == 0 && return zeros(Float64, 0, 0)
+    r == n && return ones(Float64, n, n)
+    
+    M = zeros(Float64, r, s)
+    λᵣ = @view λ[1:r]
+    λₛ = @view λ[r+1:n]
+    for j = 1:s, i = 1:r
+        @inbounds M[i,j] = λᵣ[i] / (λᵣ[i] - λₛ[j])
+    end
+
+    return M
+end
+
+
+
+"""
+    npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
+
+Create the Generalized Jacobian matrix for the Newton direction step.
+"""
+function npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
+
+    r, s = size(Ω₀)
+    perturbation = 1e-10
+
+    r == 0 && return zeros(Float64, n)
+    r == n && return x .* (1.0 + perturbation)
+
+    P₁ = @view P[:, 1:r]
+    P₂ = @view P[:, r+1:n]
+
+    if r < s
+        H₁ = diagm(x) * P₁
+        Ω  = Ω₀ .* (H₁' * P₂)
+
+        HT₁ = P₁ * P₁' * H₁ + P₂ * Ω'
+        HT₂ = P₁ * Ω
+
+        return vec(sum(P .* [HT₁ HT₂], dims=2) + x .* perturbation)
+    else
+        H₂ = diagm(x) * P₂
+        Ω  = (1.0 .- Ω₀) .* (P₁' * H₂)
+
+        HT₁ = P₂ * Ω'
+        HT₂ = P₂ * H₂' * P₂ + P₁ * Ω
+
+        return vec(x .* (1.0 + perturbation) - sum(P .* [HT₁ HT₂], dims=2))
+    end
 end

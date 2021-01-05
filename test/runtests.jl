@@ -40,8 +40,15 @@ end
 
 @testset "Correlation Utilities" begin
 
+    r_negdef = [
+        1.00 0.82 0.56 0.44
+        0.82 1.00 0.28 0.85
+        0.56 0.28 1.00 0.22
+        0.44 0.85 0.22 1.00
+    ]
+
     @testset "Random postive definite correlation matrix" begin
-        r = cor_randPSD(10)
+        r = cor_randPD(100)
         @test all(diag(r) .== 1.0)
         @test r == r'
         @test all(-1.0 .≤ r .≤ 1.0)
@@ -51,45 +58,31 @@ end
     end
 
     @testset "Random positive semi-definite correlation matrix" begin
-        r = cor_randPSD(Float64, 10)
+        r = cor_randPSD(100)
         @test all(diag(r) .== 1.0)
         @test r == r'
         @test all(-1.0 .≤ r .≤ 1.0)
         λ = eigvals(r)
         @test all(λ .≥ 0)
-        @test isposdef(r)
     end
 
     @testset "Nearest positive definite correlation matrix" begin
-        ρ = [
-            1.00 0.82 0.56 0.44
-            0.82 1.00 0.28 0.85
-            0.56 0.28 1.00 0.22
-            0.44 0.85 0.22 1.00
-        ]
-
-        ρ_hat = cor_nearPD(ρ)
-        λ = eigvals(ρ_hat)
+        r = cor_nearPD(r_negdef)
+        λ = eigvals(r)
         @test all(λ .> 0)
-        @test all(diag(ρ_hat) .== 1.0)
-        @test ρ_hat ≈ ρ_hat' atol=1e-12
-        @test all(-1.0 .≤ ρ_hat .≤ 1.0)
+        @test all(diag(r) .== 1.0)
+        @test r == r'
+        @test all(-1.0 .≤ r .≤ 1.0)
+        @test isposdef(r)
     end
 
     @testset "Nearest positive semi-definite correlation matrix" begin
-        ρ = [
-            1.00 0.82 0.56 0.44
-            0.82 1.00 0.28 0.85
-            0.56 0.28 1.00 0.22
-            0.44 0.85 0.22 1.00
-        ]
-
-        ρ_hat = cor_nearPSD(ρ, n_iter=100)
-        λ = eigvals(ρ_hat)
-        # @test all(λ .≥ 0) # TODO: Fix or ignore this issue
-        @test all(diag(ρ_hat) .== 1.0)
-        @test ρ_hat ≈ ρ_hat' atol=1e-12
-        @test all(-1.0 .≤ ρ_hat .≤ 1.0)
+        r = cor_nearPD(r_negdef, 0.0)
+        λ = eigvals(r)
+        @test all(λ .≥ 0)
+        @test all(diag(r) .== 1.0)
+        @test r == r'
+        @test all(-1.0 .≤ r .≤ 1.0)
     end
 
     @testset "Correlation to correlation conversion" begin

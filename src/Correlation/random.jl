@@ -1,5 +1,5 @@
 """
-    cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
+    cor_randPSD([T::Type{<:AbstractFloat},] d::Int, k::Int=d)
 
 Compute a random positive semidefinite correlation matrix
 
@@ -24,5 +24,5 @@ function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
 end
 cor_randPSD(d::Int, k::Int=d) = cor_randPSD(Float64, d, k)
 
-cor_randPD(T::Type{<:AbstractFloat}, d::Int, k::Int=d) = cor_nearPD(cor_randPSD(T, d, k))
-cor_randPD(d::Int, k::Int=d) = cor_nearPD(cor_randPSD(d, k))
+cor_randPD(T::Type{<:AbstractFloat}, d::Int, k::Int=d) = cor_fastPD(cor_randPSD(T, d, k))
+cor_randPD(d::Int, k::Int=d) = cor_randPD(Float64, d, k)
