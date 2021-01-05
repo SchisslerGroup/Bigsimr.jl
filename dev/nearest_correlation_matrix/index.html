@@ -37,16 +37,16 @@ true
 
 julia&gt; rvec(10, ρ̃ₚ, margins)
 10×200 Array{Float64,2}:
-      1.13084e6  164740.0        …   47179.0  51772.0  19044.0  58243.0
-      1.33208e6       1.57379e6      29753.0  29503.0  50997.0  44550.0
-      1.07708e6  143052.0            46617.0  71490.0  64544.0  14939.0
-      2.15503e6   72979.0            30846.0  67535.0  33105.0  17910.0
-      1.48878e6       1.1962e6       56053.0  37185.0  44512.0  41274.0
-      1.15455e6  572803.0        …  110872.0  64155.0  47033.0  31169.0
- 712280.0          6253.0            38606.0  60561.0  35528.0   1478.0
- 802968.0        177194.0            26792.0  49086.0  35798.0  57937.0
-      1.38984e6  342217.0            25717.0  44350.0  36839.0   8738.0
- 754583.0        511566.0            20353.0  44376.0  67686.0  19914.0</code></pre><h2 id="Benchmarking"><a class="docs-heading-anchor" href="#Benchmarking">Benchmarking</a><a id="Benchmarking-1"></a><a class="docs-heading-anchor-permalink" href="#Benchmarking" title="Permalink"></a></h2><p>What&#39;s more impressive is that computing the nearest correlation matrix in Julia is fast!</p><p>&lt;!– Benchmark hard coded because it&#39;s faster on my machine than the Travis servers –&gt;</p><pre><code class="language-julia">julia&gt; @benchmark cor_nearPD(ρₚ)
+ 904919.0         59037.0        …  13069.0  35455.0  41412.0   15144.0
+      1.05983e6  558366.0           32933.0  33237.0  50096.0   14597.0
+      1.33868e6       1.30182e6     55734.0  91243.0  63634.0   17207.0
+ 865480.0        745158.0           68089.0  32764.0  46911.0  139473.0
+ 879271.0             1.03478e6     50097.0  33958.0  56051.0  204826.0
+      1.36102e6  331767.0        …  54293.0  43699.0  31083.0    3661.0
+      1.09496e6   36637.0           22377.0  19003.0  29131.0   11692.0
+ 776147.0             2.0496e6      52694.0  37666.0  39237.0   34146.0
+      1.9304e6   201855.0           15408.0  77787.0  19350.0   43007.0
+      1.94829e6  472741.0           72058.0  52017.0  37932.0    5924.0</code></pre><h2 id="Benchmarking"><a class="docs-heading-anchor" href="#Benchmarking">Benchmarking</a><a id="Benchmarking-1"></a><a class="docs-heading-anchor-permalink" href="#Benchmarking" title="Permalink"></a></h2><p>What&#39;s more impressive is that computing the nearest correlation matrix in Julia is fast!</p><p>&lt;!– Benchmark hard coded because it&#39;s faster on my machine than the Travis servers –&gt;</p><pre><code class="language-julia">julia&gt; @benchmark cor_nearPD(ρₚ)
 #&gt;BenchmarkTools.Trial: 
   memory estimate:  8.14 MiB
   allocs estimate:  160656
@@ -59,26 +59,26 @@ julia&gt; rvec(10, ρ̃ₚ, margins)
   samples:          422
   evals/sample:     1</code></pre><p>Let&#39;s scale up to a larger correlation matrix:</p><pre><code class="language-julia-repl">julia&gt; m3000 = cor_randPSD(3000) |&gt; m -&gt; cor_convert(m, Spearman, Pearson)
 3000×3000 Array{Float64,2}:
-  1.0          0.00610648  -0.00740905   …  -0.012984     -0.0331769
-  0.00610648   1.0         -0.0162498       -0.0279881    -0.0368653
- -0.00740905  -0.0162498    1.0              0.000832012   0.0237158
-  0.00653811   0.0130814   -0.0219396        0.0215107     0.000843061
- -0.00582051  -0.00823383  -0.0255211        0.0263996     0.0262436
-  0.00764882   0.00831505   0.00827221   …   0.0124255    -0.046542
- -0.0126629   -0.0192047   -0.00111116       0.00695189   -0.0145163
- -0.00289407  -0.0017166    0.0278463        0.0173421    -0.0090927
-  0.00372929   0.010036    -0.00489937       0.00250656    0.0163476
- -0.00371331   0.011344     0.0185614        0.0253985     0.0123483
-  ⋮                                      ⋱
-  0.0186531   -0.00348587  -0.0334738        0.0256767     0.00273773
- -0.0237482    0.0126895   -0.0022247       -0.0148998     0.008981
- -0.00731094  -0.0105749    0.00941982       0.00729043    0.0184221
-  0.0121952    0.0191805   -0.0141787        0.00332144   -0.00560374
- -0.00505916  -0.0303145   -5.94771e-6   …   0.00277151    0.0140427
-  0.0229555   -0.00870533   0.049987         0.0268412     0.0125704
- -0.00111267  -0.0177741    0.0280431        0.0261233     0.0285857
- -0.012984    -0.0279881    0.000832012      1.0          -0.015884
- -0.0331769   -0.0368653    0.0237158       -0.015884      1.0
+  1.0          -0.0111207    -0.0103037   …   0.0142703   -0.0313127
+ -0.0111207     1.0           0.0387975       0.00608444  -0.000810933
+ -0.0103037     0.0387975     1.0            -0.023768    -0.0101182
+ -0.0428932    -0.00412804   -0.0275705       0.00966973   0.00207796
+ -0.0292567     0.0238966     0.0235904       0.00362021  -0.0209776
+  0.00833069    0.015135     -0.00144259  …  -0.0125061   -0.000288246
+ -0.00723955    0.00609806    0.00601674      0.0343177   -0.033222
+ -0.0294722    -0.0363295     0.0328225      -0.00654906  -0.0179531
+ -0.0068601    -0.0101816    -0.0199614       0.0272806   -0.000443144
+ -0.0356135     0.0242664     0.028273        0.0230136   -0.00592433
+  ⋮                                       ⋱
+  0.00597426    0.00487454    0.035151       -0.0175496   -0.0153092
+ -0.00184964   -0.0139413     0.00731895      0.0126292   -0.00516432
+ -0.00432519   -0.0367523    -0.00951619     -0.00311527  -0.00590312
+  0.00926152   -0.0223976    -0.0175765       0.0278087   -0.0154935
+  0.000845635   0.00619016   -0.00435605  …  -0.0093515   -0.00182161
+ -0.0313517    -0.0113531     0.026965       -0.0355385    0.00398532
+ -0.0294769    -0.0194167    -0.00326993     -0.0121536   -0.00571171
+  0.0142703     0.00608444   -0.023768        1.0         -0.00379341
+ -0.0313127    -0.000810933  -0.0101182      -0.00379341   1.0
 
 julia&gt; m3000_PD = cor_nearPD(m3000);
 
@@ -97,4 +97,4 @@ true</code></pre><p>&lt;!– Benchmark hard coded because it&#39;s faster on my 
   maximum time:     2.544 s (6.57% GC)
   --------------
   samples:          3
-  evals/sample:     1</code></pre><p>~3 seconds to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excert from Defeng Sun&#39;s home page where his matlab code is:</p><blockquote><p>For a randomly generated  3,000 by 3,000 pseudo correlation matrix (the code is insensitive to input data), the code needs 24 seconds to reach a solution with the relative duality gap less than 1.0e-3 after 3 iterations and 43 seconds  with the relative duality gap less than 1.0e-10 after 6 iterations in my Dell Desktop with Intel (R) Core i7 processor.</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pearson_matching/">« Pearson Matching</a><a class="docs-footer-nextpage" href="../main_functions/">Main Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 5 January 2021 07:40">Tuesday 5 January 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  evals/sample:     1</code></pre><p>~3 seconds to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excert from Defeng Sun&#39;s home page where his matlab code is:</p><blockquote><p>For a randomly generated  3,000 by 3,000 pseudo correlation matrix (the code is insensitive to input data), the code needs 24 seconds to reach a solution with the relative duality gap less than 1.0e-3 after 3 iterations and 43 seconds  with the relative duality gap less than 1.0e-10 after 6 iterations in my Dell Desktop with Intel (R) Core i7 processor.</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pearson_matching/">« Pearson Matching</a><a class="docs-footer-nextpage" href="../main_functions/">Main Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 5 January 2021 23:23">Tuesday 5 January 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
