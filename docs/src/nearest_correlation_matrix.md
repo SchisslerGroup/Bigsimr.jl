@@ -49,20 +49,18 @@ rvec(10, ρ̃ₚ, margins)
 
 What's more impressive is that computing the nearest correlation matrix in Julia is fast!
 
-<!-- Benchmark hard coded because it's faster on my machine than the Travis servers -->
-
-```julia
+```julia-repl
 julia> @benchmark cor_nearPD(ρₚ)
-#>BenchmarkTools.Trial: 
-  memory estimate:  8.14 MiB
-  allocs estimate:  160656
+BenchmarkTools.Trial: 
+  memory estimate:  6.84 MiB
+  allocs estimate:  160652
   --------------
-  minimum time:     9.262 ms (0.00% GC)
-  median time:      9.821 ms (0.00% GC)
-  mean time:        11.853 ms (3.01% GC)
-  maximum time:     73.566 ms (0.00% GC)
+  minimum time:     8.485 ms (0.00% GC)
+  median time:      8.848 ms (0.00% GC)
+  mean time:        9.326 ms (4.77% GC)
+  maximum time:     13.108 ms (0.00% GC)
   --------------
-  samples:          422
+  samples:          537
   evals/sample:     1
 ```
 
@@ -75,23 +73,46 @@ isposdef(m3000)
 isposdef(m3000_PD)
 ```
 
-<!-- Benchmark hard coded because it's faster on my machine than the Travis servers -->
-
-```julia
+```julia-repl
 julia> @benchmark cor_nearPD(m3000)
-#>BenchmarkTools.Trial: 
-  memory estimate:  1.09 GiB
-  allocs estimate:  26089
+BenchmarkTools.Trial: 
+  memory estimate:  3.72 GiB
+  allocs estimate:  78433
   --------------
-  minimum time:     2.388 s (1.71% GC)
-  median time:      2.477 s (3.24% GC)
-  mean time:        2.470 s (3.89% GC)
-  maximum time:     2.544 s (6.57% GC)
+  minimum time:     11.460 s (2.31% GC)
+  median time:      11.460 s (2.31% GC)
+  mean time:        11.460 s (2.31% GC)
+  maximum time:     11.460 s (2.31% GC)
+  --------------
+  samples:          1
+  evals/sample:     1
+```
+
+~12 seconds to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excert from Defeng Sun's home page where his matlab code is:
+
+> For a randomly generated  3,000 by 3,000 pseudo correlation matrix (the code is insensitive to input data), the code needs 24 seconds to reach a solution with the relative duality gap less than 1.0e-3 after 3 iterations and 43 seconds  with the relative duality gap less than 1.0e-10 after 6 iterations in my Dell Desktop with Intel (R) Core i7 processor.
+
+We also offer a faster routine that gives up a little accuracy for speed. While [`cor_nearPD`](@ref) finds the nearest correlation matrix to the input matrix, [`cor_fastPD`](@ref) finds a positive definite correlation matrix that is *close* to the input matrix.
+
+```julia-repl
+julia> @benchmark cor_fastPD(m3000)
+BenchmarkTools.Trial: 
+  memory estimate:  628.95 MiB
+  allocs estimate:  26035
+  --------------
+  minimum time:     2.037 s (0.58% GC)
+  median time:      2.093 s (1.75% GC)
+  mean time:        2.115 s (3.38% GC)
+  maximum time:     2.216 s (7.49% GC)
   --------------
   samples:          3
   evals/sample:     1
 ```
 
-~3 seconds to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excert from Defeng Sun's home page where his matlab code is:
+And it's not too far off from the nearest:
 
-> For a randomly generated  3,000 by 3,000 pseudo correlation matrix (the code is insensitive to input data), the code needs 24 seconds to reach a solution with the relative duality gap less than 1.0e-3 after 3 iterations and 43 seconds  with the relative duality gap less than 1.0e-10 after 6 iterations in my Dell Desktop with Intel (R) Core i7 processor.
+```@repl ncm
+m3000_PD_fast = cor_fastPD(m3000);
+norm(m3000 - m3000_PD)
+norm(m3000 - m3000_PD_fast)
+```
