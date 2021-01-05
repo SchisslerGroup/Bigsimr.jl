@@ -31,17 +31,16 @@ cor_convert(ρ::AbstractFloat, from::Type{Kendall},  to::Type{Spearman}) = (6 / 
 cor_convert(R::Matrix{<:AbstractFloat}, from::Type{<:Correlation}, to::Type{<:Correlation}) = cor_convert.(copy(R), from, to)
 
 
-function cor_constrain(C::Matrix{<:AbstractFloat})
+function cor_constrain(R::Matrix{<:AbstractFloat})
+    C = copy(R)
     C .= clampcor.(C)
     C .= Symmetric(C)
     C[diagind(C)] .= one(eltype(C))
-
-    return C
+    C
 end
 
-
 function cov2cor(C::Matrix{<:AbstractFloat})
-    D = inv(diagm(sqrt.(diag(C))))
+    D = Diagonal(C)^(-1/2)
     return cor_constrain(D * C * D)
 end
 

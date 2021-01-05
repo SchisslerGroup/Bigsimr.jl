@@ -19,25 +19,35 @@ end
 """
     npd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
 """
-function npd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
+function npd_pca(b::Vector{Float64}, X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
     r = sum(λ .> 0)
     s = n - r
 
-    r == 0 && return zeros(Float64, n, n)
-    r == 1 && return (λ[1] * λ[1]) * (P[:,1] * P[:,1]')
-    r == n && return X
-    
-    if r ≤ s
+    if r == 0
+        X .= zeros(Float64, n, n)
+    elseif r == n
+        # 
+    elseif r == 1
+        X .= (λ[1] * λ[1]) * (P[:,1] * P[:,1]')
+    elseif r ≤ s
         P₁   = @view P[:, 1:r]
         λ₁   = sqrt.(λ[1:r])
         P₁λ₁ = P₁ .* λ₁' # each row of P₁ times λ₁
-        return P₁λ₁ * P₁λ₁'
+        X .= P₁λ₁ * P₁λ₁'
     else
         P₂   = @view P[:, (r+1):n]
         λ₂   = sqrt.(-λ[(r+1):n])
         P₂λ₂ = P₂ .* λ₂' # each row of P₂ times λ₂
-        return X .+ P₂λ₂ * P₂λ₂'
+        X .= X .+ P₂λ₂ * P₂λ₂'
     end
+
+    d  = diag(X)
+    d .= max.(d, b)
+    X[diagind(X)] .= d
+    d .= sqrt.(b ./ d)
+    d₂ = d * d'
+    X .= X .* d₂
+    X
 end
 
 
@@ -63,13 +73,14 @@ function npd_pre_cg(
     rz1 = sum(r .* z)
     rz2 = one(Float64)
     p   = zeros(Float64, n)
+    w   = zeros(Float64, n)
 
     for k in 1:N
         if k > 1
-            d = z + d * (rz1 / rz2)
+            d .= z + d * (rz1 / rz2)
         end
 
-        w = npd_jacobian(d, Ω₀, P, n)
+        w .= npd_jacobian(d, Ω₀, P, n)
 
         denom = sum(d .* w)
         normr = norm(r)
@@ -77,12 +88,12 @@ function npd_pre_cg(
         denom ≤ 0 && return d / norm(d)
         
         α = rz1 / denom
-        p += α*d
-        r -= α*w
+        p .+= α*d
+        r .-= α*w
         
         norm(r) ≤ ϵ_b && return p
         
-        z = r ./ c
+        z .= r ./ c
         rz2, rz1 = copy(rz1), sum(r .* z)
     end
     
@@ -111,7 +122,7 @@ function npd_precond_matrix(Ω₀::Matrix{Float64}, P::Matrix{Float64}, n::Int)
     end
 
     c[c .< 1e-8] .= 1e-8
-    return c
+    return vec(c)
 end
 
 
@@ -157,7 +168,7 @@ function npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Floa
         HT₁ = P₁ * P₁' * H₁ + P₂ * Ω'
         HT₂ = P₁ * Ω
 
-        return sum(P .* [HT₁ HT₂], dims=2) + x .* perturbation
+        return vec(sum(P .* [HT₁ HT₂], dims=2) + x .* perturbation)
     else
         H₂ = diagm(x) * P₂
         Ω  = (1.0 .- Ω₀) .* (P₁' * H₂)
@@ -165,7 +176,7 @@ function npd_jacobian(x::Vector{Float64}, Ω₀::Matrix{Float64}, P::Matrix{Floa
         HT₁ = P₂ * Ω'
         HT₂ = P₂ * H₂' * P₂ + P₁ * Ω
 
-        return x .* (1.0 + perturbation) - sum(P .* [HT₁ HT₂], dims=2)
+        return vec(x .* (1.0 + perturbation) - sum(P .* [HT₁ HT₂], dims=2))
     end
 end
 
@@ -230,7 +241,7 @@ function cor_nearPD(R::Matrix{Float64}, τ::Float64=1e-6, tol::Float64=1e-6)
     Ω₀ = npd_set_omega(λ, n) # [r,s]
     x₀ = copy(y)             # [n,1]
 
-    X       .= npd_pca(X, λ, P, n) # [n,n]
+    X       .= npd_pca(b₀, X, λ, P, n) # [n,n]
     val_R    = 0.5 * norm(R)^2
     val_dual = val_R - f₀
     val_obj  = 0.5 * norm(X - R)^2
@@ -241,11 +252,9 @@ function cor_nearPD(R::Matrix{Float64}, τ::Float64=1e-6, tol::Float64=1e-6)
     norm_b_rel = norm_b / norm_b0
 
     k = 0
-    c = zeros(Float64, n)
-    d = zeros(Float64, n)
     while (gap > err_tol) && (norm_b_rel > err_tol) && (k < iter_outer)
-        c .= npd_precond_matrix(Ω₀, P, n)                # [n,1]
-        d .= npd_pre_cg(b, c, Ω₀, P, tol_cg, iter_cg, n) # [n,1]
+        c = npd_precond_matrix(Ω₀, P, n)                # [n,1]
+        d = npd_pre_cg(b, c, Ω₀, P, tol_cg, iter_cg, n) # [n,1]
 
         slope = sum((Fy - b₀) .* d)          # [1]
         y    .= x₀ + d                       # [n,1]
@@ -269,7 +278,7 @@ function cor_nearPD(R::Matrix{Float64}, τ::Float64=1e-6, tol::Float64=1e-6)
         x₀  = copy(y) # [n,1]
         f₀  = f
 
-        X       .= npd_pca(X, λ, P, n) # [n,n]
+        X       .= npd_pca(b₀, X, λ, P, n) # [n,n]
         val_dual = val_R - f₀
         val_obj  = 0.5 * norm(X - R)^2
         gap      = (val_obj - val_dual) / (1 + abs(val_dual) + abs(val_obj))

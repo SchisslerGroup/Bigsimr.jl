@@ -9,8 +9,7 @@ import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, eigen, norm, inv, I, Symmetric, 
-                      cholesky
-import Match: @match
+                      cholesky, Diagonal
 import Memoize: @memoize
 import Polynomials: Polynomial
 import SharedArrays: SharedMatrix, sdata
@@ -54,7 +53,7 @@ pearson_match, pearson_bounds,
 Correlation, Pearson, Spearman, Kendall,
 # Correlation Utils
 cor,
-cor_nearPD,
+cor_nearPD, cor_fastPD, cor_fastPD!,
 cor_randPD, cor_randPSD,
 cor_convert,
 cor_bounds,
@@ -68,6 +67,7 @@ include("rand_vec.jl")
 include("hermite.jl")
 
 include("Correlation/nearest_pos_def.jl")
+include("Correlation/fast_pos_def.jl")
 include("Correlation/random.jl")
 include("Correlation/utils.jl")
 
