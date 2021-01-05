@@ -2,21 +2,65 @@
 
 ## Random Multivariate Vector
 
+### Types
+
 ```@docs
-MvDistribution
-rvec
-Base.rand(D::MvDistribution, n::Int)
+MvSim.MvDistribution
+```
+
+### Functions
+
+```@docs
+rvec(n::Int, ρ::Matrix{Float64}, margins::Vector{<:UnivariateDistribution})
+rand
+margins(D::MvDistribution)
+cor(D::MvDistribution)
+cortype(D::MvDistribution)
+Base.eltype(D::MvDistribution)
 ```
 
 ## Correlations
 
+### Types
+
+```@docs
+MvSim.Pearson
+MvSim.Spearman
+MvSim.Kendall
+```
+
+### Estimating
+
 ```@docs
 cor
-cor_convert
-cor_nearPD
+cor_bounds
+```
+
+### Generating
+
+```@docs
 cor_randPSD
 cor_randPD
-cor_bounds
+```
+
+### Converting
+
+Convert a correlation matrix by finding a positive [semi]definite representation.
+
+```@docs
+cor_nearPD
+cor_fastPD
+cor_fastPD!
+```
+
+Convert a correlation matrix using other utilities.
+
+```@docs
+cor_convert
+cov2cor
+cov2cor!
+cor_constrain
+cor_constrain!
 ```
 
 ## Pearson Matching

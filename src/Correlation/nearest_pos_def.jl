@@ -1,28 +1,33 @@
 """
-    cor_nearPD(R::Matrix{Float64}, τ::Float64=1e-6, tol::Float64=1e-6)
+    cor_nearPD(R::Matrix{Float64}[, τ::Float64=1e-6[, tol::Float64=1e-6]])
 
-Compute the nearest positive definite correlation matrix given a symmetric
-correlation matrix `R`. This algorithm is based off of work by Qi and Sun 2006.
-Matlab, C, R, and Python code can be found [on Sun's page](https://www.polyu.edu.hk/ama/profile/dfsun/index.html#Codes).
-The algorithm has also been implemented in Fortran in the NAG library.
+Return the nearest positive definite correlation matrix to `R`.
 
-# Arguments
-- `R::Matrix{Float64}`: The input correlation matrix.
-- `τ::Float64`: A [small] nonnegative number used to enforce a minimum eigenvalue. Set to 0 to return a positive semidefinite matrix.
-- `tol::Float64`: The error tolerance for the dual gap.
+See also: [`cor_fastPD`](@ref), [`cor_fastPD!`](@ref)
 
 # Examples
-```julia
-import LinearAlgebra: isposdef
-# Define a negative definite correlation matrix
-ρ = [1.00 0.82 0.56 0.44
-     0.82 1.00 0.28 0.85
-     0.56 0.28 1.00 0.22
-     0.44 0.85 0.22 1.00]
-isposdef(ρ)
+```jldoctest
+julia> import LinearAlgebra: isposdef
 
-r = cor_nearPD(ρ)
-isposdef(r)
+julia> r = [1.00 0.82 0.56 0.44; 0.82 1.00 0.28 0.85; 0.56 0.28 1.00 0.22; 0.44 0.85 0.22 1.00]
+4×4 Array{Float64,2}:
+ 1.0   0.82  0.56  0.44
+ 0.82  1.0   0.28  0.85
+ 0.56  0.28  1.0   0.22
+ 0.44  0.85  0.22  1.0
+
+julia> isposdef(r)
+false
+
+julia> r̃ = cor_nearPD(r)
+4×4 Array{Float64,2}:
+ 1.0       0.817494  0.559416  0.441494
+ 0.817494  1.0       0.280852  0.847812
+ 0.559416  0.280852  1.0       0.21949
+ 0.441494  0.847812  0.21949   1.0
+
+julia> isposdef(r̃)
+true
 ```
 """
 function cor_nearPD(R::Matrix{Float64}, τ::Float64=1e-6, tol::Float64=1e-6)
@@ -148,7 +153,7 @@ end
 
 
 """
-    npd_pca(X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
+    npd_pca(b::Vector{Float64}, X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
 """
 function npd_pca(b::Vector{Float64}, X::Matrix{Float64}, λ::Vector{Float64}, P::Matrix{Float64}, n::Int)
     r = sum(λ .> 0)

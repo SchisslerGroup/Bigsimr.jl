@@ -1,13 +1,22 @@
 """
-    pearson_bounds
+    pearson_bounds(dA::UnivariateDistribution, dB::UnivariateDistribution, μA, μB, σA, σB; n::Int=7)
 
-Compute the lower and upper bounds of possible correlations for a pair of
-univariate distributions. The value `n` determines the accuracy of the 
-approximation of the two distributions.
+Compute the theoretical lower and upper Pearson correlation values for a pair of 
+univariate distributions.
+
+See also: [`pearson_match`](@ref)
+
+# Examples
+```jldoctest
+julia> using Distributions
+
+julia> A = Normal(78, 10); B = LogNormal(3, 1);
+
+julia> pearson_bounds(A, B)
+(lower = -0.7628739783665699, upper = 0.7628739783663034)
+```
 """
-function pearson_bounds end
-
-function pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB; n::Integer=7)
+function pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB; n::Int=7)
     k = 0:1:n
     a = get_coefs(dA, n)
     b = get_coefs(dB, n)
@@ -21,8 +30,6 @@ function pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB; n::Integer=7)
     ρ_l, ρ_u = clampcor.((ρ_l, ρ_u))
     (lower = ρ_l, upper = ρ_u)
 end
-
-
 function pearson_bounds(dA::UD, dB::UD)
     μA = mean(dA)
     σA = std(dA)
@@ -32,6 +39,41 @@ function pearson_bounds(dA::UD, dB::UD)
 end
 
 
+"""
+    pearson_bounds(D::MvDistribution)
+
+Compute the pairwise theoretical lower and upper Pearson correlation values for
+a set of univariate distributions. The correlation matrix and correlation type
+are ignored when using this function on the `MvDistribution` type.
+
+See also: [`pearson_match`](@ref)
+
+# Examples
+```jldoctest
+julia> using Distributions
+
+julia> margins = [Normal(78, 10), LogNormal(3, 1)];
+
+julia> r = [1.0 0.7; 0.7 1.0]
+2×2 Array{Float64,2}:
+ 1.0  0.7
+ 0.7  1.0
+
+julia> D = MvDistribution(r, margins, Pearson);
+
+julia> bounds = pearson_bounds(D);
+
+julia> bounds.lower
+2×2 Array{Float64,2}:
+  1.0       -0.762874
+ -0.762874   1.0
+
+julia> bounds.upper
+2×2 Array{Float64,2}:
+ 1.0       0.762874
+ 0.762874  1.0
+```
+"""
 function pearson_bounds(D::MvDistribution)
     d = length(D.F)
 

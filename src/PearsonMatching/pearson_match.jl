@@ -1,8 +1,30 @@
 """
-    pearson_match(ρ::Real, dA::UD, dB::UD; n::Int=7)
+    pearson_match(ρ::Real, dA::UnivariateDistribution, dB::UnivariateDistribution; n::Int=7)
 
 Compute the pearson correlation coefficient that is necessary to achieve the
 target correlation given a pair of marginal distributions.
+
+See also: [`pearson_bounds`](@ref)
+
+# Examples
+```jldoctest
+julia> using Distributions
+
+julia> A = Normal(78, 10); B = LogNormal(3, 1);
+
+julia> pearson_match(0.76, A, B)
+0.9962326957691602
+```
+
+The target correlation may not be feasible (see [`pearson_bounds`](@ref)), in 
+which case the match to the nearest lower or upper bound is returned.
+
+```julia-repl
+julia> pearson_match(0.9, A, B)
+┌ Warning: The target correlation is not feasible. Returning the match to the nearest bound instead.
+[...]
+0.9986891675055749
+```
 """
 function pearson_match(ρ::Real, dA::UD, dB::UD; n::Int=7)
     _pearson_match(ρ, dA, dB, n)
@@ -36,6 +58,7 @@ function _pearson_match(ρ::Real, dA::CUD, dB::CUD, n::Int)
         If the root does not exist, then compute the adjustment correlation for
         the theoretical upper or lower correlation bound.
     =#
+    @warn "The target correlation is not feasible. Returning the match to the nearest bound instead."
     ρ_l = c1 * c2 + c2 * sum((-1) .^ k .* kab)
     ρ_u = c1 * c2 + c2 * sum(kab)
     ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
@@ -118,6 +141,41 @@ _pearson_match(ρ::Real, dA::CUD, dB::DUD, n::Int) = _pearson_match(ρ, dB, dA, 
 
 """
     pearson_match(D::MvDistribution; n::Int=7)
+
+Return a MvDistribution type with the matched Pearson correlation coefficients
+and the Pearson correlation type.
+
+If the input correlation matrix is anything other than `Pearson`, then convert
+it to Pearson, perform the matching algorithm, and then finally ensure that the
+resulting correlation matrix is positive definite. The target correlation may 
+not be feasible (see [`pearson_bounds`](@ref)), in which case the match to the 
+nearest lower or upper bound is returned.
+
+See also: [`pearson_bounds`](@ref)
+
+# Examples
+```jldoctest
+julia> using Distributions
+
+julia> margins = [Normal(78, 10), LogNormal(3, 1)];
+
+julia> r = [1.0 0.7; 0.7 1.0]
+2×2 Array{Float64,2}:
+ 1.0  0.7
+ 0.7  1.0
+
+julia> D = MvDistribution(r, margins, Spearman);
+
+julia> R = pearson_match(D);
+
+julia> cor(R)
+2×2 Array{Float64,2}:
+ 1.0       0.917583
+ 0.917583  1.0
+
+julia> cortype(R)
+Pearson
+```
 """
 function pearson_match(D::MvDistribution; n::Int=7)
     d = length(D.F)

@@ -1,10 +1,11 @@
 using Documenter, MvSim
 using Distributions
 
+DocMeta.setdocmeta!(MvSim, :DocTestSetup, :(using MvSim); recursive=true)
+
 makedocs(
     sitename = "MvSim.jl",
     modules  = [MvSim],
-    doctest  = false,
     pages    = [
         "MvSim.jl" => "index.md",
         "Guides" => [

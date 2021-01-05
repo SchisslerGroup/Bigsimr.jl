@@ -30,7 +30,7 @@ end
 
 
 """
-    Hϕ(x::T, n::Int) where T<:Real
+    Hϕ(x::Real, n::Int)
 
 We need to account for when x is ±∞ otherwise Julia will return NaN for 0×∞
 """
@@ -40,7 +40,7 @@ end
 
 
 """
-    Gn0d(::Int, A, B, α, β, σAσB_inv)
+    Gn0d(n::Int, A, B, α, β, σAσB_inv)
 
 Calculate the ``n^{th}`` derivative of `G` at `0` where ``ρ_x = G(ρ_z)``
 
@@ -77,7 +77,7 @@ end
 
 
 """
-    Gn0m(::Int, A, α, dB, σAσB_inv)
+    Gn0m(n::Int, A, α, dB, σAσB_inv)
 
 Calculate the ``n^{th}`` derivative of `G` at `0` where ``ρ_x = G(ρ_z)``
 """

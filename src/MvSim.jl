@@ -8,8 +8,9 @@ import Base.Threads: @threads
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots
 import IterTools: subsets
-import LinearAlgebra: diagind, diagm, diag, eigen, norm, inv, I, Symmetric, 
-                      cholesky, Diagonal
+import LinearAlgebra: diagind, diagm, diag, Diagonal,
+                      eigen, norm, inv, I, Symmetric,
+                      cholesky
 import Memoize: @memoize
 import Polynomials: Polynomial
 import SharedArrays: SharedMatrix, sdata
@@ -20,28 +21,6 @@ import StatsBase: corspearman, corkendall
 const UD  = UnivariateDistribution
 const CUD = ContinuousUnivariateDistribution
 const DUD = DiscreteUnivariateDistribution
-
-
-abstract type Correlation end
-struct Pearson  <: Correlation end
-struct Spearman <: Correlation end
-struct Kendall  <: Correlation end
-
-
-"""
-    MvDistribution(R, margins, C)
-
-Simple data structure for storing a multivariate mixed distribution.
-"""
-struct MvDistribution
-    ρ::Matrix{<:Real}
-    F::Vector{<:UD}
-    C::Type{<:Correlation}
-end
-margins(D::MvDistribution) = D.F
-cor(D::MvDistribution)     = D.ρ
-cortype(D::MvDistribution) = D.C
-eltype(D::MvDistribution)  = eltype(D.ρ)
 
 
 export
@@ -57,12 +36,15 @@ cor_nearPD, cor_fastPD, cor_fastPD!,
 cor_randPD, cor_randPSD,
 cor_convert,
 cor_bounds,
+cor_constrain, cor_constrain!,
+cov2cor, cov2cor!
 # Extended Base utilities
 promote,
 rand,
 eltype
 
 
+include("MvDistribution.jl")
 include("rand_vec.jl")
 include("hermite.jl")
 

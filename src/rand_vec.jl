@@ -34,12 +34,10 @@ normal_to_margin(d::UD, X::AbstractVecOrMat) = normal_to_margin.(d, X)
 
 
 """
-    rvec(n, ρ, margins)
+    rvec(n::Int, ρ::Matrix{Float64}, margins::Vector{<:UnivariateDistribution})
 
 Generate samples for a list of marginal distributions and a correaltion structure.
 """
-function rvec end
-
 function rvec(n::Int, ρ::Matrix{Float64}, margins::Vector{<:UD})
     d = length(margins)
     Z = _rmvn(n, ρ)
