@@ -22,12 +22,14 @@ using Distributions
         P3 = coeffs(1.2 * fromroots([r3, nextfloat(1.0), prevfloat(-1.0)]))
         P4 = coeffs(fromroots([-5, 5, r4]))
         P5 = coeffs(fromroots([nextfloat(1.0), prevfloat(-1.0)]))
+        P6 = coeffs(fromroots([-0.5, 0.5]))
 
-        @test MvSim.solve_poly_pm_one(P1) ≈ r1 atol=0.0001
-        @test MvSim.solve_poly_pm_one(P2) ≈ r2 atol=0.0001
-        @test MvSim.solve_poly_pm_one(P3) ≈ r3 atol=0.0001
-        @test MvSim.solve_poly_pm_one(P4) ≈ r4 atol=0.0001
+        @test MvSim.solve_poly_pm_one(P1) ≈ r1 atol=0.001
+        @test MvSim.solve_poly_pm_one(P2) ≈ r2 atol=0.001
+        @test MvSim.solve_poly_pm_one(P3) ≈ r3 atol=0.001
+        @test MvSim.solve_poly_pm_one(P4) ≈ r4 atol=0.001
         @test isnan(MvSim.solve_poly_pm_one(P5))
+        @test_throws Exception MvSim.solve_poly_pm_one(P6)
     end
 
     dA = Beta(2, 3)

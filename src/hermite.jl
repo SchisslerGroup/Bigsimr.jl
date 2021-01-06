@@ -11,12 +11,11 @@ end
 """
     hermite(x::Real, n::Int, probabilists::Bool=true)
 
-Compute the Hermite polynomials of degree `n`. Compute the Probabilists' version
-by default.
+Compute the Hermite polynomials of degree `n` at `x`.
 
-The two definitions of the Hermite polynomials are each a rescaling of the other.
-Let ``Heₙ(x)`` denote the Probabilists' version, and ``Hₙ(x)`` the Physicists'.
-Then
+Computes the Probabilists' version by default. The two definitions of the 
+Hermite polynomials are each a rescaling of the other. Let ``Heₙ(x)`` denote 
+the Probabilists' version, and ``Hₙ(x)`` the Physicists'. Then
 
 ```math
 H_{n}(x) = 2^{\\frac{n}{2}} He_{n}\\left(\\sqrt{2} x\\right)

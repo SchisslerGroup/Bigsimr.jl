@@ -104,9 +104,11 @@ end
 Solve a polynomial equation on the interval [-1, 1].
 """
 function solve_poly_pm_one(coef)
-    n = length(coef) - 1
-    P(x) = Polynomial(coef)(x)
-    dP(x) = Polynomial((1:n) .* coef[2:end])(x)
-    r = roots(P, dP, -1..1)
-    return length(r) == 0 ? NaN : mid(r[1].interval)
+    P = Polynomial(coef)
+	dP = derivative(P)
+    r = roots(x->P(x), x->dP(x), -1..1, Krawczyk, 1e-3)
+        
+    length(r) == 1 && return mid(r[1].interval)
+    length(r) == 0 && return NaN
+    length(r) > 1 && error("More than one root found in the interval -1..1")
 end

@@ -13,39 +13,29 @@ using LinearAlgebra
 
     @testset "Random postive definite correlation matrix" begin
         r = cor_randPD(100)
-        @test all(diag(r) .== 1.0)
-        @test r == r'
-        @test all(-1.0 .≤ r .≤ 1.0)
-        λ = eigvals(r)
-        @test all(λ .> 0)
-        @test isposdef(r)
+        @test MvSim.iscorrelation(r)
     end
 
     @testset "Random positive semi-definite correlation matrix" begin
         r = cor_randPSD(100)
-        @test all(diag(r) .== 1.0)
-        @test r == r'
-        @test all(-1.0 .≤ r .≤ 1.0)
         λ = eigvals(r)
+        @test issymmetric(r)
         @test all(λ .≥ 0)
+        @test all(diag(r) .== 1.0)
+        @test all(-1.0 .≤ r .≤ 1.0)
     end
 
     @testset "Nearest positive definite correlation matrix" begin
         r = cor_nearPD(r_negdef)
-        λ = eigvals(r)
-        @test all(λ .> 0)
-        @test all(diag(r) .== 1.0)
-        @test r == r'
-        @test all(-1.0 .≤ r .≤ 1.0)
-        @test isposdef(r)
+        @test MvSim.iscorrelation(r)
     end
 
     @testset "Nearest positive semi-definite correlation matrix" begin
         r = cor_nearPD(r_negdef, 0.0)
         λ = eigvals(r)
+        @test issymmetric(r)
         @test all(λ .≥ 0)
         @test all(diag(r) .== 1.0)
-        @test r == r'
         @test all(-1.0 .≤ r .≤ 1.0)
     end
 

@@ -43,7 +43,7 @@ function rvec(n::Int, ρ::Matrix{Float64}, margins::Vector{<:UD})
     r,s = size(ρ)
 
     !(r == s == d) && throw(DimensionMismatch("The number of margins must match the size of the correlation matrix."))
-    !is_valid_correlation(ρ) && throw(ValidCorrelationError())
+    !iscorrelation(ρ) && throw(ValidCorrelationError())
 
     Z = _rmvn(n, ρ)
     @threads for i in 1:d

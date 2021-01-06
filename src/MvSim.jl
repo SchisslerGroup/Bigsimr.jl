@@ -6,13 +6,13 @@ using IntervalArithmetic
 import Base: promote, rand, eltype
 import Base.Threads: @threads
 import FastGaussQuadrature: gausshermite
-import IntervalRootFinding: roots
+import IntervalRootFinding: roots, Krawczyk
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, Diagonal,
                       eigen, norm, inv, I, Symmetric,
                       cholesky, isposdef, issymmetric
 import Memoize: @memoize
-import Polynomials: Polynomial
+import Polynomials: Polynomial, derivative
 import SharedArrays: SharedMatrix, sdata
 import Statistics: mean, std, quantile, cor, clampcor
 import StatsBase: corspearman, corkendall
@@ -23,11 +23,11 @@ const CUD = ContinuousUnivariateDistribution
 const DUD = DiscreteUnivariateDistribution
 
 struct ValidCorrelationError <: Exception end
-function is_valid_correlation(X::Matrix{<:AbstractFloat})
+function iscorrelation(X::Matrix{<:AbstractFloat})
     all([
         isposdef(X),
-        all(diag(X) .== one(eltype(X))),
         issymmetric(X),
+        all(diag(X) .== one(eltype(X))),
         all(-one(eltype(X)) .≤ X .≤ one(eltype(X)))
     ])
 end
