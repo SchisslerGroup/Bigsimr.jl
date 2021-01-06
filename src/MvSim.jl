@@ -10,7 +10,7 @@ import IntervalRootFinding: roots
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, Diagonal,
                       eigen, norm, inv, I, Symmetric,
-                      cholesky
+                      cholesky, isposdef, issymmetric
 import Memoize: @memoize
 import Polynomials: Polynomial
 import SharedArrays: SharedMatrix, sdata
@@ -21,6 +21,16 @@ import StatsBase: corspearman, corkendall
 const UD  = UnivariateDistribution
 const CUD = ContinuousUnivariateDistribution
 const DUD = DiscreteUnivariateDistribution
+
+struct ValidCorrelationError <: Exception end
+function is_valid_correlation(X::Matrix{<:AbstractFloat})
+    all([
+        isposdef(X),
+        all(diag(X) .== one(eltype(X))),
+        issymmetric(X),
+        all(-one(eltype(X)) .≤ X .≤ one(eltype(X)))
+    ])
+end
 
 
 export
