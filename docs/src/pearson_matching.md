@@ -12,7 +12,7 @@ df = dataset("datasets", "airquality")[:, [:Ozone, :Temp]] |> dropmissing
 μ_Ozone = mean(log.(df.Ozone))
 σ_Ozone = sqrt(mean((log.(df.Ozone) .- mean(log.(df.Ozone))).^2))
 margins = [Normal(μ_Temp, σ_Temp), LogNormal(μ_Ozone, σ_Ozone)]
-D = MvDistribution(ρ, margins, Pearson);
+D = MvDistribution(ρ, margins, Pearson)
 ```
 
 ## Correlation Conversion

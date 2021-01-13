@@ -54,7 +54,7 @@ cor(x, y, ::Type{Kendall})  = corkendall(x, y)
 
 
 """
-    cor_convert(R::Matrix{<:AbstractFloat}, from::Type{<:Correlation}, to::Type{<:Correlation})
+    cor_convert(X::Matrix{<:AbstractFloat}, from::Type{<:Correlation}, to::Type{<:Correlation})
 
 Convert from one type of correlation matrix to another.
 
@@ -96,14 +96,14 @@ julia> r == cor_convert(r, Pearson, Pearson)
 true
 ```
 """
-cor_convert(R::Matrix{<:AbstractFloat}, from::Type{<:Correlation}, to::Type{<:Correlation}) = cor_convert.(copy(R), from, to)
-cor_convert(ρ::AbstractFloat, from::Type{C}, to::Type{C}) where {C<:Correlation} = ρ
-cor_convert(ρ::AbstractFloat, from::Type{Pearson},  to::Type{Spearman}) = (6 / π) * asin(ρ / 2)
-cor_convert(ρ::AbstractFloat, from::Type{Pearson},  to::Type{Kendall})  = (2 / π) * asin(ρ)
-cor_convert(ρ::AbstractFloat, from::Type{Spearman}, to::Type{Pearson})  = 2 * sin(ρ * π / 6)
-cor_convert(ρ::AbstractFloat, from::Type{Spearman}, to::Type{Kendall})  = (2 / π) * asin(2 * sin(ρ * π / 6))
-cor_convert(ρ::AbstractFloat, from::Type{Kendall},  to::Type{Pearson})  = sin(ρ * π / 2)
-cor_convert(ρ::AbstractFloat, from::Type{Kendall},  to::Type{Spearman}) = (6 / π) * asin(sin(ρ * π / 2) / 2)
+cor_convert(X::Matrix{<:AbstractFloat}, from::Type{<:Correlation}, to::Type{<:Correlation}) = cor_constrain(cor_convert.(copy(X), from, to))
+cor_convert(x::AbstractFloat, from::Type{C}, to::Type{C}) where {C<:Correlation} = x
+cor_convert(x::AbstractFloat, from::Type{Pearson},  to::Type{Spearman}) = asin(x / 2) * 6 / π
+cor_convert(x::AbstractFloat, from::Type{Pearson},  to::Type{Kendall})  = asin(x) * 2 / π
+cor_convert(x::AbstractFloat, from::Type{Spearman}, to::Type{Pearson})  = sin(x * π / 6) * 2
+cor_convert(x::AbstractFloat, from::Type{Spearman}, to::Type{Kendall})  = asin(sin(x * π / 6) * 2) * 2 / π
+cor_convert(x::AbstractFloat, from::Type{Kendall},  to::Type{Pearson})  = sin(x * π / 2)
+cor_convert(x::AbstractFloat, from::Type{Kendall},  to::Type{Spearman}) = asin(sin(x * π / 2) / 2) * 6 / π
 
 
 
