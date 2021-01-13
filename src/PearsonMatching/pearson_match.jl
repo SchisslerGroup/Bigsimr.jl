@@ -13,7 +13,7 @@ julia> using Distributions
 julia> A = Normal(78, 10); B = LogNormal(3, 1);
 
 julia> pearson_match(0.76, A, B)
-0.9962326957691602
+0.9962326957682248
 ```
 
 The target correlation may not be feasible (see [`pearson_bounds`](@ref)), in 
@@ -23,7 +23,7 @@ which case the match to the nearest lower or upper bound is returned.
 julia> pearson_match(0.9, A, B)
 ┌ Warning: The target correlation is not feasible. Returning the match to the nearest bound instead.
 [...]
-0.9986891675055749
+0.9986891675056113
 ```
 """
 function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7)

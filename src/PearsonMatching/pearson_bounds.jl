@@ -13,7 +13,7 @@ julia> using Distributions
 julia> A = Normal(78, 10); B = LogNormal(3, 1);
 
 julia> pearson_bounds(A, B)
-(lower = -0.7628739783665699, upper = 0.7628739783663034)
+(lower = -0.7628739783668452, upper = 0.762873978367046)
 ```
 """
 function pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB; n::Int=7)
