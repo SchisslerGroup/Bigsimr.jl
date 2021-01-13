@@ -5,15 +5,16 @@ using IntervalArithmetic
 
 import Base: promote, rand, eltype
 import Base.Threads: @threads
+import Distributions: _normpdf
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots, Krawczyk
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, Diagonal,
                       eigen, norm, inv, I, Symmetric,
                       cholesky, isposdef, issymmetric
-import Memoize: @memoize
 import Polynomials: Polynomial, derivative
 import SharedArrays: SharedMatrix, sdata
+import SpecialFunctions: erfc, erfcinv
 import Statistics: mean, std, quantile, cor, clampcor
 import StatsBase: corspearman, corkendall
 
@@ -31,6 +32,12 @@ function iscorrelation(X::Matrix{<:AbstractFloat})
         all(-one(eltype(X)) .≤ X .≤ one(eltype(X)))
     ])
 end
+
+const sqrt2 = sqrt(2)
+const invsqrt2 = inv(sqrt(2))
+const invsqrtpi = inv(sqrt(π))
+_normcdf(x::Float64) = erfc(-x * invsqrt2) / 2
+_norminvcdf(x::Float64) = -√(2) * erfcinv(2x)
 
 
 export
@@ -56,7 +63,6 @@ eltype
 
 include("MvDistribution.jl")
 include("rand_vec.jl")
-include("hermite.jl")
 
 include("Correlation/nearest_pos_def.jl")
 include("Correlation/fast_pos_def.jl")

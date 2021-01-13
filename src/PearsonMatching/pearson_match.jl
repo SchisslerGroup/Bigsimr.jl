@@ -1,5 +1,5 @@
 """
-    pearson_match(ρ::Real, dA::UnivariateDistribution, dB::UnivariateDistribution; n::Int=7)
+    pearson_match(ρ::Float64, dA::UnivariateDistribution, dB::UnivariateDistribution; n::Int=7)
 
 Compute the pearson correlation coefficient that is necessary to achieve the
 target correlation given a pair of marginal distributions.
@@ -26,12 +26,12 @@ julia> pearson_match(0.9, A, B)
 0.9986891675055749
 ```
 """
-function pearson_match(ρ::Real, dA::UD, dB::UD; n::Int=7)
+function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7)
     _pearson_match(ρ, dA, dB, n)
 end
 
 
-function _pearson_match(ρ::Real, dA::CUD, dB::CUD, n::Int)
+function _pearson_match(ρ::Float64, dA::CUD, dB::CUD, n::Int)
     μA = mean(dA)
     μB = mean(dB)
     σA = std(dA)
@@ -64,7 +64,7 @@ function _pearson_match(ρ::Real, dA::CUD, dB::CUD, n::Int)
     ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
 end
 
-function _pearson_match(ρ::Real, dA::DUD, dB::DUD, n::Int)
+function _pearson_match(ρ::Float64, dA::DUD, dB::DUD, n::Int)
     σA = std(dA)
     σB = std(dB)
     minA = minimum(dA)
@@ -72,19 +72,16 @@ function _pearson_match(ρ::Real, dA::DUD, dB::DUD, n::Int)
     maxA = maximum(dA)
     maxB = maximum(dB)
 
-    maxA = isinf(maxA) ? quantile(dA, 0.99999) : maxA
-    maxB = isinf(maxB) ? quantile(dB, 0.99999) : maxB
-
-    TA = eltype(dA)
-    TB = eltype(dB)
+    maxA = isinf(maxA) ? quantile(dA, 0.99) : maxA
+    maxB = isinf(maxB) ? quantile(dB, 0.99) : maxB
 
     # Support sets
-    A = range(minA, maxA, step=1.0)
-    B = range(minB, maxB, step=1.0)
+    A = minA:maxA
+    B = minB:maxB
 
     # z = Φ⁻¹[F(A)], α[0] = -Inf, β[0] = -Inf
-    α = [-Inf; quantile.(Normal(), cdf.(dA, A))]
-    β = [-Inf; quantile.(Normal(), cdf.(dB, B))]
+    α = [-Inf; _norminvcdf.(cdf.(dA, A))]
+    β = [-Inf; _norminvcdf.(cdf.(dB, B))]
 
     c2 = 1 / (σA * σB)
 
@@ -105,17 +102,16 @@ function _pearson_match(ρ::Real, dA::DUD, dB::DUD, n::Int)
     ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
 end
 
-function _pearson_match(ρ::Real, dA::DUD, dB::CUD, n::Int)
+function _pearson_match(ρ::Float64, dA::DUD, dB::CUD, n::Int)
     σA = std(dA)
     σB = std(dB)
     minA = minimum(dA)
     maxA = maximum(dA)
 
-    maxA = isinf(maxA) ? quantile(dA, 0.99999) : maxA
+    maxA = isinf(maxA) ? quantile(dA, 0.99) : maxA
 
-    TA = eltype(dA)
-    A = range(minA, maxA, step=1.0)
-    α = [-Inf; quantile.(Normal(), cdf.(dA, A))]
+    A = minA:maxA
+    α = [-Inf; _norminvcdf.(cdf.(dA, A))]
 
     c2 = 1 / (σA * σB)
 
@@ -136,7 +132,7 @@ function _pearson_match(ρ::Real, dA::DUD, dB::CUD, n::Int)
     ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
 end
 
-_pearson_match(ρ::Real, dA::CUD, dB::DUD, n::Int) = _pearson_match(ρ, dB, dA, n)
+_pearson_match(ρ::Float64, dA::CUD, dB::DUD, n::Int) = _pearson_match(ρ, dB, dA, n)
 
 
 """

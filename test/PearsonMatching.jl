@@ -6,9 +6,9 @@ using Distributions
 @testset "Pearson Correlation Matching" begin
 
     @testset "Hermite-Normal PDF" begin
-        @test iszero(MvSim.Hϕ(Inf, 10))
-        @test iszero(MvSim.Hϕ(-Inf, 10))
-        @test 1.45182435 ≈ MvSim.Hϕ(1.0, 5)
+        @test iszero(MvSim.Hp(Inf, 10))
+        @test iszero(MvSim.Hp(-Inf, 10))
+        @test 1.45182435 ≈ MvSim.Hp(1.0, 5)
     end
 
     @testset "Solve Polynomial on [-1, 1]" begin

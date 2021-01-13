@@ -15,12 +15,12 @@ function fast_pca!(X::Matrix{T}, λ::Vector{T}, P::Matrix{T}, n::Int) where T<:A
         P₁   = @view P[:, 1:r]
         λ₁   = sqrt.(λ[1:r])
         P₁λ₁ = P₁ .* λ₁'
-        X .= P₁λ₁ * P₁λ₁'
+        X   .= P₁λ₁ * P₁λ₁'
     else
         P₂   = @view P[:, (r+1):n]
         λ₂   = sqrt.(-λ[(r+1):n])
         P₂λ₂ = P₂ .* λ₂'
-        X .= X .+ P₂λ₂ * P₂λ₂'
+        X   .= X .+ P₂λ₂ * P₂λ₂'
     end
 end
 

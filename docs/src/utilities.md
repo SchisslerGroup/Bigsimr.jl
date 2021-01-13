@@ -3,7 +3,7 @@
 ## General Utilities
 
 ```@docs
-MvSim.hermite(x::Real, n::Int, probabilists::Bool=true)
+MvSim.hermite(x::Float64, n::Int, probabilists::Bool=true)
 MvSim.normal_to_margin(d::UnivariateDistribution, x::Float64)
 ```
 
@@ -18,10 +18,10 @@ MvSim._rmvn(n::Int, ρ::Matrix{Float64})
 
 ```@docs
 MvSim.get_coefs(margin::UnivariateDistribution, n::Int)
-MvSim.Hϕ(x::Real, n::Int)
-MvSim.Gn0d(n::Int, A, B, α, β, σAσB_inv)
-MvSim.Gn0m(n::Int, A, α, dB, σAσB_inv)
-MvSim.solve_poly_pm_one(coef)
+MvSim.Hp(x::Float64, n::Int)
+MvSim.Gn0d(n::Int, A::UnitRange{Int}, B::UnitRange{Int}, α::Vector{Float64}, β::Vector{Float64}, σAσB_inv::Float64)
+MvSim.Gn0m(n::Int, A::UnitRange{Int}, α::Vector{Float64}, dB::UnivariateDistribution , σAσB_inv::Float64)
+MvSim.solve_poly_pm_one(coef::Vector{Float64})
 ```
 
 ## Nearest Positive Definite Correlation Matrix Utilities

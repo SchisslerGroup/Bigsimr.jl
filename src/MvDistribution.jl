@@ -39,7 +39,7 @@ margins(D::MvDistribution) = D.F
     cor(D::MvDistribution)
 Return the correlation matrix of the multivariate distribution.
 """
-cor(D::MvDistribution)     = D.ρ
+cor(D::MvDistribution) = D.ρ
 """
     cortype(D::MvDistribution)
 Return the correlation matrix type of the multivariate distribution.

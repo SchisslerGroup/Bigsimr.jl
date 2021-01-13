@@ -29,8 +29,9 @@ end
 
 Convert samples from a standard normal distribution to a given marginal distribution.
 """
-normal_to_margin(d::UD, x::Float64) = quantile(d, cdf(Normal(0,1), x))
-normal_to_margin(d::UD, X::AbstractVecOrMat) = normal_to_margin.(d, X)
+normal_to_margin(d::UD, x::Float64) = quantile(d, _normcdf(x))
+normal_to_margin(d::UD, V::Vector{Float64}) = normal_to_margin.(d, V)
+normal_to_margin(d::UD, X::Matrix{Float64}) = normal_to_margin.(d, X)
 
 
 """
