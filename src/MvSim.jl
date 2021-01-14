@@ -5,16 +5,16 @@ using IntervalArithmetic
 
 import Base: promote, rand, eltype
 import Base.Threads: @threads
-import Distributions: _normpdf
 import FastGaussQuadrature: gausshermite
 import IntervalRootFinding: roots, Krawczyk
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, Diagonal,
                       eigen, norm, inv, I, Symmetric,
                       cholesky, isposdef, issymmetric
+import LsqFit: curve_fit, coef
 import Polynomials: Polynomial, derivative
 import SharedArrays: SharedMatrix, sdata
-import SpecialFunctions: erfc, erfcinv
+import SpecialFunctions: erfc, erfcinv, beta, beta_inc
 import Statistics: mean, std, quantile, cor, clampcor
 import StatsBase: corspearman, corkendall
 
@@ -36,6 +36,9 @@ end
 const sqrt2 = sqrt(2)
 const invsqrt2 = inv(sqrt(2))
 const invsqrtpi = inv(sqrt(π))
+const invsqrt2π = inv(sqrt(2π))
+
+_normpdf(x::Float64) = exp(-abs2(x)/2) * invsqrt2π
 _normcdf(x::Float64) = erfc(-x * invsqrt2) / 2
 _norminvcdf(x::Float64) = -√(2) * erfcinv(2x)
 
@@ -43,6 +46,7 @@ _norminvcdf(x::Float64) = -√(2) * erfcinv(2x)
 export
 rvec, 
 MvDistribution, margins, cortype,
+GSDistribution, quantile, mean, std,
 # Pearson matching
 pearson_match, pearson_bounds,
 # Correlation Types
@@ -63,6 +67,7 @@ eltype
 
 include("MvDistribution.jl")
 include("rand_vec.jl")
+include("GSDistribution.jl")
 
 include("Correlation/nearest_pos_def.jl")
 include("Correlation/fast_pos_def.jl")
