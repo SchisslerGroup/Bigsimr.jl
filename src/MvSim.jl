@@ -6,6 +6,7 @@ using IntervalArithmetic
 import Base: promote, rand, eltype
 import Base.Threads: @threads
 import FastGaussQuadrature: gausshermite
+import HypergeometricFunctions: _₂F₁
 import IntervalRootFinding: roots, Krawczyk
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, Diagonal,
@@ -13,9 +14,10 @@ import LinearAlgebra: diagind, diagm, diag, Diagonal,
                       cholesky, isposdef, issymmetric
 import LsqFit: curve_fit, coef
 import Polynomials: Polynomial, derivative
+import QuadGK: quadgk
 import SharedArrays: SharedMatrix, sdata
-import SpecialFunctions: erfc, erfcinv, beta, beta_inc
-import Statistics: mean, std, quantile, cor, clampcor
+import SpecialFunctions: erfc, erfcinv
+import Statistics: cor, clampcor
 import StatsBase: corspearman, corkendall
 
 
@@ -46,7 +48,7 @@ _norminvcdf(x::Float64) = -√(2) * erfcinv(2x)
 export
 rvec, 
 MvDistribution, margins, cortype,
-GSDistribution, quantile, mean, std,
+GSDistribution, quantile, mean, var, std,
 # Pearson matching
 pearson_match, pearson_bounds,
 # Correlation Types
