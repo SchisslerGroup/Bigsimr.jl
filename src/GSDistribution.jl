@@ -15,6 +15,7 @@ end
 
 function GSDistribution(D::UD, F₀::Real=0.5)
     F₀ < 0 || F₀ > 1 && throw(DomainError(F₀, "F₀ must be between 0 and 1"))
+    F₀ = Float64(F₀)
 
     l,u = extrema(D)
     if isinf(l) l = quantile(D, 1e-6) end
@@ -37,13 +38,13 @@ function GSDistribution(D::UD, F₀::Real=0.5)
 end
 
 
-function Distributions.quantile(D::GSDistribution, p::Float64)
-    D.x₀ + _beta_inc(D.F₀^D.k, p^D.k, (1-D.g)/D.k, 1-D.γ) / (D.α*D.k)
-end
+_q(p::Float64, F₀::Float64, x₀::Float64, α::Float64, g::Float64, k::Float64, γ::Float64) = x₀ + _beta_inc(F₀^k, p^k, (1-g)/k, 1-γ) / (α*k)
+Distributions.quantile(D::GSDistribution, p::Float64) = _q(p, D.F₀, D.x₀, D.α, D.g, D.k, D.γ)
 Distributions.quantile(D::GSDistribution, p::Real) = quantile(D, Float64(p))
 
+
 function Distributions.mean(D::GSDistribution)
-    z1 = D.F₀^D.k
+	z1 = D.F₀^D.k
 	a1 = (1 - D.g) / D.k
 	b1 = 1 - D.γ
 	a2 = (2 - D.g) / D.k
@@ -51,12 +52,6 @@ function Distributions.mean(D::GSDistribution)
 	D.x₀ + (_beta_inc(z1, prevfloat(1.0), a1, b1) - _beta_inc(a2, b2)) * inv(D.α * D.k)
 end
 
-function Distributions.var(D::GSDistribution)
-    m1 = mean(D)
-	m2 = _moment(D, 2)[1]
-    m2 - m1^2
-end
-Distributions.std(D::GSDistribution) = sqrt(var(D))
 
 function _moment(D::GSDistribution, j::Int=1)
     x₀ = D.x₀
@@ -66,12 +61,21 @@ function _moment(D::GSDistribution, j::Int=1)
     c = inv(D.α * D.k)
     
     f = q -> (x₀ + c*_beta_inc(z1, q^D.k, a, b))^j
-    quadgk(f, 0, 1, atol=1e-4)
+    quadgk(f, 0, 1, atol=1e-4)[1]
 end
 
+
+function Distributions.var(D::GSDistribution)
+    m1 = mean(D)
+	m2 = _moment(D, 2)
+    m2 - m1^2
+end
+Distributions.std(D::GSDistribution) = sqrt(var(D))
+
+
 function _beta_inc(z1::Float64, z2::Float64, a::Float64, b::Float64)
-	inv(a) * (z2^a * _₂F₁(a,1-b,a+1,z2) - z1^a * _₂F₁(a,1-b,a+1,z1))
+    inv(a) * (z2^a * _₂F₁(a,1-b,a+1,z2) - z1^a * _₂F₁(a,1-b,a+1,z1))
 end
 _beta_inc(z1::Real, z2::Real, a::Real, b::Real) = _beta_inc(Float64.((z1,z2,a,b))...)
-_beta_inc(x::Real, a::Real, b::Real) = _beta_inc(0, x, a, b)
-_beta_inc(a::Real, b::Real) = _beta_inc(0, 1, a, b)
+_beta_inc(x::Real, a::Real, b::Real) = _beta_inc(0.0, x, a, b)
+_beta_inc(a::Real, b::Real) = _beta_inc(0.0, prevfloat(1.0), a, b)
