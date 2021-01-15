@@ -72,8 +72,8 @@ function _pearson_match(ρ::Float64, dA::DUD, dB::DUD, n::Int)
     maxA = maximum(dA)
     maxB = maximum(dB)
 
-    maxA = isinf(maxA) ? quantile(dA, 0.99) : maxA
-    maxB = isinf(maxB) ? quantile(dB, 0.99) : maxB
+    maxA = isinf(maxA) ? quantile(dA, 0.99999) : maxA
+    maxB = isinf(maxB) ? quantile(dB, 0.99999) : maxB
 
     # Support sets
     A = minA:maxA

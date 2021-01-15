@@ -23,7 +23,7 @@ function get_coefs(margin::UD, n::Int)
     tₛ    .= tₛ * sqrt2
     Xₛ = normal_to_margin(margin, tₛ)
 
-    aₖ = [sum(wₛ .* _h.(tₛ, k) .* Xₛ) for k in 0:n]
+    aₖ = [sum(wₛ .* _h(tₛ, k) .* Xₛ) for k in 0:n]
     
     return invsqrtpi * aₖ ./ factorial.(0:n)
 end
@@ -95,7 +95,7 @@ function Gn0m(n::Int, A::UnitRange{Int}, α::Vector{Float64}, dB::UD, σAσB_inv
     t, w = gausshermite(m)
     t .= t * sqrt2
     X = MvSim.normal_to_margin(dB, t)
-    S = invsqrtpi * sum(w .* hermite.(t, n) .* X)
+    S = invsqrtpi * sum(w .* _h(t, n) .* X)
     return -σAσB_inv * accu * S
 end
 
@@ -137,7 +137,7 @@ He_{n}(x) = 2^{-\\frac{n}{2}} H_{n}\\left(\\frac{x}{\\sqrt{2}}\\right)
 function hermite(x::Float64, n::Int, probabilists::Bool=true)
     return probabilists ? _h(x, n) : 2^(n/2) * _h(x*sqrt2, n)
 end
-
+hermite(V::Vector{Float64}, n::Int, probabilists::Bool=true) = hermite.(V, Ref(n), ref(probabilists))
 
 
 function _h(x::Float64, n::Int)
@@ -154,3 +154,4 @@ function _h(x::Float64, n::Int)
 	end
 	Hkp1
 end
+_h(V::Vector{Float64}, n::Int) = _h.(V, Ref(n))
