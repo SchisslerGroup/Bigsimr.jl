@@ -84,8 +84,8 @@ end
 
 function Distributions.var(D::GSDistribution)
     m1 = mean(D)
-    try
-        m2 = _moment(D, 2)
+    m2 = try
+        _moment(D, 2)
     catch y
         if isa(y, DomainError)
             @warn "Unable to calculate the variance of the GSDist. Falling back to the variance of the underlying distribution."
