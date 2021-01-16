@@ -27,6 +27,27 @@ julia> pearson_match(0.9, A, B)
 ```
 """
 function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7)
+    
+    # Check cardinality of any discrete distributions
+    cutoff = 200
+    if typeof(dA) <: DUD
+        maxA = maximum(dA)
+        if isinf(maxA) maxA = quantile(dA, 0.99_999) end
+        if maxA > cutoff
+            @warn "Distribution `A` was converted to a Generalized S-Distribution for computational efficiency"
+            dA = GSDistribution(dA)
+        end
+    end
+
+    if typeof(dB) <: DUD
+        maxB = maximum(dB)
+        if isinf(maxB) maxB = quantile(dB, 0.99_999) end
+        if maxB > cutoff
+            @warn "Distribution `B` was converted to a Generalized S-Distribution for computational efficiency"
+            dB = GSDistribution(dB)
+        end
+    end
+    
     _pearson_match(ρ, dA, dB, n)
 end
 
@@ -65,15 +86,15 @@ function _pearson_match(ρ::Float64, dA::CUD, dB::CUD, n::Int)
 end
 
 function _pearson_match(ρ::Float64, dA::DUD, dB::DUD, n::Int)
+    maxA = maximum(dA)
+    maxB = maximum(dB)
+    maxA = isinf(maxA) ? quantile(dA, 0.99_999) : maxA
+    maxB = isinf(maxB) ? quantile(dB, 0.99_999) : maxB
+
     σA = std(dA)
     σB = std(dB)
     minA = minimum(dA)
     minB = minimum(dB)
-    maxA = maximum(dA)
-    maxB = maximum(dB)
-
-    maxA = isinf(maxA) ? quantile(dA, 0.99999) : maxA
-    maxB = isinf(maxB) ? quantile(dB, 0.99999) : maxB
 
     # Support sets
     A = minA:maxA

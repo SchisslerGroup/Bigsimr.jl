@@ -22,7 +22,7 @@ function GSDistribution(D::UD, F₀::Real=0.5)
     if isinf(u) u = quantile(D, 1 - 1e-6) end
     ql, qu = cdf.(D, (l,u))
 
-    q = range(ql, qu, length=200)
+    q = range(ql, qu, length=101)
     X = typeof(D) <: DUD ? Set(quantile.(D, q)) : quantile.(D, q)
 
     FX = cdf.(D, X)
@@ -39,17 +39,34 @@ end
 
 
 _q(p::Float64, F₀::Float64, x₀::Float64, α::Float64, g::Float64, k::Float64, γ::Float64) = x₀ + _beta_inc(F₀^k, p^k, (1-g)/k, 1-γ) / (α*k)
-Distributions.quantile(D::GSDistribution, p::Float64) = _q(p, D.F₀, D.x₀, D.α, D.g, D.k, D.γ)
+function Distributions.quantile(D::GSDistribution, p::Float64)
+    q = _q(p, D.F₀, D.x₀, D.α, D.g, D.k, D.γ)
+    if isnan(q)
+        @warn "Unable to calculate the quantile of the GSDist. Falling back to the quantile of the underlying distribution."
+        quantile(D.F, p)
+    else
+        q
+    end
+end
 Distributions.quantile(D::GSDistribution, p::Real) = quantile(D, Float64(p))
 
 
-function Distributions.mean(D::GSDistribution)
+function _mean(D::GSDistribution)
 	z1 = D.F₀^D.k
 	a1 = (1 - D.g) / D.k
 	b1 = 1 - D.γ
 	a2 = (2 - D.g) / D.k
 	b2 = 1 - D.γ
 	D.x₀ + (_beta_inc(z1, prevfloat(1.0), a1, b1) - _beta_inc(a2, b2)) * inv(D.α * D.k)
+end
+function Distributions.mean(D::GSDistribution)
+    m = _mean(D)
+    if isnan(m)
+        @warn "Unable to calculate the mean of the GSDist. Falling back to the mean of the underlying distribution."
+        mean(D.F)
+    else
+        m
+    end
 end
 
 
@@ -67,7 +84,14 @@ end
 
 function Distributions.var(D::GSDistribution)
     m1 = mean(D)
-	m2 = _moment(D, 2)
+    try
+        m2 = _moment(D, 2)
+    catch y
+        if isa(y, DomainError)
+            @warn "Unable to calculate the variance of the GSDist. Falling back to the variance of the underlying distribution."
+            return var(D.F)
+        end
+    end
     m2 - m1^2
 end
 Distributions.std(D::GSDistribution) = sqrt(var(D))
