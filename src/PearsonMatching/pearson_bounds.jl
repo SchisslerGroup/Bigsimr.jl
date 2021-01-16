@@ -16,7 +16,14 @@ julia> pearson_bounds(A, B)
 (lower = -0.7628739783668452, upper = 0.762873978367046)
 ```
 """
-function pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB; n::Int=7)
+function pearson_bounds(dA::UD, dB::UD; n::Int=7)
+    μA = mean(dA)
+    σA = std(dA)
+    μB = mean(dB)
+    σB = std(dB)
+    _pearson_bounds(dA, dB, μA, μB, σA, σB, n)
+end
+function _pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB, n)
     k = 0:1:n
     a = get_coefs(dA, n)
     b = get_coefs(dB, n)
@@ -29,13 +36,6 @@ function pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB; n::Int=7)
 
     ρ_l, ρ_u = clampcor.((ρ_l, ρ_u))
     (lower = ρ_l, upper = ρ_u)
-end
-function pearson_bounds(dA::UD, dB::UD)
-    μA = mean(dA)
-    σA = std(dA)
-    μB = mean(dB)
-    σB = std(dB)
-    pearson_bounds(dA, dB, μA, μB, σA, σB)
 end
 
 

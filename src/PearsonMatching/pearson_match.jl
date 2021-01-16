@@ -26,25 +26,28 @@ julia> pearson_match(0.9, A, B)
 0.9986891675056113
 ```
 """
-function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7)
+function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7, convert::Bool=true)
     
-    # Check cardinality of any discrete distributions
-    cutoff = 200
-    if typeof(dA) <: DUD
-        maxA = maximum(dA)
-        if isinf(maxA) maxA = quantile(dA, 0.99_999) end
-        if maxA > cutoff
-            @warn "Distribution `A` was converted to a Generalized S-Distribution for computational efficiency"
-            dA = GSDistribution(dA)
-        end
-    end
+    # Check support set size of any discrete distributions and convert if necessary
+    if convert
+        cutoff = 200
 
-    if typeof(dB) <: DUD
-        maxB = maximum(dB)
-        if isinf(maxB) maxB = quantile(dB, 0.99_999) end
-        if maxB > cutoff
-            @warn "Distribution `B` was converted to a Generalized S-Distribution for computational efficiency"
-            dB = GSDistribution(dB)
+        if typeof(dA) <: DUD
+            maxA = maximum(dA)
+            if isinf(maxA) maxA = quantile(dA, 0.99_999) end
+            if maxA > cutoff
+                @warn "Distribution `A` was converted to a Generalized S-Distribution for computational efficiency"
+                dA = GSDistribution(dA)
+            end
+        end
+
+        if typeof(dB) <: DUD
+            maxB = maximum(dB)
+            if isinf(maxB) maxB = quantile(dB, 0.99_999) end
+            if maxB > cutoff
+                @warn "Distribution `B` was converted to a Generalized S-Distribution for computational efficiency"
+                dB = GSDistribution(dB)
+            end
         end
     end
     

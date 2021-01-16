@@ -13,7 +13,7 @@ struct GSDistribution <: CUD
     γ::Float64
 end
 
-function GSDistribution(D::UD, F₀::Real=0.5)
+function GSDistribution(D::UD, F₀::Real=0.5; n::Int=21)
     F₀ < 0 || F₀ > 1 && throw(DomainError(F₀, "F₀ must be between 0 and 1"))
     F₀ = Float64(F₀)
 
@@ -22,7 +22,7 @@ function GSDistribution(D::UD, F₀::Real=0.5)
     if isinf(u) u = quantile(D, 1 - 1e-6) end
     ql, qu = cdf.(D, (l,u))
 
-    q = range(ql, qu, length=101)
+    q = range(ql, qu, length=n)
     X = typeof(D) <: DUD ? Set(quantile.(D, q)) : quantile.(D, q)
 
     FX = cdf.(D, X)
