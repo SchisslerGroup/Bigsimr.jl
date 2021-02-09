@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Nearest Correlation Matrix · bigsimr.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">bigsimr.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">bigsimr.jl</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../getting_started/">Getting Started</a></li><li><a class="tocitem" href="../pearson_matching/">Pearson Matching</a></li><li class="is-active"><a class="tocitem" href>Nearest Correlation Matrix</a><ul class="internal"><li><a class="tocitem" href="#Benchmarking"><span>Benchmarking</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../main_functions/">Main Functions</a></li><li><a class="tocitem" href="../utilities/">Utilities</a></li><li><a class="tocitem" href="../details/">Details</a></li><li><a class="tocitem" href="../function_index/">Index</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Guides</a></li><li class="is-active"><a href>Nearest Correlation Matrix</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Nearest Correlation Matrix</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/adknudson/bigsimr.jl/blob/master/docs/src/nearest_correlation_matrix.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Nearest-Correlation-Matrix"><a class="docs-heading-anchor" href="#Nearest-Correlation-Matrix">Nearest Correlation Matrix</a><a id="Nearest-Correlation-Matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Nearest-Correlation-Matrix" title="Permalink"></a></h1><p>Sometimes what we want really is the Spearman correlation. Then we don&#39;t need to do any Pearson matching. All we need to do is estimate/obtain the Spearman correlation of some data, convert it to Pearson, and then simulate. The resulting simulated data will have the same Spearman correlation as the one estimated from the data (up to stochastic error). The problem is that for high dimensional data, the Spearman or converted Pearson correlation matrix may not be positive semidefinite (PSD). The problem is then how to compute the nearest PSD correlation matrix.</p><p>We provide the function <code>cor_nearPD</code> to handle this problem. It is based off of the work of Qi and Sun (2006), and is a quadratically convergent algorithm. Here we use BRCA data to show its use.</p><pre><code class="language-julia-repl">julia&gt; m = Matrix(brca)
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Nearest Correlation Matrix · Bigsimr.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Bigsimr.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Bigsimr.jl</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../getting_started/">Getting Started</a></li><li><a class="tocitem" href="../pearson_matching/">Pearson Matching</a></li><li class="is-active"><a class="tocitem" href>Nearest Correlation Matrix</a><ul class="internal"><li><a class="tocitem" href="#Benchmarking"><span>Benchmarking</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../main_functions/">Main Functions</a></li><li><a class="tocitem" href="../utilities/">Utilities</a></li><li><a class="tocitem" href="../details/">Details</a></li><li><a class="tocitem" href="../function_index/">Index</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Guides</a></li><li class="is-active"><a href>Nearest Correlation Matrix</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Nearest Correlation Matrix</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/adknudson/Bigsimr.jl/blob/master/docs/src/nearest_correlation_matrix.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Nearest-Correlation-Matrix"><a class="docs-heading-anchor" href="#Nearest-Correlation-Matrix">Nearest Correlation Matrix</a><a id="Nearest-Correlation-Matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Nearest-Correlation-Matrix" title="Permalink"></a></h1><p>Sometimes what we want really is the Spearman correlation. Then we don&#39;t need to do any Pearson matching. All we need to do is estimate/obtain the Spearman correlation of some data, convert it to Pearson, and then simulate. The resulting simulated data will have the same Spearman correlation as the one estimated from the data (up to stochastic error). The problem is that for high dimensional data, the Spearman or converted Pearson correlation matrix may not be positive semidefinite (PSD). The problem is then how to compute the nearest PSD correlation matrix.</p><p>We provide the function <code>cor_nearPD</code> to handle this problem. It is based off of the work of Qi and Sun (2006), and is a quadratically convergent algorithm. Here we use BRCA data to show its use.</p><pre><code class="language-julia-repl">julia&gt; m = Matrix(brca)
 878×200 Array{Float64,2}:
       2.42686e6   47131.0        292717.0  …  93811.0   34168.0    1814.0
  719834.0        415707.0        338326.0     27934.0   41261.0   57961.0
@@ -30,23 +30,23 @@ julia&gt; isposdef.([τ, ρₚ])
 2-element BitArray{1}:
  1
  0</code></pre><p>We see that the converted Pearson correlation matrix is no longer positve definite. This will result in a failure during the multivariate normal generation, particularly during the Cholesky decomposition.</p><pre><code class="language-julia-repl">julia&gt; rvec(10, ρₚ, margins)
-ERROR: bigsimr.ValidCorrelationError()</code></pre><p>We can fix this by computing the nearest PD correlation.</p><pre><code class="language-julia-repl">julia&gt; ρ̃ₚ = cor_nearPD(ρₚ);
+ERROR: Bigsimr.ValidCorrelationError()</code></pre><p>We can fix this by computing the nearest PD correlation.</p><pre><code class="language-julia-repl">julia&gt; ρ̃ₚ = cor_nearPD(ρₚ);
 
 julia&gt; isposdef(ρ̃ₚ)
 true
 
 julia&gt; rvec(10, ρ̃ₚ, margins)
 10×200 Array{Float64,2}:
- 959806.0             1.0007e6   433514.0  …   45177.0  60086.0   46291.0
- 796799.0        117563.0        314570.0      50238.0  51019.0   57911.0
-      1.63268e6   91030.0        436282.0     103097.0  30973.0    4186.0
- 894554.0             3.42637e6  452682.0      29169.0  28637.0  133792.0
- 847891.0        267889.0        184426.0      23044.0  13630.0   10366.0
- 783153.0         56741.0         96093.0  …   34091.0  27485.0   29722.0
-      1.28771e6       1.52944e6  369368.0      46659.0  33503.0   82639.0
- 428205.0        111785.0        235893.0      27410.0  22860.0   20444.0
- 577448.0        260393.0        261535.0      20121.0  35295.0   11638.0
- 737903.0          7163.0        204883.0      26836.0  11488.0    7375.0</code></pre><h2 id="Benchmarking"><a class="docs-heading-anchor" href="#Benchmarking">Benchmarking</a><a id="Benchmarking-1"></a><a class="docs-heading-anchor-permalink" href="#Benchmarking" title="Permalink"></a></h2><p>What&#39;s more impressive is that computing the nearest correlation matrix in Julia is fast!</p><pre><code class="language-julia-repl">julia&gt; @benchmark cor_nearPD(ρₚ)
+      1.14481e6  287885.0        …  47540.0  32236.0  37281.0   58711.0
+ 897584.0        141570.0           70326.0  46294.0  70270.0   84371.0
+ 870599.0         38911.0           11727.0  16897.0  30277.0   23874.0
+ 807615.0        186708.0           44659.0  19234.0  49425.0   25160.0
+      2.2787e6        2.18162e6     79348.0  86495.0  62105.0   11573.0
+      1.63841e6       1.4877e6   …  56919.0  52272.0  36767.0  103044.0
+      1.70455e6       1.40582e6     40421.0  52736.0  52447.0   64139.0
+ 743794.0        432844.0           23847.0  18494.0  47672.0   18915.0
+ 840543.0        518455.0           69642.0  63960.0  71147.0   81012.0
+      1.27734e6  307042.0           26264.0  40700.0  67824.0   13163.0</code></pre><h2 id="Benchmarking"><a class="docs-heading-anchor" href="#Benchmarking">Benchmarking</a><a id="Benchmarking-1"></a><a class="docs-heading-anchor-permalink" href="#Benchmarking" title="Permalink"></a></h2><p>What&#39;s more impressive is that computing the nearest correlation matrix in Julia is fast!</p><pre><code class="language-julia-repl">julia&gt; @benchmark cor_nearPD(ρₚ)
 BenchmarkTools.Trial: 
   memory estimate:  6.84 MiB
   allocs estimate:  160652
@@ -59,26 +59,26 @@ BenchmarkTools.Trial:
   samples:          537
   evals/sample:     1</code></pre><p>Let&#39;s scale up to a larger correlation matrix:</p><pre><code class="language-julia-repl">julia&gt; m3000 = cor_randPSD(3000) |&gt; m -&gt; cor_convert(m, Spearman, Pearson)
 3000×3000 Array{Float64,2}:
-  1.0         -0.0121191    -0.024603    …  -0.00709541    0.00759151
- -0.0121191    1.0           0.0159261      -0.0267514    -0.000522361
- -0.024603     0.0159261     1.0            -0.0116123     0.0166294
- -0.0174084   -0.0139091     0.0129893      -0.00227346    0.0263901
- -0.00332542  -0.0140089    -0.0286699      -0.0269321     0.0208133
-  0.04898      0.0114826     0.0118749   …  -0.0234029    -0.023861
-  0.00139503  -0.0209832    -4.17071e-5     -0.000143308  -0.00671974
- -0.0050384   -0.0129939    -0.00443841     -0.0356409    -0.0264069
-  0.00046894  -0.0270303     0.00685069     -0.0161115     0.00694662
- -0.0201051   -0.0136068    -0.0309705      -0.00383151   -0.0112151
+  1.0          0.0442196    0.0218098    …  -0.00442887   0.00262755
+  0.0442196    1.0          0.0081938       -0.0295692    0.0107621
+  0.0218098    0.0081938    1.0              0.0188593    0.00264911
+ -0.0145014    0.00424902   0.0106574        0.0227993    0.0400558
+ -0.0190176    0.00139843   0.00288612       0.0163439    0.0140082
+ -0.00167009   0.00392583   0.00451268   …  -0.00465327   0.000549672
+  0.00926464  -0.00522091   0.0109055        0.0183298    0.0381298
+ -0.00452079  -0.0164164    0.015637        -0.0010221    0.00607354
+ -0.0183704    0.0511659   -0.0153436       -0.00611588  -1.56703e-5
+ -0.0164589   -0.00824267  -0.038051         0.0231734   -0.0241435
   ⋮                                      ⋱
-  0.0236604    0.0182878    -0.0056193      -0.0138604    -0.000480094
-  0.0204824   -0.0107585    -0.0188231      -0.0124916     0.0171871
- -0.0212512   -0.00176719   -0.00947924     -0.027011      0.0180459
-  0.00565445  -0.000384876   0.00904746      0.00671909   -0.0145041
-  0.0113956   -0.0222011    -0.0438877   …   0.0155259    -0.0334229
-  0.00640564   0.0234635     0.0046786       0.00970728    0.0123143
-  0.012877     0.0149476    -0.00995198     -0.0375134     0.00297069
- -0.00709541  -0.0267514    -0.0116123       1.0           0.0302446
-  0.00759151  -0.000522361   0.0166294       0.0302446     1.0
+ -0.0157742    0.0280322   -0.00464192      -0.00758428  -0.00597779
+ -0.0244623   -0.0105092   -0.00262668       0.00634278  -0.0240437
+ -0.047665    -0.0227497    0.00490752       0.0359628    0.0230123
+ -0.0420108   -0.00567255   0.00648556      -0.00161186  -0.00399482
+ -0.00328171   0.00417951  -0.00351608   …  -0.00426228   0.00610419
+ -0.00353826  -0.00121604   0.0407954        0.0162499    0.00829599
+ -0.0143       0.0249097    0.000687446     -0.00283677  -0.00846208
+ -0.00442887  -0.0295692    0.0188593        1.0         -0.0361822
+  0.00262755   0.0107621    0.00264911      -0.0361822    1.0
 
 julia&gt; m3000_PD = cor_nearPD(m3000);
 
@@ -97,7 +97,7 @@ BenchmarkTools.Trial:
   maximum time:     11.460 s (2.31% GC)
   --------------
   samples:          1
-  evals/sample:     1</code></pre><p>~12 seconds to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excert from Defeng Sun&#39;s home page where his matlab code is:</p><blockquote><p>For a randomly generated  3,000 by 3,000 pseudo correlation matrix (the code is insensitive to input data), the code needs 24 seconds to reach a solution with the relative duality gap less than 1.0e-3 after 3 iterations and 43 seconds  with the relative duality gap less than 1.0e-10 after 6 iterations in my Dell Desktop with Intel (R) Core i7 processor.</p></blockquote><p>We also offer a faster routine that gives up a little accuracy for speed. While <a href="../main_functions/#bigsimr.cor_nearPD"><code>cor_nearPD</code></a> finds the nearest correlation matrix to the input matrix, <a href="../main_functions/#bigsimr.cor_fastPD"><code>cor_fastPD</code></a> finds a positive definite correlation matrix that is <em>close</em> to the input matrix.</p><pre><code class="language-julia-repl">julia&gt; @benchmark cor_fastPD(m3000)
+  evals/sample:     1</code></pre><p>~12 seconds to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excert from Defeng Sun&#39;s home page where his matlab code is:</p><blockquote><p>For a randomly generated  3,000 by 3,000 pseudo correlation matrix (the code is insensitive to input data), the code needs 24 seconds to reach a solution with the relative duality gap less than 1.0e-3 after 3 iterations and 43 seconds  with the relative duality gap less than 1.0e-10 after 6 iterations in my Dell Desktop with Intel (R) Core i7 processor.</p></blockquote><p>We also offer a faster routine that gives up a little accuracy for speed. While <a href="../main_functions/#Bigsimr.cor_nearPD"><code>cor_nearPD</code></a> finds the nearest correlation matrix to the input matrix, <a href="../main_functions/#Bigsimr.cor_fastPD"><code>cor_fastPD</code></a> finds a positive definite correlation matrix that is <em>close</em> to the input matrix.</p><pre><code class="language-julia-repl">julia&gt; @benchmark cor_fastPD(m3000)
 BenchmarkTools.Trial: 
   memory estimate:  628.95 MiB
   allocs estimate:  26035
@@ -111,7 +111,7 @@ BenchmarkTools.Trial:
   evals/sample:     1</code></pre><p>And it&#39;s not too far off from the nearest:</p><pre><code class="language-julia-repl">julia&gt; m3000_PD_fast = cor_fastPD(m3000);
 
 julia&gt; norm(m3000 - m3000_PD)
-0.7317404367606279
+0.7338400947979408
 
 julia&gt; norm(m3000 - m3000_PD_fast)
-0.7643493579478047</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pearson_matching/">« Pearson Matching</a><a class="docs-footer-nextpage" href="../main_functions/">Main Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 9 February 2021 22:48">Tuesday 9 February 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+0.7666678014895683</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pearson_matching/">« Pearson Matching</a><a class="docs-footer-nextpage" href="../main_functions/">Main Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 9 February 2021 23:06">Tuesday 9 February 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
