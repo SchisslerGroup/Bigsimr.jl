@@ -1,4 +1,4 @@
-module MvSim
+module bigsimr
 
 using Distributions
 using IntervalArithmetic

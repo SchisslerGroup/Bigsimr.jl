@@ -1,13 +1,13 @@
-using Documenter, MvSim
+using Documenter, bigsimr
 using Distributions
 
-DocMeta.setdocmeta!(MvSim, :DocTestSetup, :(using MvSim); recursive=true)
+DocMeta.setdocmeta!(bigsimr, :DocTestSetup, :(using bigsimr); recursive=true)
 
 makedocs(
-    sitename = "MvSim.jl",
-    modules  = [MvSim],
+    sitename = "bigsimr.jl",
+    modules  = [bigsimr],
     pages    = [
-        "MvSim.jl" => "index.md",
+        "bigsimr.jl" => "index.md",
         "Guides" => [
             "Getting Started" => "getting_started.md",
             "Pearson Matching" => "pearson_matching.md",
@@ -21,6 +21,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/adknudson/MvSim.jl.git",
+    repo = "github.com/adknudson/bigsimr.jl.git",
     versions = ["stable" => "v^", "v#.#", "dev" => "master"]
 )

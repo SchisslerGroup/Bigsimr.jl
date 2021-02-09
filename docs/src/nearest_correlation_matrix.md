@@ -1,7 +1,7 @@
 # Nearest Correlation Matrix
 
 ```@setup ncm
-using MvSim, JLD, LinearAlgebra, BenchmarkTools
+using bigsimr, JLD, LinearAlgebra, BenchmarkTools
 using Statistics, Distributions
 
 tmp_dir = mktempdir()

@@ -1,14 +1,14 @@
 using Test
-using MvSim
+using bigsimr
 using Polynomials
 using Distributions
 
 @testset "Pearson Correlation Matching" begin
 
     @testset "Hermite-Normal PDF" begin
-        @test iszero(MvSim.Hp(Inf, 10))
-        @test iszero(MvSim.Hp(-Inf, 10))
-        @test 1.45182435 ≈ MvSim.Hp(1.0, 5)
+        @test iszero(bigsimr.Hp(Inf, 10))
+        @test iszero(bigsimr.Hp(-Inf, 10))
+        @test 1.45182435 ≈ bigsimr.Hp(1.0, 5)
     end
 
     @testset "Solve Polynomial on [-1, 1]" begin
@@ -24,12 +24,12 @@ using Distributions
         P5 = coeffs(fromroots([nextfloat(1.0), prevfloat(-1.0)]))
         P6 = coeffs(fromroots([-0.5, 0.5]))
 
-        @test MvSim.solve_poly_pm_one(P1) ≈ r1 atol=0.001
-        @test MvSim.solve_poly_pm_one(P2) ≈ r2 atol=0.001
-        @test MvSim.solve_poly_pm_one(P3) ≈ r3 atol=0.001
-        @test MvSim.solve_poly_pm_one(P4) ≈ r4 atol=0.001
-        @test isnan(MvSim.solve_poly_pm_one(P5))
-        @test_throws Exception MvSim.solve_poly_pm_one(P6)
+        @test bigsimr.solve_poly_pm_one(P1) ≈ r1 atol=0.001
+        @test bigsimr.solve_poly_pm_one(P2) ≈ r2 atol=0.001
+        @test bigsimr.solve_poly_pm_one(P3) ≈ r3 atol=0.001
+        @test bigsimr.solve_poly_pm_one(P4) ≈ r4 atol=0.001
+        @test isnan(bigsimr.solve_poly_pm_one(P5))
+        @test_throws Exception bigsimr.solve_poly_pm_one(P6)
     end
 
     dA = Beta(2, 3)

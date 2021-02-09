@@ -94,7 +94,7 @@ function Gn0m(n::Int, A::UnitRange{Int}, α::Vector{Float64}, dB::UD, σAσB_inv
     m = n + 4
     t, w = gausshermite(m)
     t .= t * sqrt2
-    X = MvSim.normal_to_margin(dB, t)
+    X = bigsimr.normal_to_margin(dB, t)
     S = invsqrtpi * sum(w .* _h(t, n) .* X)
     return -σAσB_inv * accu * S
 end
