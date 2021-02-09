@@ -1,5 +1,5 @@
 using Test
-using bigsimr
+using Bigsimr
 using LinearAlgebra
 
 @testset "Correlation Utilities" begin
@@ -13,7 +13,7 @@ using LinearAlgebra
 
     @testset "Random postive definite correlation matrix" begin
         r = cor_randPD(100)
-        @test bigsimr.iscorrelation(r)
+        @test Bigsimr.iscorrelation(r)
     end
 
     @testset "Random positive semi-definite correlation matrix" begin
@@ -27,7 +27,7 @@ using LinearAlgebra
 
     @testset "Nearest positive definite correlation matrix" begin
         r = cor_nearPD(r_negdef)
-        @test bigsimr.iscorrelation(r)
+        @test Bigsimr.iscorrelation(r)
     end
 
     @testset "Nearest positive semi-definite correlation matrix" begin

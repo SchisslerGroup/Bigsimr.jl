@@ -1,4 +1,4 @@
-module bigsimr
+module Bigsimr
 
 using Distributions
 using IntervalArithmetic

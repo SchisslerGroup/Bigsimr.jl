@@ -1,6 +1,6 @@
-# bigsimr.jl Package
+# Bigsimr.jl Package
 
-The *bigsimr* package provides a helpful set of tools for simulating high-dimensional multivariate data with arbitrary marginal distributions. Particularly, *bigsimr* implements:
+The *Bigsimr* package provides a helpful set of tools for simulating high-dimensional multivariate data with arbitrary marginal distributions. Particularly, *Bigsimr* implements:
 
 * Simulation of multivariate data via Gaussian copulas (NORTA algorithm)
 * Converting between different types of correlations (Pearson, Spearman, and Kendall)

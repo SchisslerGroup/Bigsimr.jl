@@ -1,7 +1,7 @@
 # Pearson Matching
 
 ```@setup 1
-using bigsimr, Distributions
+using Bigsimr, Distributions
 using RDatasets, DataFrames, Statistics
 using Plots, PrettyTables
 gr()

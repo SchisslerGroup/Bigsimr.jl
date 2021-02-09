@@ -1,8 +1,8 @@
 using Test
-using bigsimr
+using Bigsimr
 using Distributions
 import LinearAlgebra: PosDefException
-import bigsimr: ValidCorrelationError
+import Bigsimr: ValidCorrelationError
 
 @testset "Random Vector Simulation" begin
 
@@ -14,7 +14,7 @@ import bigsimr: ValidCorrelationError
             0.44 0.85 0.22 1.00
         ]
         # Must fail for negative semidefinite matrices
-        @test_throws PosDefException bigsimr._rmvn(10, r_negdef)
+        @test_throws PosDefException Bigsimr._rmvn(10, r_negdef)
     end
 
     @testset "rvec" begin

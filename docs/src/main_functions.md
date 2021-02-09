@@ -5,7 +5,7 @@
 ### Types
 
 ```@docs
-bigsimr.MvDistribution
+Bigsimr.MvDistribution
 ```
 
 ### Functions
@@ -24,9 +24,9 @@ Base.eltype(D::MvDistribution)
 ### Types
 
 ```@docs
-bigsimr.Pearson
-bigsimr.Spearman
-bigsimr.Kendall
+Bigsimr.Pearson
+Bigsimr.Spearman
+Bigsimr.Kendall
 ```
 
 ### Estimating

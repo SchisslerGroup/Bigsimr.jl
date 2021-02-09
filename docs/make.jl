@@ -1,14 +1,14 @@
 push!(LOAD_PATH,"../src/")
-using Documenter, bigsimr
+using Documenter, Bigsimr
 using Distributions
 
-DocMeta.setdocmeta!(bigsimr, :DocTestSetup, :(using bigsimr); recursive=true)
+DocMeta.setdocmeta!(Bigsimr, :DocTestSetup, :(using Bigsimr); recursive=true)
 
 makedocs(
-    sitename = "bigsimr.jl",
-    modules  = [bigsimr],
+    sitename = "Bigsimr.jl",
+    modules  = [Bigsimr],
     pages    = [
-        "bigsimr.jl" => "index.md",
+        "Bigsimr.jl" => "index.md",
         "Guides" => [
             "Getting Started" => "getting_started.md",
             "Pearson Matching" => "pearson_matching.md",
@@ -22,6 +22,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/adknudson/bigsimr.jl.git",
+    repo = "github.com/adknudson/Bigsimr.jl.git",
     versions = ["stable" => "v^", "v#.#", "dev" => "master"]
 )

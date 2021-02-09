@@ -5,10 +5,10 @@ using Plots, PrettyTables
 gr()
 ```
 
-We’re going to show the basic use and syntax of *bigsimr* by using the New York air quality data set (airquality) included in the *RDatasets* package. We will focus specifically on the temperature (degrees Fahrenheit) and ozone level (parts per billion).
+We’re going to show the basic use and syntax of *Bigsimr* by using the New York air quality data set (airquality) included in the *RDatasets* package. We will focus specifically on the temperature (degrees Fahrenheit) and ozone level (parts per billion).
 
 ```@example started
-using bigsimr, Distributions
+using Bigsimr, Distributions
 using RDatasets, DataFrames, Statistics
 ```
 
