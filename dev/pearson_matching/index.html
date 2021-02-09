@@ -11,8 +11,8 @@ julia&gt; x_2 = rand(D2, 1_000_000);
 
 julia&gt; cor(x_2, Spearman)
 2×2 Array{Float64,2}:
- 1.0       0.759489
- 0.759489  1.0</code></pre><p>Let&#39;s try to address <strong>1</strong> and convert the Spearman correlation to a Pearson correlation.</p><pre><code class="language-julia-repl">julia&gt; ρ_p = cor_convert(ρ_s, Spearman, Pearson);
+ 1.0      0.75922
+ 0.75922  1.0</code></pre><p>Let&#39;s try to address <strong>1</strong> and convert the Spearman correlation to a Pearson correlation.</p><pre><code class="language-julia-repl">julia&gt; ρ_p = cor_convert(ρ_s, Spearman, Pearson);
 
 julia&gt; D3 = MvDistribution(ρ_p, margins, Pearson);
 
@@ -20,13 +20,13 @@ julia&gt; x_3 = rand(D3, 1_000_000);
 
 julia&gt; cor(x_3, Pearson)
 2×2 Array{Float64,2}:
- 1.0       0.647382
- 0.647382  1.0
+ 1.0       0.648477
+ 0.648477  1.0
 
 julia&gt; cor(x_3, Spearman)
 2×2 Array{Float64,2}:
- 1.0       0.773992
- 0.773992  1.0</code></pre><p>Notice that the estimated Pearson correlation is lower than the target Pearson correlation, but the estimated Spearman correlation is essentially the same as the target. This is because the transformation in the NORTA step is monotonic, which means that rank-based correlations are preserved. As a consequence, we can match the Spearman correlation exactly (up to stochastic error), but not the Pearson. </p><h2 id="Pearson-Matching-2"><a class="docs-heading-anchor" href="#Pearson-Matching-2">Pearson Matching</a><a class="docs-heading-anchor-permalink" href="#Pearson-Matching-2" title="Permalink"></a></h2><p>We can overcome this limitation by employing a Pearson matching algorithm that determines the necessary input correlation in order to achieve the target correlation. Let&#39;s now address <strong>2</strong>.</p><pre><code class="language-julia-repl">julia&gt; D4 = pearson_match(D2);
+ 1.0     0.7736
+ 0.7736  1.0</code></pre><p>Notice that the estimated Pearson correlation is lower than the target Pearson correlation, but the estimated Spearman correlation is essentially the same as the target. This is because the transformation in the NORTA step is monotonic, which means that rank-based correlations are preserved. As a consequence, we can match the Spearman correlation exactly (up to stochastic error), but not the Pearson. </p><h2 id="Pearson-Matching-2"><a class="docs-heading-anchor" href="#Pearson-Matching-2">Pearson Matching</a><a class="docs-heading-anchor-permalink" href="#Pearson-Matching-2" title="Permalink"></a></h2><p>We can overcome this limitation by employing a Pearson matching algorithm that determines the necessary input correlation in order to achieve the target correlation. Let&#39;s now address <strong>2</strong>.</p><pre><code class="language-julia-repl">julia&gt; D4 = pearson_match(D2);
 
 julia&gt; cor(D4)
 2×2 Array{Float64,2}:
@@ -35,11 +35,11 @@ julia&gt; cor(D4)
 
 julia&gt; cor(x_4, Pearson)
 2×2 Array{Float64,2}:
- 1.0       0.775065
- 0.775065  1.0</code></pre><p>But the estimated correlation is nearly spot on to the [converted] Pearson correlation (ρ_p).</p><p>A better example is using the <code>MvDistribution</code>. We never estimated the correlation after simulating, so let&#39;s look at that now.</p><pre><code class="language-julia-repl">julia&gt; cor(rand(D, 1_000_000))
+ 1.0       0.775249
+ 0.775249  1.0</code></pre><p>But the estimated correlation is nearly spot on to the [converted] Pearson correlation (ρ_p).</p><p>A better example is using the <code>MvDistribution</code>. We never estimated the correlation after simulating, so let&#39;s look at that now.</p><pre><code class="language-julia-repl">julia&gt; cor(rand(D, 1_000_000))
 2×2 Array{Float64,2}:
- 1.0      0.57454
- 0.57454  1.0</code></pre><p>compared to the target correlation:</p><pre><code class="language-julia-repl">julia&gt; ρ
+ 1.0       0.574214
+ 0.574214  1.0</code></pre><p>compared to the target correlation:</p><pre><code class="language-julia-repl">julia&gt; ρ
 2×2 Array{Float64,2}:
  1.0      0.69836
  0.69836  1.0</code></pre><p>The estimated correlation is much too low. Let&#39;s do some Pearson matching and observe the results.</p><pre><code class="language-julia-repl">julia&gt; D5 = pearson_match(D);
@@ -48,5 +48,5 @@ julia&gt; x_5 = rand(D5, 1_000_000);
 
 julia&gt; cor(x_5)
 2×2 Array{Float64,2}:
- 1.0       0.700271
- 0.700271  1.0</code></pre><p>Now the simulated data results in a correlation structure that exactly matches the target Pearson correlation!</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../getting_started/">« Getting Started</a><a class="docs-footer-nextpage" href="../nearest_correlation_matrix/">Nearest Correlation Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 9 February 2021 22:20">Tuesday 9 February 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ 1.0       0.699073
+ 0.699073  1.0</code></pre><p>Now the simulated data results in a correlation structure that exactly matches the target Pearson correlation!</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../getting_started/">« Getting Started</a><a class="docs-footer-nextpage" href="../nearest_correlation_matrix/">Nearest Correlation Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 9 February 2021 22:48">Tuesday 9 February 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
