@@ -46,7 +46,7 @@ _norminvcdf(x::Float64) = -√(2) * erfcinv(2x)
 
 
 export
-rvec, 
+rvec, rmvn,
 MvDistribution, margins, cortype,
 GSDistribution, quantile, mean, var, std,
 # Pearson matching

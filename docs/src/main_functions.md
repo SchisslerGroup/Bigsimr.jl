@@ -13,6 +13,7 @@ Bigsimr.MvDistribution
 ```@docs
 rvec(n::Int, ρ::Matrix{Float64}, margins::Vector{<:UnivariateDistribution})
 rand
+rmvn
 margins(D::MvDistribution)
 cor(D::MvDistribution)
 cortype(D::MvDistribution)
@@ -68,4 +69,10 @@ cor_constrain!
 ```@docs
 pearson_match
 pearson_bounds
+```
+
+## Generalized S-Distribution (Experimental)
+
+```@docs
+Bigsimr.GSDistribution
 ```

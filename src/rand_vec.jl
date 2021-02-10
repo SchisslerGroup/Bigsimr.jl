@@ -25,6 +25,20 @@ end
 
 
 """
+    rmvn(n[, μ], Σ)
+
+Fast parrallel generation of multivariate normal samples.
+"""
+function rmvn end
+rmvn(n::Int, μ::Vector{Float64}, Σ::Matrix{Float64}) = μ' .+ _rmvn(n, Σ)
+rmvn(n::Real, μ::Vector{<:Real}, Σ::Matrix{<:Real}) = rmvn(Int(n), Vector{Float64}(μ), Matrix{Float64}(Σ))
+function rmvn(n::Real, Σ::Matrix{<:Real})
+    d = size(Σ, 2)
+    rmvn(n, ones(Float64, d), Σ)
+end
+
+
+"""
     normal_to_margin(d::UnivariateDistribution, x::Float64)
 
 Convert samples from a standard normal distribution to a given marginal distribution.
