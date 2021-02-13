@@ -54,7 +54,7 @@ pearson_match, pearson_bounds,
 # Correlation Types
 Correlation, Pearson, Spearman, Kendall,
 # Correlation Utils
-cor,
+cor, cor_fast,
 cor_nearPD, cor_fastPD, cor_fastPD!,
 cor_randPD, cor_randPSD,
 cor_convert,

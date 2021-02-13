@@ -57,15 +57,25 @@ using LinearAlgebra
         @test rk == rkk
         @test rp == rpp
 
-        @test cor_convert(0.0, Spearman, Kendall)  ≈ 0.0
-        @test cor_convert(0.0, Spearman, Pearson)  ≈ 0.0
-        @test cor_convert(0.0, Kendall,  Spearman) ≈ 0.0
-        @test cor_convert(0.0, Kendall,  Kendall)  ≈ 0.0
-        @test cor_convert(0.0, Kendall,  Pearson)  ≈ 0.0
-        @test cor_convert(0.0, Pearson,  Spearman) ≈ 0.0
-        @test cor_convert(0.0, Pearson,  Kendall)  ≈ 0.0
-        @test cor_convert(0.0, Pearson,  Pearson)  ≈ 0.0
-        @test cor_convert(0.0, Spearman, Spearman) ≈ 0.0
+        @test cor_convert(0.0, Spearman, Kendall)  == 0.0
+        @test cor_convert(0.0, Spearman, Pearson)  == 0.0
+        @test cor_convert(0.0, Kendall,  Spearman) == 0.0
+        @test cor_convert(0.0, Kendall,  Kendall)  == 0.0
+        @test cor_convert(0.0, Kendall,  Pearson)  == 0.0
+        @test cor_convert(0.0, Pearson,  Spearman) == 0.0
+        @test cor_convert(0.0, Pearson,  Kendall)  == 0.0
+        @test cor_convert(0.0, Pearson,  Pearson)  == 0.0
+        @test cor_convert(0.0, Spearman, Spearman) == 0.0
+
+        @test cor_convert(1.0, Spearman, Kendall)  ≤ 1.0
+        @test cor_convert(1.0, Spearman, Pearson)  ≤ 1.0
+        @test cor_convert(1.0, Kendall,  Spearman) ≤ 1.0
+        @test cor_convert(1.0, Kendall,  Kendall)  ≤ 1.0
+        @test cor_convert(1.0, Kendall,  Pearson)  ≤ 1.0
+        @test cor_convert(1.0, Pearson,  Spearman) ≤ 1.0
+        @test cor_convert(1.0, Pearson,  Kendall)  ≤ 1.0
+        @test cor_convert(1.0, Pearson,  Pearson)  ≤ 1.0
+        @test cor_convert(1.0, Spearman, Spearman) ≤ 1.0
 
         @test cor_convert(1.0, Spearman, Kendall)  ≈ 1.0
         @test cor_convert(1.0, Spearman, Pearson)  ≈ 1.0
@@ -76,6 +86,16 @@ using LinearAlgebra
         @test cor_convert(1.0, Pearson,  Kendall)  ≈ 1.0
         @test cor_convert(1.0, Pearson,  Pearson)  ≈ 1.0
         @test cor_convert(1.0, Spearman, Spearman) ≈ 1.0
+
+        @test cor_convert(-1.0, Spearman, Kendall)  ≥ -1.0
+        @test cor_convert(-1.0, Spearman, Pearson)  ≥ -1.0
+        @test cor_convert(-1.0, Kendall,  Spearman) ≥ -1.0
+        @test cor_convert(-1.0, Kendall,  Kendall)  ≥ -1.0
+        @test cor_convert(-1.0, Kendall,  Pearson)  ≥ -1.0
+        @test cor_convert(-1.0, Pearson,  Spearman) ≥ -1.0
+        @test cor_convert(-1.0, Pearson,  Kendall)  ≥ -1.0
+        @test cor_convert(-1.0, Pearson,  Pearson)  ≥ -1.0
+        @test cor_convert(-1.0, Spearman, Spearman) ≥ -1.0
 
         @test cor_convert(-1.0, Spearman, Kendall)  ≈ -1.0
         @test cor_convert(-1.0, Spearman, Pearson)  ≈ -1.0

@@ -51,10 +51,26 @@ cor(x, y, ::Type{Spearman}) = corspearman(x, y)
 cor(x,    ::Type{Kendall})  = corkendall(x)
 cor(x, y, ::Type{Kendall})  = corkendall(x, y)
 
+"""
+    cor_fast
+
+Calculate the correlation matrix of a data matrix in parallel.
+"""
+function cor_fast(M::Matrix{S}, T::Type{<:Correlation}) where {S<:AbstractFloat}
+    n, d = size(M)
+    C = SharedMatrix{S}(d, d)
+    @threads for i in collect(subsets(1:d, Val{2}()))
+        C[i...] = cor(view(M, :, i[1]), view(M, :, i[2]), T)
+    end
+    C .= Symmetric(C, :U)
+    C[diagind(C)] .= one(S)
+    sdata(C)
+end
+cor_fast(M::Matrix{S}) where S<:AbstractFloat = cor_fast(M, Pearson)
 
 
 """
-    cor_convert(X::Matrix{<:AbstractFloat}, from::Type{<:Correlation}, to::Type{<:Correlation})
+    cor_convert(X::Matrix{<:Real}, from::Type{<:Correlation}, to::Type{<:Correlation})
 
 Convert from one type of correlation matrix to another.
 
@@ -96,19 +112,21 @@ julia> r == cor_convert(r, Pearson, Pearson)
 true
 ```
 """
-cor_convert(X::Matrix{<:AbstractFloat}, from::Type{<:Correlation}, to::Type{<:Correlation}) = cor_constrain(cor_convert.(copy(X), from, to))
-cor_convert(x::AbstractFloat, from::Type{C}, to::Type{C}) where {C<:Correlation} = x
-cor_convert(x::AbstractFloat, from::Type{Pearson},  to::Type{Spearman}) = asin(x / 2) * 6 / π
-cor_convert(x::AbstractFloat, from::Type{Pearson},  to::Type{Kendall})  = asin(x) * 2 / π
-cor_convert(x::AbstractFloat, from::Type{Spearman}, to::Type{Pearson})  = sin(x * π / 6) * 2
-cor_convert(x::AbstractFloat, from::Type{Spearman}, to::Type{Kendall})  = asin(sin(x * π / 6) * 2) * 2 / π
-cor_convert(x::AbstractFloat, from::Type{Kendall},  to::Type{Pearson})  = sin(x * π / 2)
-cor_convert(x::AbstractFloat, from::Type{Kendall},  to::Type{Spearman}) = asin(sin(x * π / 2) / 2) * 6 / π
+cor_convert(x::Real, from::Type{C}, to::Type{C}) where {C<:Correlation} = x
+cor_convert(x::Real, from::Type{Pearson},  to::Type{Spearman}) = cor_constrain(asin(x / 2) * 6 / π)
+cor_convert(x::Real, from::Type{Pearson},  to::Type{Kendall})  = cor_constrain(asin(x) * 2 / π)
+cor_convert(x::Real, from::Type{Spearman}, to::Type{Pearson})  = cor_constrain(sin(x * π / 6) * 2)
+cor_convert(x::Real, from::Type{Spearman}, to::Type{Kendall})  = cor_constrain(asin(sin(x * π / 6) * 2) * 2 / π)
+cor_convert(x::Real, from::Type{Kendall},  to::Type{Pearson})  = cor_constrain(sin(x * π / 2))
+cor_convert(x::Real, from::Type{Kendall},  to::Type{Spearman}) = cor_constrain(asin(sin(x * π / 2) / 2) * 6 / π)
+function cor_convert(X::VecOrMat{<:Real}, from::Type{<:Correlation}, to::Type{<:Correlation})
+    cor_constrain(cor_convert.(copy(X), from, to))
+end
 
 
 
 """
-    cor_constrain!(C::Matrix{<:AbstractFloat}[, uplo=:U])
+    cor_constrain!(C::Matrix{<:Real}[, uplo=:U])
 
 Same as [`cor_constrain`](@ref), except that the matrix `C` is updated in place
 to save memory.
@@ -130,7 +148,7 @@ julia> a
   1.0       0.965936  -0.362526   1.0
 ```
 """
-function cor_constrain!(C::Matrix{<:AbstractFloat}, uplo=:U)
+function cor_constrain!(C::Matrix{<:Real}, uplo=:U)
     C .= clampcor.(C)
     C .= Symmetric(C, uplo)
     C[diagind(C)] .= one(eltype(C))
@@ -138,9 +156,8 @@ function cor_constrain!(C::Matrix{<:AbstractFloat}, uplo=:U)
 end
 
 
-
 """
-    cor_constrain(C::Matrix{<:AbstractFloat}[, uplo=:U])
+    cor_constrain(C::Matrix{<:Real}[, uplo=:U])
 
 Constrain a matrix so that its diagonal elements are 1, off-diagonal elements
 are bounded between -1 and 1, and a symmetric view of the upper (if `uplo = :U`)
@@ -170,8 +187,8 @@ julia> cor_constrain(a, :L)
   0.638291  -0.682503   1.0   1.0
 ```
 """
-cor_constrain(C::Matrix{<:AbstractFloat}, uplo=:U) = begin R = copy(C); cor_constrain!(R, uplo); R end
-
+cor_constrain(C::Matrix{<:Real}, uplo=:U) = begin R = copy(C); cor_constrain!(R, uplo); R end
+cor_constrain(x::Real) = clamp(x, -one(eltype(x)), one(eltype(x)))
 
 
 """
