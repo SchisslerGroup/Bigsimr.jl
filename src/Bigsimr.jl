@@ -26,23 +26,11 @@ const CUD = ContinuousUnivariateDistribution
 const DUD = DiscreteUnivariateDistribution
 
 struct ValidCorrelationError <: Exception end
-function iscorrelation(X::Matrix{<:AbstractFloat})
-    all([
-        isposdef(X),
-        issymmetric(X),
-        all(diag(X) .== one(eltype(X))),
-        all(-one(eltype(X)) .≤ X .≤ one(eltype(X)))
-    ])
-end
 
 const sqrt2 = sqrt(2)
 const invsqrt2 = inv(sqrt(2))
 const invsqrtpi = inv(sqrt(π))
 const invsqrt2π = inv(sqrt(2π))
-
-_normpdf(x::Float64) = exp(-abs2(x)/2) * invsqrt2π
-_normcdf(x::Float64) = erfc(-x * invsqrt2) / 2
-_norminvcdf(x::Float64) = -√(2) * erfcinv(2x)
 
 
 export
@@ -68,8 +56,11 @@ eltype
 
 
 include("MvDistribution.jl")
-include("rand_vec.jl")
 include("GSDistribution.jl")
+include("utils.jl")
+
+include("RandomVector/rvec.jl")
+include("RandomVector/utils.jl")
 
 include("Correlation/nearest_pos_def.jl")
 include("Correlation/fast_pos_def.jl")

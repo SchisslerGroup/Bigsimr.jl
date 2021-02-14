@@ -56,7 +56,7 @@ cor(x, y, ::Type{Kendall})  = corkendall(x, y)
 
 Calculate the correlation matrix of a data matrix in parallel.
 """
-function cor_fast(M::Matrix{S}, T::Type{<:Correlation}) where {S<:AbstractFloat}
+function cor_fast(M::Matrix{S}, T::Type{<:Correlation}=Pearson) where {S<:Real}
     n, d = size(M)
     C = SharedMatrix{S}(d, d)
     @threads for i in collect(subsets(1:d, Val{2}()))
@@ -66,7 +66,6 @@ function cor_fast(M::Matrix{S}, T::Type{<:Correlation}) where {S<:AbstractFloat}
     C[diagind(C)] .= one(S)
     sdata(C)
 end
-cor_fast(M::Matrix{S}) where S<:AbstractFloat = cor_fast(M, Pearson)
 
 
 """
@@ -122,7 +121,6 @@ cor_convert(x::Real, from::Type{Kendall},  to::Type{Spearman}) = cor_constrain(a
 function cor_convert(X::VecOrMat{<:Real}, from::Type{<:Correlation}, to::Type{<:Correlation})
     cor_constrain(cor_convert.(copy(X), from, to))
 end
-
 
 
 """
@@ -187,7 +185,11 @@ julia> cor_constrain(a, :L)
   0.638291  -0.682503   1.0   1.0
 ```
 """
-cor_constrain(C::Matrix{<:Real}, uplo=:U) = begin R = copy(C); cor_constrain!(R, uplo); R end
+function cor_constrain(C::Matrix{<:Real}, uplo=:U)
+    R = copy(C)
+    cor_constrain!(R, uplo)
+    R 
+end
 cor_constrain(x::Real) = clamp(x, -one(eltype(x)), one(eltype(x)))
 
 
@@ -208,9 +210,8 @@ is the associated correlation matrix.
 """
 function cov2cor(C::Matrix{<:AbstractFloat})
     D = sqrt(inv(Diagonal(C)))
-    return cor_constrain(D * C * D)
+    cor_constrain(D * C * D)
 end
-
 
 
 """
@@ -223,12 +224,12 @@ function cov2cor!(C::Matrix{<:AbstractFloat})
     D = sqrt(inv(Diagonal(C)))
     C .= D * C * D
     cor_constrain!(C)
+    nothing
 end
 
 
-
 """
-    cor_bounds(dA::UnivariateDistribution, dB::UnivariateDistribution, C::Type{<:Correlation}=Pearson; n_samples::Int=100_000)
+    cor_bounds(dA::UnivariateDistribution, dB::UnivariateDistribution, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
 
 Compute the stochastic lower and upper correlation bounds between two marginal
 distributions.
@@ -264,9 +265,9 @@ julia> cor_bounds(A, B, Spearman)
 (lower = -1.0, upper = 1.0)
 ```
 """
-function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}=Pearson; n_samples::Int=100_000)
-    a = rand(dA, n_samples)
-    b = rand(dB, n_samples)
+function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
+    a = rand(dA, Int(n_samples))
+    b = rand(dB, Int(n_samples))
 
     sort!(a)
     sort!(b)
@@ -275,13 +276,12 @@ function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}=Pearson; n_samples::I
     reverse!(b)
     lower = cor(a, b, C)
 
-    return (lower = lower, upper = upper)
+    (lower = lower, upper = upper)
 end
 
 
-
 """
-    cor_bounds(D::MvDistribution; n_samples::Int=100_000)
+    cor_bounds(D::MvDistribution; n_samples::Real=100_000)
 
 Compute the pairwise stochastic lower and upper correlation bounds between all
 marginal distributions.
@@ -312,9 +312,10 @@ julia> bounds.upper
  0.768713  1.0
 ```
 """
-function cor_bounds(D::MvDistribution; n_samples::Int=100_000)
+function cor_bounds(D::MvDistribution; n_samples::Real=100_000)
     d = length(D.F)
     lower, upper = similar(cor(D)), similar(cor(D))
+    n_samples = Int(n_samples)
 
     @threads for i in collect(subsets(1:d, Val{2}()))
         l, u = cor_bounds(D.F[i[1]], D.F[i[2]], cortype(D), n_samples=n_samples)

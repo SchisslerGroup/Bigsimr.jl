@@ -1,6 +1,3 @@
-"""
-    fast_pca!(X::Matrix{T}, λ::Vector{T}, P::Matrix{T}, n::Int) where T<:AbstractFloat
-"""
 function fast_pca!(X::Matrix{T}, λ::Vector{T}, P::Matrix{T}, n::Int) where T<:AbstractFloat
     r = sum(λ .> 0)
     s = n - r
@@ -22,8 +19,8 @@ function fast_pca!(X::Matrix{T}, λ::Vector{T}, P::Matrix{T}, n::Int) where T<:A
         P₂λ₂ = P₂ .* λ₂'
         X   .= X .+ P₂λ₂ * P₂λ₂'
     end
+    nothing
 end
-
 
 
 """
@@ -49,11 +46,6 @@ julia> isposdef(r)
 false
 
 julia> cor_fastPD!(r)
-4×4 Array{Float64,2}:
- 1.0       0.817095  0.559306  0.440514
- 0.817095  1.0       0.280196  0.847352
- 0.559306  0.280196  1.0       0.219582
- 0.440514  0.847352  0.219582  1.0
 
 julia> isposdef(r)
 true
@@ -74,6 +66,7 @@ function cor_fastPD!(R::Matrix{<:AbstractFloat}, τ=1e-6)
 
     R[diagind(R)] .+= τ
     R .= cov2cor(R)
+    nothing
 end
 
 
@@ -109,4 +102,13 @@ julia> isposdef(r̃)
 true
 ```
 """
-cor_fastPD(R::Matrix{<:AbstractFloat}, τ=1e-6) = cor_fastPD!(copy(R), τ)
+function cor_fastPD(R::Matrix{<:AbstractFloat}, τ=1e-6)
+    X = copy(R)
+    cor_fastPD!(X, τ)
+    X
+end
+function cor_fastPD(R::Matrix{Float16}, τ=1e-6)
+    X = Matrix{Float32}(R)
+    cor_fastPD!(X, τ)
+    Matrix{Float16}(X)
+end

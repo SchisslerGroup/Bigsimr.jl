@@ -11,7 +11,7 @@ Bigsimr.MvDistribution
 ### Functions
 
 ```@docs
-rvec(n::Int, ρ::Matrix{Float64}, margins::Vector{<:UnivariateDistribution})
+rvec
 rand
 rmvn
 margins(D::MvDistribution)
@@ -34,6 +34,7 @@ Bigsimr.Kendall
 
 ```@docs
 cor
+cor_fast
 cor_bounds
 ```
 

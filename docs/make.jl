@@ -15,7 +15,6 @@ makedocs(
             "Nearest Correlation Matrix" => "nearest_correlation_matrix.md"
         ],
         "Main Functions" => "main_functions.md",
-        "Utilities" => "utilities.md",
         "Details" => "details.md",
         "Index" => "function_index.md"
     ]

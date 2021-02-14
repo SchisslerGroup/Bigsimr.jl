@@ -4,34 +4,6 @@ using Polynomials
 using Distributions
 
 @testset "Pearson Correlation Matching" begin
-
-    @testset "Hermite-Normal PDF" begin
-        @test iszero(Bigsimr.Hp(Inf, 10))
-        @test iszero(Bigsimr.Hp(-Inf, 10))
-        @test 1.45182435 ≈ Bigsimr.Hp(1.0, 5)
-    end
-
-    @testset "Solve Polynomial on [-1, 1]" begin
-        r1 = -1.0
-        r2 =  1.0
-        r3 =  eps()
-        r4 = 2 * rand() - 1
-
-        P1 = coeffs(3 * fromroots([r1, 7, 7, 8]))
-        P2 = coeffs(-5 * fromroots([r2, -1.14, -1.14, -1.14, -1.14, 1119]))
-        P3 = coeffs(1.2 * fromroots([r3, nextfloat(1.0), prevfloat(-1.0)]))
-        P4 = coeffs(fromroots([-5, 5, r4]))
-        P5 = coeffs(fromroots([nextfloat(1.0), prevfloat(-1.0)]))
-        P6 = coeffs(fromroots([-0.5, 0.5]))
-
-        @test Bigsimr.solve_poly_pm_one(P1) ≈ r1 atol=0.001
-        @test Bigsimr.solve_poly_pm_one(P2) ≈ r2 atol=0.001
-        @test Bigsimr.solve_poly_pm_one(P3) ≈ r3 atol=0.001
-        @test Bigsimr.solve_poly_pm_one(P4) ≈ r4 atol=0.001
-        @test isnan(Bigsimr.solve_poly_pm_one(P5))
-        @test_throws Exception Bigsimr.solve_poly_pm_one(P6)
-    end
-
     dA = Beta(2, 3)
     dB = Binomial(2, 0.2)
     dC = Binomial(20, 0.2)
@@ -75,6 +47,86 @@ using Distributions
         @test  0.308 ≈ pearson_match( 0.3, dC, dA) atol=0.05
         @test  0.613 ≈ pearson_match( 0.6, dC, dA) atol=0.05
         @test  0.916 ≈ pearson_match( 0.9, dC, dA) atol=0.05
+    end
+
+end
+
+@testset "Pearson Correlation Utilities" begin
+
+    @testset "Get Hermite Coefficients" begin
+        dA = Binomial(20, 0.2)
+        dB = NegativeBinomial(20, 0.002)
+        dC = LogitNormal(3, 1)
+        dD = Beta(5, 3)
+
+        @test_nowarn Bigsimr.get_coefs(dA, 7)
+        @test_nowarn Bigsimr.get_coefs(dB, 7)
+        @test_nowarn Bigsimr.get_coefs(dC, 7)
+        @test_nowarn Bigsimr.get_coefs(dD, 7)
+
+        @test_nowarn Bigsimr.get_coefs(dA, 7.0)
+        @test_nowarn Bigsimr.get_coefs(dB, 7.0)
+        @test_nowarn Bigsimr.get_coefs(dC, 7.0)
+        @test_nowarn Bigsimr.get_coefs(dD, 7.0)
+
+        @test_throws InexactError Bigsimr.get_coefs(dA, 7.5)
+        @test_throws InexactError Bigsimr.get_coefs(dB, 7.5)
+        @test_throws InexactError Bigsimr.get_coefs(dC, 7.5)
+        @test_throws InexactError Bigsimr.get_coefs(dD, 7.5)
+    end
+
+    @testset "Core Hermite Function" begin
+        # Must work for any real input
+        test_types = (Float64, Float32, Float16, BigFloat, Int128, Int64, Int32, Int16, BigInt, Rational)
+        for T in test_types
+            @test_nowarn Bigsimr._h(one(T), 5)
+        end
+
+        # For the following types, the input type should be the same as the output
+        test_types = (Float64, Float32, Float16, BigFloat, Int64, BigInt, Rational)
+        for T in test_types
+            @test Bigsimr._h(one(T), 5) isa T
+        end
+
+        @test_nowarn Bigsimr._h(3.14, 5.0)
+        @test_throws InexactError Bigsimr._h(3.14, 5.5)
+
+        # Must work for arrays/matrices/vectors
+        A = rand(3)
+        B = rand(3, 3)
+        C = rand(3, 3, 3)
+        @test_nowarn Bigsimr._h(A, 3)
+        @test_nowarn Bigsimr._h(B, 3)
+        @test_nowarn Bigsimr._h(C, 3)
+    end
+
+    @testset "Hermite-Normal PDF" begin
+        @test iszero(Bigsimr.Hp(Inf, 10))
+        @test iszero(Bigsimr.Hp(-Inf, 10))
+        @test 1.45182435 ≈ Bigsimr.Hp(1.0, 5)
+    end
+
+    @testset "Solve Polynomial on [-1, 1]" begin
+        r1 = -1.0
+        r2 =  1.0
+        r3 =  eps()
+        r4 = 2 * rand() - 1
+
+        P1 = coeffs(3 * fromroots([r1, 7, 7, 8]))
+        P2 = coeffs(-5 * fromroots([r2, -1.14, -1.14, -1.14, -1.14, 1119]))
+        P3 = coeffs(1.2 * fromroots([r3, nextfloat(1.0), prevfloat(-1.0)]))
+        P4 = coeffs(fromroots([-5, 5, r4]))
+        P5 = coeffs(fromroots([nextfloat(1.0), prevfloat(-1.0)]))
+        P6 = coeffs(fromroots([-0.5, 0.5]))
+
+        @test Bigsimr.solve_poly_pm_one(P1) ≈ r1 atol=0.001
+        @test Bigsimr.solve_poly_pm_one(P2) ≈ r2 atol=0.001
+        @test Bigsimr.solve_poly_pm_one(P3) ≈ r3 atol=0.001
+        @test Bigsimr.solve_poly_pm_one(P4) ≈ r4 atol=0.001
+
+        @test isnan(Bigsimr.solve_poly_pm_one(P5))
+        
+        @test_throws Exception Bigsimr.solve_poly_pm_one(P6)
     end
 
 end

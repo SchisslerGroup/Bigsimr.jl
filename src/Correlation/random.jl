@@ -36,7 +36,8 @@ function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
     cor_constrain(R)
 end
 cor_randPSD(d::Int, k::Int=d) = cor_randPSD(Float64, d, k)
-
+cor_randPSD(T::Type{<:AbstractFloat}, d::Real, k::Real=d) = cor_randPSD(T, Int(d), Int(k))
+cor_randPSD(d::Real, k::Real=d) = cor_randPSD(Float64, Int(d), Int(k))
 
 
 """
@@ -64,3 +65,5 @@ julia> cor_randPSD(4, 1)
 """
 cor_randPD(T::Type{<:AbstractFloat}, d::Int, k::Int=d) = cor_fastPD(cor_randPSD(T, d, k))
 cor_randPD(d::Int, k::Int=d) = cor_randPD(Float64, d, k)
+cor_randPD(T::Type{<:AbstractFloat}, d::Real, k::Real=d) = cor_randPD(T, Int(d), Int(k))
+cor_randPD(d::Real, k::Real=d) = cor_randPD(Float64, d, k)
