@@ -52,7 +52,8 @@ cov2cor, cov2cor!
 # Extended Base utilities
 promote,
 rand,
-eltype
+eltype,
+show
 
 
 include("MvDistribution.jl")
