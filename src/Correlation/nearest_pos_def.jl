@@ -232,7 +232,7 @@ function npd_precond_matrix(Ω₀::Matrix{T}, P::Matrix{T}, n::Int) where {T<:Ab
 
     r == 0 || r == n && return ones(T, n)
 
-    H  = (P .* P)'
+    H  = adjoint(P .* P)
     H₁ = @view H[1:r,:]
     H₂ = @view H[r+1:n,:]
 

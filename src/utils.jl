@@ -16,7 +16,7 @@ end
 for F in (:_normpdf, :_normcdf, :_norminvcdf)
     @eval $F(x::Float16) = Float16($F(Float32(x)))
 end
-for T in (Int16, Int32, Int64)
+for T in (Int16, Int32, Int64, Real)
     for F in (:_normpdf, :_normcdf, :_norminvcdf)
         @eval $F(x::$T) = $F(Float64(x))
     end

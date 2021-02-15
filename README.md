@@ -6,10 +6,76 @@
 | [![][docs-latest-img]][docs-latest-url] |                                           | ![Release][release-img]                |
 
 
-A Julia package for simulating high-dimensional multivariate data with a target correlation and arbitrary marginal distributions. *Bigsimr* works with any distribution implemented in *Distributions.jl* or any user-defined distribution derived from *Distributions* univariate classes. Additionally, *Bigsimr* accounts for different target correlations:
+A Julia package for simulating high-dimensional multivariate data with a target correlation and arbitrary marginal distributions via Gaussian copula. *Bigsimr* works with any univariate distribution implemented in *Distributions.jl* or any user-defined distribution derived from *Distributions* univariate classes. Additionally, *Bigsimr* accounts for different target correlations:
 
-- Pearson: employs a matching algorithm (Xioa and Zhou 2019) to account for the non-linear transformation in the Normal-To-Anything (NORTA) step
-- Spearman and Kendall: Use explicit transformations (Avramidis et al. 2009, Lebrun and Dutfoy 2009) and calculate the nearest positive definite correlation matrix (Qi and Sun 2006) before doing the NORTA step
+- Pearson: employs a matching algorithm (Xiao and Zhou 2019) to account for the non-linear transformation in the Normal-to-Anything (NORTA) step
+- Spearman and Kendall: Use explicit transformations (Lebrun and Dutfoy 2009)
+
+## Other Features
+
+* **Nearest Correlation Matrix** - Calculate the nearest positive [semi]definite correlation matrix (Qi and Sun 2006)
+* **Fast Approximate Correlation Matrix** - Calculate an approximation to the nearest positive definite correlation matrix
+* **Random Correlation Matrix** - Generate random positive [semi]definite correlation matrices 
+* **Fast Multivariate Normal Generation** - Utilize multithreading to generate multivariate normal samples in parallel
+
+## Examples
+
+Pearson matching
+
+```julia
+using Bigsimr
+using Distributions
+
+r = cor_randPD(3)
+m = [Binomial(20, 0.2), Beta(2, 3), LogNormal(3, 1)]
+
+D = MvDistribution(r, m, Pearson)
+D = pearson_match(D)
+
+x = rand(D, 100_000)
+cor(x, Pearson)
+```
+
+Spearman/Kendall matching
+
+```julia
+D = MvDistribution(r, m, Spearman)
+
+x = rand(D, 100_000)
+cor(x, Spearman)
+```
+
+Nearest correlation matrix
+
+```julia
+import LinearAlgebra: isposdef
+
+s = cor_randPSD(200)
+r = cor_convert(s, Spearman, Pearson)
+isposdef(r)
+
+p = cor_nearPD(r)
+isposdef(p)
+```
+
+Fast approximate nearest correlation matrix
+
+```julia
+s = cor_randPSD(2000)
+r = cor_convert(s, Spearman, Pearson)
+isposdef(r)
+
+p = cor_fastPD(r)
+isposdef(p)
+```
+
+## References
+
+* Xiao, Q., & Zhou, S. (2019). Matching a correlation coefficient by a Gaussian copula. Communications in Statistics-Theory and Methods, 48(7), 1728-1747.
+* Lebrun, R., & Dutfoy, A. (2009). An innovating analysis of the Nataf transformation from the copula viewpoint. Probabilistic Engineering Mechanics, 24(3), 312-320.
+* Qi, H., & Sun, D. (2006). A quadratically convergent Newton method for computing the nearest correlation matrix. SIAM journal on matrix analysis and applications, 28(2), 360-385.
+* amoeba (https://stats.stackexchange.com/users/28666/amoeba), How to generate a large full-rank random correlation matrix with some strong correlations present?, URL (version: 2017-04-13): https://stats.stackexchange.com/q/125020
+
 
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
