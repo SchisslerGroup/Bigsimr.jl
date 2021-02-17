@@ -18,7 +18,7 @@ for T in (Float64, Float32, Float16)
         Z * Matrix{$T}(C.U)
     end
 end
-
+_rmvn(n::Int, ρ::Float64) = _rmvn(n, [1.0 ρ; ρ 1.0])
 
 """
     rmvn(n[, μ], Σ)

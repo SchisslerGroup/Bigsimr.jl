@@ -52,8 +52,8 @@ export
     # Extended Base utilities
     promote,
     rand,
-show
-eltype,
+    eltype,
+    show
 
 
 include("MvDistribution.jl")
