@@ -214,3 +214,24 @@ function pearson_match(D::MvDistribution; n::Int=7)
     # Return the new MvDistribution
     MvDistribution(R, margins(D), Pearson)
 end
+
+
+"""
+    pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
+"""
+function pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
+    !(length(margins) == size(ρ, 1) == size(ρ, 2)) && throw(DimensionMismatch("The number of margins must be the same size as the correlation matrix."))
+
+    d = length(margins)
+    R = SharedMatrix{Float64}(d, d)
+
+    # Calculate the pearson matching pairs
+    @threads for i in collect(subsets(1:d, Val{2}()))
+        @inbounds R[i...] = pearson_match(ρ[i...], margins[i[1]], margins[i[2]])
+    end
+    R = Matrix{Float64}(Symmetric(sdata(R)))
+
+    # Ensure that the resulting correlation matrix is positive definite
+    cor_fastPD!(R)
+    R
+end
