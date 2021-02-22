@@ -56,12 +56,12 @@ julia> m = [Normal(78, 10), LogNormal(3, 1)];
 julia> b = pearson_bounds(m);
 
 julia> b.lower
-#>2×2 Array{Float64,2}:
+2×2 Array{Float64,2}:
   1.0       -0.762874
  -0.762874   1.0
 
 julia> b.upper
-#>2×2 Array{Float64,2}:
+2×2 Array{Float64,2}:
  1.0       0.762874
  0.762874  1.0
 ```

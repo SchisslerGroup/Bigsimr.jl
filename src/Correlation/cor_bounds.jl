@@ -50,6 +50,17 @@ function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}=Pearson; n_samples::R
 end
 
 
+"""
+cor_bounds(margins::Vector{<:UD}, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
+
+Compute the stochastic pairwise lower and upper correlation bounds between a set
+of marginal distributions.
+
+The possible correlation types are:
+  * [`Pearson`](@ref)
+  * [`Spearman`](@ref)
+  * [`Kendall`](@ref)
+"""
 function cor_bounds(margins::Vector{<:UD}, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
     d = length(margins)
     lower, upper = zeros(Float64, d, d), zeros(Float64, d, d)
