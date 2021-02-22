@@ -69,14 +69,13 @@ export
     cor_constrain, cor_constrain!,
     cov2cor, cov2cor!
     # Extended Base utilities
-    promote,
-    eltype
 
 
 include("GSDistribution.jl")
 include("utils.jl")
 
 include("RandomVector/rvec.jl")
+include("RandomVector/rmvn.jl")
 include("RandomVector/utils.jl")
 
 include("Correlation/cor_bounds.jl")

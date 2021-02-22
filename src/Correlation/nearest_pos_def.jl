@@ -19,14 +19,14 @@ julia> r = [1.00 0.82 0.56 0.44; 0.82 1.00 0.28 0.85; 0.56 0.28 1.00 0.22; 0.44 
 julia> isposdef(r)
 false
 
-julia> r̃ = cor_nearPD(r)
+julia> p = cor_nearPD(r)
 4×4 Array{Float64,2}:
  1.0       0.817494  0.559416  0.441494
  0.817494  1.0       0.280852  0.847812
  0.559416  0.280852  1.0       0.21949
  0.441494  0.847812  0.21949   1.0
 
-julia> isposdef(r̃)
+julia> isposdef(p)
 true
 ```
 """

@@ -54,7 +54,7 @@ function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7, convert::Bool=true
     _pearson_match(ρ, dA, dB, n)
 end
 
-
+# Continuous-Continuous case
 function _pearson_match(ρ::Float64, dA::CUD, dB::CUD, n::Int)
     μA = mean(dA)
     μB = mean(dB)
@@ -88,6 +88,7 @@ function _pearson_match(ρ::Float64, dA::CUD, dB::CUD, n::Int)
     ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
 end
 
+# Discrete-Discrete case
 function _pearson_match(ρ::Float64, dA::DUD, dB::DUD, n::Int)
     maxA = maximum(dA)
     maxB = maximum(dB)
@@ -126,6 +127,7 @@ function _pearson_match(ρ::Float64, dA::DUD, dB::DUD, n::Int)
     ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
 end
 
+# Discrete-Continuous case
 function _pearson_match(ρ::Float64, dA::DUD, dB::CUD, n::Int)
     σA = std(dA)
     σB = std(dB)
@@ -155,12 +157,16 @@ function _pearson_match(ρ::Float64, dA::DUD, dB::CUD, n::Int)
     ρ_l, ρ_u = pearson_bounds(dA, dB)
     ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
 end
-
 _pearson_match(ρ::Float64, dA::CUD, dB::DUD, n::Int) = _pearson_match(ρ, dB, dA, n)
 
 
 """
     pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
+
+Compute the pearson correlation coefficient that is necessary to achieve the
+target correlation matrix given a set of marginal distributions.
+
+See also: [`pearson_bounds`](@ref)
 """
 function pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
     !(length(margins) == size(ρ, 1) == size(ρ, 2)) && throw(DimensionMismatch("The number of margins must be the same size as the correlation matrix."))

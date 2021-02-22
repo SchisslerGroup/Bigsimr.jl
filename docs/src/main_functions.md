@@ -6,7 +6,6 @@
 
 ```@docs
 rvec
-rand
 rmvn
 ```
 

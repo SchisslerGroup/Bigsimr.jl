@@ -54,7 +54,7 @@ cor(x, y, ::Type{Kendall})  = corkendall(x, y)
 """
     cor_fast
 
-Calculate the correlation matrix of a data matrix in parallel.
+Calculate the correlation matrix in parallel.
 """
 function cor_fast(M::Matrix{S}, T::Type{<:Correlation}=Pearson) where {S<:Real}
     n, d = size(M)
@@ -111,7 +111,7 @@ julia> r == cor_convert(r, Pearson, Pearson)
 true
 ```
 """
-cor_convert(x::Real, from::Type{C}, to::Type{C}) where {C<:Correlation} = x
+cor_convert(x::Real, from::Type{C},        to::Type{C}) where {C<:Correlation} = x
 cor_convert(x::Real, from::Type{Pearson},  to::Type{Spearman}) = cor_constrain(asin(x / 2) * 6 / π)
 cor_convert(x::Real, from::Type{Pearson},  to::Type{Kendall})  = cor_constrain(asin(x) * 2 / π)
 cor_convert(x::Real, from::Type{Spearman}, to::Type{Pearson})  = cor_constrain(sin(x * π / 6) * 2)
