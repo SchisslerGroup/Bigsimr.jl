@@ -26,22 +26,22 @@ Pearson matching
 using Bigsimr
 using Distributions
 
-r = cor_randPD(3)
-m = [Binomial(20, 0.2), Beta(2, 3), LogNormal(3, 1)]
+target_corr = cor_randPD(3)
+margins = [Binomial(20, 0.2), Beta(2, 3), LogNormal(3, 1)]
 
-D = MvDistribution(r, m, Pearson)
-D = pearson_match(D)
+adjusted_corr = pearson_match(target_corr, margins)
 
-x = rand(D, 100_000)
+x = rvec(100_000, adjusted_corr, margins)
 cor(x, Pearson)
 ```
 
 Spearman/Kendall matching
 
 ```julia
-D = MvDistribution(r, m, Spearman)
+spearman_corr = cor_randPD(3)
+adjusted_corr = cor_convert(spearman_corr, Spearman, Pearson)
 
-x = rand(D, 100_000)
+x = rvec(100_000, adjusted_corr, margins)
 cor(x, Spearman)
 ```
 

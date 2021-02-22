@@ -2,22 +2,12 @@
 
 ## Random Multivariate Vector
 
-### Types
-
-```@docs
-Bigsimr.MvDistribution
-```
-
 ### Functions
 
 ```@docs
 rvec
 rand
 rmvn
-margins(D::MvDistribution)
-cor(D::MvDistribution)
-cortype(D::MvDistribution)
-Base.eltype(D::MvDistribution)
 ```
 
 ## Correlations

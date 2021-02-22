@@ -39,54 +39,21 @@ function _pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB, n)
 end
 
 
-"""
-    pearson_bounds(D::MvDistribution)
-
-Compute the pairwise theoretical lower and upper Pearson correlation values for
-a set of univariate distributions. The correlation matrix and correlation type
-are ignored when using this function on the `MvDistribution` type.
-
-See also: [`pearson_match`](@ref)
-
-# Examples
-```jldoctest
-julia> using Distributions
-
-julia> margins = [Normal(78, 10), LogNormal(3, 1)];
-
-julia> r = [1.0 0.7; 0.7 1.0]
-2×2 Array{Float64,2}:
- 1.0  0.7
- 0.7  1.0
-
-julia> D = MvDistribution(r, margins, Pearson);
-
-julia> bounds = pearson_bounds(D);
-
-julia> bounds.lower
-2×2 Array{Float64,2}:
-  1.0       -0.762874
- -0.762874   1.0
-
-julia> bounds.upper
-2×2 Array{Float64,2}:
- 1.0       0.762874
- 0.762874  1.0
-```
-"""
-function pearson_bounds(D::MvDistribution)
-    d = length(D.F)
-
-    lower, upper = similar(cor(D)), similar(cor(D))
+function pearson_bounds(margins::Vector{<:UD})
+    d = length(margins)
+    lower, upper = zeros(Float64, d, d), zeros(Float64, d, d)
 
     @threads for i in collect(subsets(1:d, Val{2}()))
-        l, u = pearson_bounds(D.F[i[1]], D.F[i[2]])
+        l, u = pearson_bounds(margins[i[1]], margins[i[2]])
         lower[i...] = l
         upper[i...] = u
     end
 
-    lower .= cor_constrain(Matrix{eltype(D)}(Symmetric(lower)))
-    upper .= cor_constrain(Matrix{eltype(D)}(Symmetric(upper)))
+    lower .= Symmetric(lower)
+    cor_constrain!(lower)
 
+    upper .= Symmetric(upper)
+    cor_constrain!(upper)
+    
     (lower = lower, upper = upper)
 end

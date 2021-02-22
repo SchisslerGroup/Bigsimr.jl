@@ -3,7 +3,6 @@ module Bigsimr
 using Distributions
 using IntervalArithmetic
 
-import Base: promote, rand, eltype
 import Base.Threads: @threads
 import FastGaussQuadrature: gausshermite
 import HypergeometricFunctions: _₂F₁
@@ -33,10 +32,30 @@ const invsqrtpi = inv(sqrt(π))
 const invsqrt2π = inv(sqrt(2π))
 
 
+abstract type Correlation end
+"""
+    Pearson <: Correlation
+
+Pearson's ``r`` product-moment correlation
+"""
+struct Pearson <: Correlation end
+"""
+    Spearman <: Correlation
+
+Spearman's ``ρ`` rank correlation
+"""
+struct Spearman <: Correlation end
+"""
+    Kendall <: Correlation
+
+Kendall's ``τ`` rank correlation
+"""
+struct Kendall <: Correlation end
+
+
 export
     rvec, rmvn,
-    MvDistribution, margins, cortype,
-    GSDistribution, quantile, mean, var, std,
+    quantile, mean, var, std,
     # Pearson matching
     pearson_match, pearson_bounds,
     # Correlation Types
@@ -51,20 +70,18 @@ export
     cov2cor, cov2cor!
     # Extended Base utilities
     promote,
-    rand,
-    eltype,
-    show
+    eltype
 
 
-include("MvDistribution.jl")
 include("GSDistribution.jl")
 include("utils.jl")
 
 include("RandomVector/rvec.jl")
 include("RandomVector/utils.jl")
 
-include("Correlation/nearest_pos_def.jl")
+include("Correlation/cor_bounds.jl")
 include("Correlation/fast_pos_def.jl")
+include("Correlation/nearest_pos_def.jl")
 include("Correlation/random.jl")
 include("Correlation/utils.jl")
 

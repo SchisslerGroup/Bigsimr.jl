@@ -160,63 +160,6 @@ _pearson_match(ρ::Float64, dA::CUD, dB::DUD, n::Int) = _pearson_match(ρ, dB, d
 
 
 """
-    pearson_match(D::MvDistribution; n::Int=7)
-
-Return a MvDistribution type with the matched Pearson correlation coefficients
-and the Pearson correlation type.
-
-If the input correlation matrix is anything other than `Pearson`, then convert
-it to Pearson, perform the matching algorithm, and then finally ensure that the
-resulting correlation matrix is positive definite. The target correlation may 
-not be feasible (see [`pearson_bounds`](@ref)), in which case the match to the 
-nearest lower or upper bound is returned.
-
-See also: [`pearson_bounds`](@ref)
-
-# Examples
-```jldoctest
-julia> using Distributions
-
-julia> margins = [Normal(78, 10), LogNormal(3, 1)];
-
-julia> r = [1.0 0.7; 0.7 1.0]
-2×2 Array{Float64,2}:
- 1.0  0.7
- 0.7  1.0
-
-julia> D = MvDistribution(r, margins, Spearman);
-
-julia> R = pearson_match(D);
-
-julia> cor(R)
-2×2 Array{Float64,2}:
- 1.0       0.917583
- 0.917583  1.0
-
-julia> cortype(R)
-Pearson
-```
-"""
-function pearson_match(D::MvDistribution; n::Int=7)
-    d = length(D.F)
-
-    # Make sure that ρ is a Pearson correlation
-    R = cor_convert(cor(D), cortype(D), Pearson)
-
-    # Calculate the pearson matching pairs
-    @threads for i in collect(subsets(1:d, Val{2}()))
-        @inbounds R[i...] = pearson_match(D.ρ[i...], D.F[i[1]], D.F[i[2]], n=n)
-    end
-
-    # Ensure that the resulting correlation matrix is positive definite
-    R .= cor_nearPD(Matrix{eltype(D)}(Symmetric(R)))
-
-    # Return the new MvDistribution
-    MvDistribution(R, margins(D), Pearson)
-end
-
-
-"""
     pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
 """
 function pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
@@ -232,6 +175,5 @@ function pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
     R = Matrix{Float64}(Symmetric(sdata(R)))
 
     # Ensure that the resulting correlation matrix is positive definite
-    cor_fastPD!(R)
-    R
+    cor_fastPD(R)
 end

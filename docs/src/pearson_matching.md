@@ -12,7 +12,6 @@ df = dataset("datasets", "airquality")[:, [:Ozone, :Temp]] |> dropmissing
 μ_Ozone = mean(log.(df.Ozone))
 σ_Ozone = sqrt(mean((log.(df.Ozone) .- mean(log.(df.Ozone))).^2))
 margins = [Normal(μ_Temp, σ_Temp), LogNormal(μ_Ozone, σ_Ozone)]
-D = MvDistribution(ρ, margins, Pearson)
 ```
 
 ## Correlation Conversion
@@ -29,59 +28,43 @@ If we just use the Spearman correlation when we simulate data, then the errors a
 1. The NORTA algorithm is expecting a Pearson correlation
 2. The non-linear transformation in the NORTA step does not guarantee that the input correlation is the same as the output.
 
+Here is what we get when we use the Spearman correlation directly with no transformation:
+
 ```@repl 1
-D2 = MvDistribution(ρ_s, margins, Spearman);
-x_2 = rand(D2, 1_000_000);
+x_2 = rvec(1_000_000, ρ_s, margins);
 cor(x_2, Spearman)
 ```
 
-Let's try to address **1** and convert the Spearman correlation to a Pearson correlation.
+Let's try to address **issue 1** and convert the Spearman correlation to a Pearson correlation.
 
 ```@repl 1
 ρ_p = cor_convert(ρ_s, Spearman, Pearson);
-D3 = MvDistribution(ρ_p, margins, Pearson);
-x_3 = rand(D3, 1_000_000); 
-cor(x_3, Pearson)
+x_3 = rvec(1_000_000, ρ_p, margins);
 cor(x_3, Spearman)
 ```
 
-Notice that the estimated Pearson correlation is lower than the target Pearson correlation, but the estimated Spearman correlation is essentially the same as the target. This is because the transformation in the NORTA step is monotonic, which means that rank-based correlations are preserved. As a consequence, we can match the Spearman correlation exactly (up to stochastic error), but not the Pearson. 
+Notice that the estimated Spearman correlation is essentially the same as the target Spearman correlation. This is because the transformation in the NORTA step is monotonic, which means that rank-based correlations are preserved. As a consequence, we can match the Spearman correlation exactly (up to stochastic error) with an explicit transformation.
 
 ## Pearson Matching
 
-We can overcome this limitation by employing a Pearson matching algorithm that determines the necessary input correlation in order to achieve the target correlation. Let's now address **2**.
+We can employ a Pearson matching algorithm that determines the necessary input correlation in order to achieve the target Pearson correlation. Let's now address **issue 2**.
 
 ```@repl 1
-D4 = pearson_match(D2);
-cor(D4)
+ρ = cor(Matrix(df), Pearson)
 ```
 
-Notice the signficant change in the input correlation!
+If we use the measured correlation directly, then the estimated correlation from the simulated data is far off:
 
 ```@repl 1
-x_4 = rand(D4, 1_000_000);
+x_4 = rvec(1_000_000, ρ, margins);
 cor(x_4, Pearson)
-```
-
-But the estimated correlation is nearly spot on to the [converted] Pearson correlation (ρ_p).
-
-A better example is using the `MvDistribution`. We never estimated the correlation after simulating, so let's look at that now.
-
-```@repl 1
-cor(rand(D, 1_000_000))
-```
-
-compared to the target correlation:
-
-```@repl 1
-ρ
 ```
 
 The estimated correlation is much too low. Let's do some Pearson matching and observe the results.
 
 ```@repl 1
-D5 = pearson_match(D); 
-x_5 = rand(D5, 1_000_000); 
+p = pearson_match(ρ, margins)
+x_5 = rvec(1_000_000, p, margins);
 cor(x_5)
 ```
 

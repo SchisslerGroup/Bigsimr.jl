@@ -61,14 +61,6 @@ Finally we take the parameters and put them into a vector of margins:
 margins = [Normal(μ_Temp, σ_Temp), LogNormal(μ_Ozone, σ_Ozone)]
 ```
 
-## Multivariate Distribution
-
-While the individual components can be used separately within the package, they work best when joined together into a `MvDistribution` data type:
-
-```@repl started
-D = MvDistribution(ρ, margins, Pearson);
-```
-
 ## Correlation Bounds
 
 Given a vector of margins, the theoretical lower and upper correlation coefficients can be estimated using simulation:
@@ -93,12 +85,6 @@ Let’s now simulate 10,000 observations from the joint distribution using `rvec
 
 ```@repl started
 x = rvec(10_000, ρ, margins)
-```
-
-Alternatively we can use `rand` with the `MvDistribution` type:
-
-```@repl started
-rand(D, 10)
 ```
 
 ## Visualizing Bivariate Data

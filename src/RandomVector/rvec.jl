@@ -20,17 +20,3 @@ for T in (Float64, Float32, Float16)
     end
     @eval rvec(n::Real, ρ::Matrix{$T}, margins::Vector{<:UD}) = rvec(Int(n), ρ, margins)
 end
-
-
-
-"""
-    rand(D::MvDistribution, n::Int)
-
-More general wrapper for `rvec`.
-"""
-function rand(D::MvDistribution, n::Int)
-    r = cor_convert(cor(D), cortype(D), Pearson)
-    r .= cor_nearPD(r)
-    rvec(n, r, margins(D))
-end
-rand(D::MvDistribution, n::Real) = rand(D, Int(n))
