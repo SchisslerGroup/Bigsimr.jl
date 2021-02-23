@@ -5,19 +5,17 @@ using IntervalArithmetic
 
 import Base.Threads: @threads
 import FastGaussQuadrature: gausshermite
-import HypergeometricFunctions: _₂F₁
 import IntervalRootFinding: roots, Krawczyk
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, Diagonal,
                       eigen, norm, inv, I, Symmetric,
                       cholesky, isposdef, issymmetric
-import LsqFit: curve_fit, coef
 import Polynomials: Polynomial, derivative
-import QuadGK: quadgk
 import SharedArrays: SharedMatrix, sdata
 import SpecialFunctions: erfc, erfcinv
 import Statistics: cor, clampcor
 import StatsBase: corspearman, corkendall
+import GSDistributions: GSDist
 
 
 const UD  = UnivariateDistribution
@@ -69,7 +67,6 @@ export
     cov2cor, cov2cor!
 
 
-include("GSDistribution.jl")
 include("utils.jl")
 
 include("RandomVector/rvec.jl")
