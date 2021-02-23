@@ -52,7 +52,7 @@ cor(x,    ::Type{Kendall})  = corkendall(x)
 cor(x, y, ::Type{Kendall})  = corkendall(x, y)
 
 """
-    cor_fast
+    cor_fast(M::Matrix{S}, T::Type{<:Correlation}=Pearson) where {S<:Real}
 
 Calculate the correlation matrix in parallel.
 """

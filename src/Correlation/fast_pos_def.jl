@@ -26,7 +26,7 @@ end
 """
     cor_fastPD!(R::Matrix{<:AbstractFloat}[, τ=1e-6])
 
-Same as [`cor_fastPD`](@ref), but saves space by overwriting the input `R`,
+Same as [`cor_fastPD`](@ref), but saves space by overwriting the input `R`
 instead of creating a copy.
 
 See also: [`cor_fastPD`](@ref), [`cor_nearPD`](@ref)
@@ -73,7 +73,9 @@ end
 """
     cor_fastPD(R::Matrix{<:AbstractFloat}[, τ=1e-6])
 
-Return a positive definite correlation matrix that is close to `R`.
+Return a positive definite correlation matrix that is close to `R`. `τ` is a
+tuning parameter that controls the minimum eigenvalue of the resulting matrix.
+`τ` can be set to zero if only a positive semidefinite matrix is needed.
 
 See also: [`cor_fastPD!`](@ref), [`cor_nearPD`](@ref)
 

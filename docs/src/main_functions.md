@@ -1,4 +1,4 @@
-# Main Functions
+# API Reference
 
 ## Random Multivariate Vector
 
@@ -59,10 +59,4 @@ cor_constrain!
 ```@docs
 pearson_match
 pearson_bounds
-```
-
-## Generalized S-Distribution (Experimental)
-
-```@docs
-Bigsimr.GSDistribution
 ```

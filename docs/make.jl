@@ -14,7 +14,7 @@ makedocs(
             "Pearson Matching" => "pearson_matching.md",
             "Nearest Correlation Matrix" => "nearest_correlation_matrix.md"
         ],
-        "Main Functions" => "main_functions.md",
+        "API Reference" => "main_functions.md",
         "Details" => "details.md",
         "Index" => "function_index.md"
     ]

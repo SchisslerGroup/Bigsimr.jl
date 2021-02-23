@@ -12,9 +12,22 @@ using Bigsimr, Distributions
 using RDatasets, DataFrames, Statistics
 ```
 
-```@example started
-df = dataset("datasets", "airquality")[:, [:Ozone, :Temp]] |> dropmissing
-pretty_table(df, tf=tf_markdown, show_row_number=true, vcrop_mode=:middle, display_size=(13, 80)) # hide
+```@repl started
+df = dataset("datasets", "airquality")[:, [:Ozone, :Temp]] |> dropmissing;
+```
+
+```julia
+| Row | Ozone |  Temp |
+|     | Int64 | Int64 |
+|-----|-------|-------|
+|   1 |    41 |    67 |
+|   2 |    36 |    72 |
+|   3 |    12 |    74 |
+|  ⋮  |   ⋮   |   ⋮   |
+| 114 |    14 |    75 |
+| 115 |    18 |    76 |
+| 116 |    20 |    68 |
+       110 rows omitted
 ```
 
 Let’s look at the joint distribution of the Ozone and Temperature
@@ -66,7 +79,7 @@ margins = [Normal(μ_Temp, σ_Temp), LogNormal(μ_Ozone, σ_Ozone)]
 Given a vector of margins, the theoretical lower and upper correlation coefficients can be estimated using simulation:
 
 ```@repl started
-lower, upper = cor_bounds(D);
+lower, upper = cor_bounds(margins, Pearson);
 lower
 upper
 ```
@@ -74,7 +87,7 @@ upper
 The `pearson_bounds` function uses more sophisticated methods to determine the theoretical lower and upper Pearson correlation bounds. It also requires more computational time.
 
 ```@repl started
-lower, upper = pearson_bounds(D);
+lower, upper = pearson_bounds(margins);
 lower
 upper
 ```

@@ -1,7 +1,8 @@
 """
-    cor_randPSD([T::Type{<:AbstractFloat}], d::Int[, k::Int=d])
+    cor_randPSD([T::Type{<:AbstractFloat}], d::Int[, k::Int=d-1])
 
-Return a random positive semidefinite correlation matrix.
+Return a random positive semidefinite correlation matrix where `d` is the 
+dimension (``d ≥ 1``) and `k` is the number of factor loadings (``1 ≤ k < d``).
 
 See also: [`cor_randPD`](@ref)
 
@@ -29,9 +30,9 @@ julia> cor_randPSD(4)
   0.289011   0.190938  -0.102597   1.0
 ```
 """
-function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
+function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d-1)
     @assert d ≥ 1
-    @assert 1 ≤ k ≤ d
+    @assert 1 ≤ k < d
 
     d == 1 && return ones(T, 1, 1)
 
@@ -42,13 +43,13 @@ function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d)
 
     cor_constrain(R)
 end
-cor_randPSD(d::Int, k::Int=d) = cor_randPSD(Float64, d, k)
-cor_randPSD(T::Type{<:AbstractFloat}, d::Real, k::Real=d) = cor_randPSD(T, Int(d), Int(k))
-cor_randPSD(d::Real, k::Real=d) = cor_randPSD(Float64, Int(d), Int(k))
+cor_randPSD(d::Int, k::Int=d-1) = cor_randPSD(Float64, d, k)
+cor_randPSD(T::Type{<:AbstractFloat}, d::Real, k::Real=d-1) = cor_randPSD(T, Int(d), Int(k))
+cor_randPSD(d::Real, k::Real=d-1) = cor_randPSD(Float64, Int(d), Int(k))
 
 
 """
-    cor_randPD([T::Type{<:AbstractFloat}], d::Int[, k::Int=d])
+    cor_randPD([T::Type{<:AbstractFloat}], d::Int[, k::Int=d-1])
 
 The same as [`cor_randPSD`](@ref), but calls [`cor_fastPD`](@ref) to ensure that
 the returned matrix is positive definite.
@@ -77,7 +78,7 @@ julia> cor_randPD(4)
  -0.251671  -0.117748  -0.424952   1.0
 ```
 """
-cor_randPD(T::Type{<:AbstractFloat}, d::Int, k::Int=d) = cor_fastPD(cor_randPSD(T, d, k))
-cor_randPD(d::Int, k::Int=d) = cor_randPD(Float64, d, k)
-cor_randPD(T::Type{<:AbstractFloat}, d::Real, k::Real=d) = cor_randPD(T, Int(d), Int(k))
-cor_randPD(d::Real, k::Real=d) = cor_randPD(Float64, d, k)
+cor_randPD(T::Type{<:AbstractFloat}, d::Int, k::Int=d-1) = cor_fastPD(cor_randPSD(T, d, k))
+cor_randPD(d::Int, k::Int=d-1) = cor_randPD(Float64, d, k)
+cor_randPD(T::Type{<:AbstractFloat}, d::Real, k::Real=d-1) = cor_randPD(T, Int(d), Int(k))
+cor_randPD(d::Real, k::Real=d-1) = cor_randPD(Float64, d, k)

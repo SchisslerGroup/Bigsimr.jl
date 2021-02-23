@@ -6,7 +6,6 @@ using RDatasets, DataFrames, Statistics
 using Plots, PrettyTables
 gr()
 df = dataset("datasets", "airquality")[:, [:Ozone, :Temp]] |> dropmissing
-ρ = cor(Matrix(df), Pearson)
 μ_Temp = mean(df.Temp)
 σ_Temp = std(df.Temp)
 μ_Ozone = mean(log.(df.Ozone))
@@ -19,7 +18,7 @@ margins = [Normal(μ_Temp, σ_Temp), LogNormal(μ_Ozone, σ_Ozone)]
 Let's say we really wanted to estimate the Spearman correlation between the temperature and ozone.
 
 ```@repl 1
-ρ_s = cor(Matrix(df), Spearman)
+spearman_corr = cor(Matrix(df), Spearman)
 cor_bounds(margins[1], margins[2], Spearman)
 ```
 
@@ -31,41 +30,41 @@ If we just use the Spearman correlation when we simulate data, then the errors a
 Here is what we get when we use the Spearman correlation directly with no transformation:
 
 ```@repl 1
-x_2 = rvec(1_000_000, ρ_s, margins);
-cor(x_2, Spearman)
+x2 = rvec(1_000_000, spearman_corr, margins);
+cor(x2, Spearman)
 ```
 
-Let's try to address **issue 1** and convert the Spearman correlation to a Pearson correlation.
+Let's try to address **problem 1** and convert the Spearman correlation to a Pearson correlation.
 
 ```@repl 1
-ρ_p = cor_convert(ρ_s, Spearman, Pearson);
-x_3 = rvec(1_000_000, ρ_p, margins);
-cor(x_3, Spearman)
+adjusted_spearman_corr = cor_convert(spearman_corr, Spearman, Pearson);
+x3 = rvec(1_000_000, adjusted_spearman_corr, margins);
+cor(x3, Spearman)
 ```
 
 Notice that the estimated Spearman correlation is essentially the same as the target Spearman correlation. This is because the transformation in the NORTA step is monotonic, which means that rank-based correlations are preserved. As a consequence, we can match the Spearman correlation exactly (up to stochastic error) with an explicit transformation.
 
 ## Pearson Matching
 
-We can employ a Pearson matching algorithm that determines the necessary input correlation in order to achieve the target Pearson correlation. Let's now address **issue 2**.
+We can employ a Pearson matching algorithm that determines the necessary input correlation in order to achieve the target Pearson correlation. Let's now address **problem 2**.
 
 ```@repl 1
-ρ = cor(Matrix(df), Pearson)
+pearson_corr = cor(Matrix(df), Pearson)
 ```
 
 If we use the measured correlation directly, then the estimated correlation from the simulated data is far off:
 
 ```@repl 1
-x_4 = rvec(1_000_000, ρ, margins);
-cor(x_4, Pearson)
+x4 = rvec(1_000_000, pearson_corr, margins);
+cor(x4, Pearson)
 ```
 
 The estimated correlation is much too low. Let's do some Pearson matching and observe the results.
 
 ```@repl 1
-p = pearson_match(ρ, margins)
-x_5 = rvec(1_000_000, p, margins);
-cor(x_5)
+adjusted_pearson_corr = pearson_match(pearson_corr, margins)
+x5 = rvec(1_000_000, adjusted_pearson_corr, margins);
+cor(x5)
 ```
 
 Now the simulated data results in a correlation structure that exactly matches the target Pearson correlation!

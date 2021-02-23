@@ -26,23 +26,23 @@ We provide the function `cor_nearPD` to handle this problem. It is based off of 
 
 ```@repl ncm
 m = Matrix(brca)
-τ = cor(m, Spearman);
-ρₚ = cor_convert(τ, Spearman, Pearson);
-isposdef.([τ, ρₚ])
+spearman_corr = cor(m, Spearman);
+pearson_corr = cor_convert(spearman_corr, Spearman, Pearson);
+isposdef(spearman_corr), isposdef(pearson_corr)
 ```
 
 We see that the converted Pearson correlation matrix is no longer positve definite. This will result in a failure during the multivariate normal generation, particularly during the Cholesky decomposition.
 
 ```@repl ncm
-rvec(10, ρₚ, margins)
+rvec(10, pearson_corr, margins)
 ```
 
 We can fix this by computing the nearest PD correlation.
 
 ```@repl ncm
-ρ̃ₚ = cor_nearPD(ρₚ); 
-isposdef(ρ̃ₚ)
-rvec(10, ρ̃ₚ, margins)
+adjusted_pearson_corr = cor_nearPD(pearson_corr); 
+isposdef(adjusted_pearson_corr)
+rvec(10, adjusted_pearson_corr, margins)
 ```
 
 ## Benchmarking
@@ -50,17 +50,17 @@ rvec(10, ρ̃ₚ, margins)
 What's more impressive is that computing the nearest correlation matrix in Julia is fast!
 
 ```julia-repl
-julia> @benchmark cor_nearPD(ρₚ)
+julia> @benchmark cor_nearPD(pearson_corr)
 BenchmarkTools.Trial: 
-  memory estimate:  6.84 MiB
-  allocs estimate:  160652
+  memory estimate:  7.15 MiB
+  allocs estimate:  160669
   --------------
-  minimum time:     8.485 ms (0.00% GC)
-  median time:      8.848 ms (0.00% GC)
-  mean time:        9.326 ms (4.77% GC)
-  maximum time:     13.108 ms (0.00% GC)
+  minimum time:     8.968 ms (0.00% GC)
+  median time:      9.274 ms (0.00% GC)
+  mean time:        9.752 ms (4.78% GC)
+  maximum time:     12.407 ms (23.64% GC)
   --------------
-  samples:          537
+  samples:          513
   evals/sample:     1
 ```
 
@@ -76,36 +76,36 @@ isposdef(m3000_PD)
 ```julia-repl
 julia> @benchmark cor_nearPD(m3000)
 BenchmarkTools.Trial: 
-  memory estimate:  3.72 GiB
-  allocs estimate:  78433
+  memory estimate:  3.95 GiB
+  allocs estimate:  78597
   --------------
-  minimum time:     11.460 s (2.31% GC)
-  median time:      11.460 s (2.31% GC)
-  mean time:        11.460 s (2.31% GC)
-  maximum time:     11.460 s (2.31% GC)
+  minimum time:     10.648 s (2.66% GC)
+  median time:      10.648 s (2.66% GC)
+  mean time:        10.648 s (2.66% GC)
+  maximum time:     10.648 s (2.66% GC)
   --------------
   samples:          1
   evals/sample:     1
 ```
 
-~12 seconds to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excert from Defeng Sun's home page where his matlab code is:
+~11 seconds^[using an AMD Ryzen 9 3900X with 32GB of RAM] to convert a 3000x3000 correlation matrix! This even beats previous benchmarks for a 3000x3000 randomly generated pseudo correlation matrix. Here is an excerpt from Defeng Sun's home page where his matlab code is:
 
 > For a randomly generated  3,000 by 3,000 pseudo correlation matrix (the code is insensitive to input data), the code needs 24 seconds to reach a solution with the relative duality gap less than 1.0e-3 after 3 iterations and 43 seconds  with the relative duality gap less than 1.0e-10 after 6 iterations in my Dell Desktop with Intel (R) Core i7 processor.
 
 We also offer a faster routine that gives up a little accuracy for speed. While [`cor_nearPD`](@ref) finds the nearest correlation matrix to the input matrix, [`cor_fastPD`](@ref) finds a positive definite correlation matrix that is *close* to the input matrix.
 
 ```julia-repl
-julia> @benchmark cor_fastPD(m3000)
+julia> @benchmark cor_fastPD(m3000) samples=10 seconds=30
 BenchmarkTools.Trial: 
-  memory estimate:  628.95 MiB
-  allocs estimate:  26035
+  memory estimate:  628.92 MiB
+  allocs estimate:  26040
   --------------
-  minimum time:     2.037 s (0.58% GC)
-  median time:      2.093 s (1.75% GC)
-  mean time:        2.115 s (3.38% GC)
-  maximum time:     2.216 s (7.49% GC)
+  minimum time:     1.949 s (0.00% GC)
+  median time:      1.998 s (1.15% GC)
+  mean time:        2.015 s (2.28% GC)
+  maximum time:     2.139 s (8.48% GC)
   --------------
-  samples:          3
+  samples:          10
   evals/sample:     1
 ```
 

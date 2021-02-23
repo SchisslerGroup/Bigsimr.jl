@@ -51,7 +51,7 @@ end
 
 
 """
-cor_bounds(margins::Vector{<:UD}, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
+    cor_bounds(margins::Vector{<:UD}, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
 
 Compute the stochastic pairwise lower and upper correlation bounds between a set
 of marginal distributions.
