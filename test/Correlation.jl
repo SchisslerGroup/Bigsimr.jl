@@ -214,7 +214,7 @@ end
     @testset "Covariance to Correlation" begin
         test_types = [Float64, Float32, Float16]
         for T in test_types
-            R = cor_randPSD(T, 4, 4)
+            R = cor_randPSD(T, 4, 3)
             @test_nowarn cov2cor(R)
             @test eltype(cov2cor(R)) === T
         end
