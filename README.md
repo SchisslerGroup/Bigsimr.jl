@@ -2,8 +2,10 @@
 
 | **Documentation**                       | **Build and Coverage**                    | **Package Details**                    |
 |:---------------------------------------:|:-----------------------------------------:|:--------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] | [![Coverage][codecov-img]][codecov-url]   | [![Licence][license-img]][license-url] |
-| [![][docs-latest-img]][docs-latest-url] |                                           | ![Release][release-img]                |
+| [![][docs-stable-img]][docs-stable-url] | [![CI][ci-img]][ci-url]                   | [![Licence][license-img]][license-url] |
+| [![][docs-latest-img]][docs-latest-url] | [![Coverage][codecov-img]][codecov-url]   | ![Release][release-img]                |
+
+
 
 
 A Julia package for simulating high-dimensional multivariate data with a target correlation and arbitrary marginal distributions via Gaussian copula. *Bigsimr* works with any univariate distribution implemented in *Distributions.jl* or any user-defined distribution derived from *Distributions* univariate classes. Additionally, *Bigsimr* accounts for different target correlations:
@@ -86,6 +88,9 @@ isposdef(p)
 
 [codecov-img]: https://codecov.io/gh/adknudson/Bigsimr.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/adknudson/Bigsimr.jl
+
+[ci-img]: https://github.com/adknudson/Bigsimr.jl/actions/workflows/CI.yml/badge.svg
+[ci-url]: https://github.com/adknudson/Bigsimr.jl/actions/workflows/CI.yml
 
 [release-img]: https://img.shields.io/github/v/tag/adknudson/Bigsimr.jl?label=release&sort=semver
 
