@@ -57,8 +57,9 @@ jobs:
             Pkg.instantiate()'
       - run: |
           julia --project=docs -e '
-            using Documenter: doctest
+            using Documenter
             using Bigsimr
+            DocMeta.setdocmeta!(Bigsimr, :DocTestSetup, :(using Bigsimr); recursive=true)
             doctest(Bigsimr)'
       - run: julia --project=docs docs/make.jl
         env:
