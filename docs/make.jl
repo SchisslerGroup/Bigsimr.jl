@@ -6,6 +6,7 @@ DocMeta.setdocmeta!(Bigsimr, :DocTestSetup, :(using Bigsimr); recursive=true)
 makedocs(
     sitename = "Bigsimr.jl",
     modules  = [Bigsimr],
+    doctest  = false,
     pages    = [
         "Bigsimr.jl" => "index.md",
         "Guides" => [

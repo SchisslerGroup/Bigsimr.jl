@@ -111,6 +111,7 @@ julia> r == cor_convert(r, Pearson, Pearson)
 true
 ```
 """
+function cor_convert end
 cor_convert(x::Real, from::Type{C},        to::Type{C}) where {C<:Correlation} = x
 cor_convert(x::Real, from::Type{Pearson},  to::Type{Spearman}) = cor_constrain(asin(x / 2) * 6 / π)
 cor_convert(x::Real, from::Type{Pearson},  to::Type{Kendall})  = cor_constrain(asin(x) * 2 / π)

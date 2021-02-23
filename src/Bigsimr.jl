@@ -55,7 +55,6 @@ struct Kendall <: Correlation end
 
 export
     rvec, rmvn,
-    quantile, mean, var, std,
     # Pearson matching
     pearson_match, pearson_bounds,
     # Correlation Types
@@ -68,7 +67,6 @@ export
     cor_bounds,
     cor_constrain, cor_constrain!,
     cov2cor, cov2cor!
-    # Extended Base utilities
 
 
 include("GSDistribution.jl")
