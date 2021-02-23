@@ -37,16 +37,16 @@ true
 
 julia&gt; rvec(10, ρ̃ₚ, margins)
 10×200 Array{Float64,2}:
- 755371.0        219377.0        297374.0       …  32276.0  35402.0   15585.0
-      1.6254e6   229875.0        455248.0          91629.0  84392.0  147254.0
- 773370.0             1.35938e6  448889.0          71745.0  29320.0   20596.0
-      2.28398e6  260814.0        203448.0          71123.0  32113.0   17618.0
-      1.24387e6   47969.0        248851.0          30419.0  63256.0   13350.0
-      1.00948e6   91729.0        579625.0       …  43655.0  56858.0   14698.0
- 674999.0        162874.0         94944.0          10515.0  19541.0   21300.0
- 813670.0             1.91534e6       1.3898e6     71750.0  51714.0   92139.0
-      1.25047e6   19793.0        154444.0          31810.0  55349.0   49368.0
- 992903.0        224547.0        395736.0          40793.0  23142.0   11757.0</code></pre><h2 id="Benchmarking"><a class="docs-heading-anchor" href="#Benchmarking">Benchmarking</a><a id="Benchmarking-1"></a><a class="docs-heading-anchor-permalink" href="#Benchmarking" title="Permalink"></a></h2><p>What&#39;s more impressive is that computing the nearest correlation matrix in Julia is fast!</p><pre><code class="language-julia-repl">julia&gt; @benchmark cor_nearPD(ρₚ)
+ 813986.0         26101.0        …  12511.0  53435.0  16787.0   58794.0
+ 677005.0          9994.0            8914.0  19653.0  56861.0   11347.0
+      1.19972e6       1.62165e6     62125.0  44184.0  29821.0  144880.0
+      1.278e6    630830.0           61034.0  62641.0  27038.0   46486.0
+ 952835.0        177364.0           71362.0  47367.0  85979.0   25509.0
+ 642183.0         71969.0        …  23487.0  15980.0  28278.0   17549.0
+      1.14122e6  577711.0           30823.0  54621.0  27326.0   19265.0
+      1.12893e6  257691.0           40514.0  60625.0  16935.0   13339.0
+      1.22032e6  288448.0           25483.0  28800.0  39262.0   26607.0
+      2.16287e6   19671.0           42058.0  53080.0  30910.0   11205.0</code></pre><h2 id="Benchmarking"><a class="docs-heading-anchor" href="#Benchmarking">Benchmarking</a><a id="Benchmarking-1"></a><a class="docs-heading-anchor-permalink" href="#Benchmarking" title="Permalink"></a></h2><p>What&#39;s more impressive is that computing the nearest correlation matrix in Julia is fast!</p><pre><code class="language-julia-repl">julia&gt; @benchmark cor_nearPD(ρₚ)
 BenchmarkTools.Trial: 
   memory estimate:  6.84 MiB
   allocs estimate:  160652
@@ -59,26 +59,26 @@ BenchmarkTools.Trial:
   samples:          537
   evals/sample:     1</code></pre><p>Let&#39;s scale up to a larger correlation matrix:</p><pre><code class="language-julia-repl">julia&gt; m3000 = cor_randPSD(3000) |&gt; m -&gt; cor_convert(m, Spearman, Pearson)
 3000×3000 Array{Float64,2}:
-  1.0         -0.0034577   -0.0124746   …  -0.0257888    0.0154208
- -0.0034577    1.0          0.0143324       0.0117035   -0.0200945
- -0.0124746    0.0143324    1.0             0.0142965    0.0170175
-  0.00449401   0.0132946    0.0124121      -0.00543078   0.00263448
- -0.0460444    0.00549133   0.0178056       0.0162125   -0.0340938
-  0.0313358   -0.0116499   -0.00571433  …   0.00763293   0.0357813
- -0.0155873    0.0115657    0.041667       -0.0204468   -0.0336896
-  0.0033594   -0.00511715   0.00894167     -0.0124242   -0.00532721
-  0.0319867   -0.0232589    0.00669106     -0.0417062   -0.00172686
- -0.01593     -0.0236195   -0.0366646       0.0104919   -0.000100874
+  1.0          0.00161842  -0.00488488  …  -0.0311179    -0.0223942
+  0.00161842   1.0         -0.0161017      -0.0210899     0.00246829
+ -0.00488488  -0.0161017    1.0            -0.00123697    0.0400076
+ -0.0147179    0.00609771  -0.0234133      -0.00941385   -0.0317577
+  0.0368211    0.00141585  -0.0194044      -0.00530925   -0.035507
+  0.0211386   -0.0417015   -0.0214259   …   0.014778     -0.00372363
+  0.0151318    0.0178586    0.00513976      0.000706112   0.0242773
+  0.0208414   -0.0162418    0.016428       -0.0356024    -0.00446844
+ -0.0290779   -0.00947917   0.00519503      0.0196347    -0.0229685
+ -0.0186229    0.0151539    0.0112299       0.0137689     0.0266659
   ⋮                                     ⋱
- -0.00382817   0.0145236   -0.00559558     -0.015709    -0.0273567
- -0.00355277   0.015622    -0.0295269      -0.00262864   0.00373787
-  0.00650433  -0.0165681    0.0241045       0.0522423    0.0199104
-  0.0186721   -0.0197764    0.004917       -0.00206265   0.0204914
- -0.0190648   -0.0100772    0.0255587   …   0.00328057   0.000302632
- -0.0189754   -0.0287464    0.0036567       0.0175008   -0.0112367
- -0.0295001   -0.0129633   -0.0140125       0.0287371    0.00783582
- -0.0257888    0.0117035    0.0142965       1.0         -0.0146124
-  0.0154208   -0.0200945    0.0170175      -0.0146124    1.0
+  0.0239141    0.0110817   -0.0142727       0.027455     -0.00194234
+ -0.00925495   0.0255738   -0.0125256       0.00331733   -0.0270472
+  0.00899208   0.0379511   -0.0206521       0.00249269   -0.0103523
+  0.0213008    0.0302955    0.0148475       0.0058483    -0.00123724
+  0.0115455   -0.00727697   0.00282578  …   0.00471686   -0.0382826
+  0.0159233   -0.0273255   -0.0128972      -0.0119448    -0.00671601
+ -0.00269646   0.0124621    0.00815722      0.00728405   -0.0115336
+ -0.0311179   -0.0210899   -0.00123697      1.0           0.00878432
+ -0.0223942    0.00246829   0.0400076       0.00878432    1.0
 
 julia&gt; m3000_PD = cor_nearPD(m3000);
 
@@ -111,7 +111,7 @@ BenchmarkTools.Trial:
   evals/sample:     1</code></pre><p>And it&#39;s not too far off from the nearest:</p><pre><code class="language-julia-repl">julia&gt; m3000_PD_fast = cor_fastPD(m3000);
 
 julia&gt; norm(m3000 - m3000_PD)
-0.7331275460204985
+0.7337699393992196
 
 julia&gt; norm(m3000 - m3000_PD_fast)
-0.7658298668375003</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pearson_matching/">« Pearson Matching</a><a class="docs-footer-nextpage" href="../main_functions/">Main Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 23 February 2021 00:55">Tuesday 23 February 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+0.7666032004697536</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pearson_matching/">« Pearson Matching</a><a class="docs-footer-nextpage" href="../main_functions/">Main Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 23 February 2021 01:11">Tuesday 23 February 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
