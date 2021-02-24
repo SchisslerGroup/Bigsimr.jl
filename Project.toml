@@ -6,7 +6,7 @@ version = "0.8.1"
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
-GSDistributions = "759b0772-debe-4df1-a45f-0e53fcd0f49c"
+GeneralizedSDistributions = "759b0772-debe-4df1-a45f-0e53fcd0f49c"
 IntervalArithmetic = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
 IntervalRootFinding = "d2bf35a9-74e0-55ec-b149-d360ff49b807"
 IterTools = "c8e1da08-722c-5040-9ed9-7db0dc04731e"

@@ -15,7 +15,7 @@ import SharedArrays: SharedMatrix, sdata
 import SpecialFunctions: erfc, erfcinv
 import Statistics: cor, clampcor
 import StatsBase: corspearman, corkendall
-import GSDistributions: GSDist
+import GeneralizedSDistributions: GSDist
 
 
 const UD  = UnivariateDistribution
