@@ -52,7 +52,7 @@ function solve_poly_pm_one(coef::Vector{Float64})
         
     length(r) == 1 && return mid(r[1].interval)
     length(r) == 0 && return NaN
-    length(r) > 1 && error("More than one root found in the interval -1..1")
+    length(r) > 1 && r
 end
 
 
