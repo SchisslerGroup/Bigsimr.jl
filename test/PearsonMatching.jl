@@ -108,8 +108,8 @@ end
 
     @testset "Solve Polynomial on [-1, 1]" begin
         r1 = -1.0
-        r2 =  1.0
-        r3 =  eps()
+        r2 = 1.0
+        r3 = eps()
         r4 = 2 * rand() - 1
 
         P1 = coeffs(3 * fromroots([r1, 7, 7, 8]))
@@ -119,15 +119,18 @@ end
         P5 = coeffs(fromroots([nextfloat(1.0), prevfloat(-1.0)]))
         P6 = coeffs(fromroots([-0.5, 0.5]))
 
+        # One root at -1.0
         @test Bigsimr.solve_poly_pm_one(P1) ≈ r1 atol=0.001
+        # One root at 1.0
         @test Bigsimr.solve_poly_pm_one(P2) ≈ r2 atol=0.001
+        # Roots that are just outside [-1, 1]
         @test Bigsimr.solve_poly_pm_one(P3) ≈ r3 atol=0.001
         @test Bigsimr.solve_poly_pm_one(P4) ≈ r4 atol=0.001
-
+        # Case of no roots
         @test isnan(Bigsimr.solve_poly_pm_one(P5))
-        
-        # Multiple roots are now returned. Write a wrapper function that returns the nearest root
+        # Case of multiple roots
         @test length(Bigsimr.solve_poly_pm_one(P6)) == 2
+        @test Bigsimr.nearest_root(-0.6, Bigsimr.solve_poly_pm_one(P6)) ≈ -0.5 atol=0.001
     end
 
 end

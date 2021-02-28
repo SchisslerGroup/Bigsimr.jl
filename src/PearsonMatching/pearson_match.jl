@@ -77,7 +77,7 @@ function _pearson_match(ρ::Float64, dA::CUD, dB::CUD, n::Int)
 
     r = solve_poly_pm_one(coef)
     length(r) == 1 && return r
-    !isnan(r) && r[argmin(abs.([mid(rs.interval) for rs in r] .- ρ))]
+    !isnan(r) && nearest_root(ρ, r)
 
     #= 
         If the root does not exist, then compute the adjustment correlation for
@@ -119,7 +119,7 @@ function _pearson_match(ρ::Float64, dA::DUD, dB::DUD, n::Int)
 
     r = solve_poly_pm_one(coef)
     length(r) == 1 && return r
-    !isnan(r) && r[argmin(abs.([mid(rs.interval) for rs in r] .- ρ))]
+    !isnan(r) && nearest_root(ρ, r)
 
     #= 
         If the root does not exist, then compute the adjustment correlation for
@@ -151,7 +151,7 @@ function _pearson_match(ρ::Float64, dA::DUD, dB::CUD, n::Int)
 
     r = solve_poly_pm_one(coef)
     length(r) == 1 && return r
-    !isnan(r) && r[argmin(abs.([mid(rs.interval) for rs in r] .- ρ))]
+    !isnan(r) && nearest_root(ρ, r)
 
     #= 
         If the root does not exist, then compute the adjustment correlation for

@@ -45,15 +45,16 @@ function Gn0m(n::Int, A::UnitRange{Int}, α::Vector{Float64}, dB::UD, σAσB_inv
     return -σAσB_inv * accu * S
 end
 
-function solve_poly_pm_one(coef::Vector{Float64})
+function solve_poly_pm_one(coef::Vector{<:Real})
     P = Polynomial(coef)
 	dP = derivative(P)
     r = roots(x->P(x), x->dP(x), interval(-1, 1), Krawczyk, 1e-3)
-        
+
     length(r) == 1 && return mid(r[1].interval)
     length(r) == 0 && return NaN
-    length(r) > 1 && r
+    length(r) >  1 && return [mid(rs.interval) for rs in r]
 end
+nearest_root(target::Real, roots::Vector{<:Real}) = roots[argmin(abs.(roots .- target))]
 
 
 function _h(x::T, n::Int) where {T<:Real}
