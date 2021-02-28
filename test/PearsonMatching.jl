@@ -126,7 +126,8 @@ end
 
         @test isnan(Bigsimr.solve_poly_pm_one(P5))
         
-        @test_throws Exception Bigsimr.solve_poly_pm_one(P6)
+        # Multiple roots are now returned. Write a wrapper function that returns the nearest root
+        @test length(Bigsimr.solve_poly_pm_one(P6)) == 2
     end
 
 end

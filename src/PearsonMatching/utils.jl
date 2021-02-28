@@ -48,7 +48,7 @@ end
 function solve_poly_pm_one(coef::Vector{Float64})
     P = Polynomial(coef)
 	dP = derivative(P)
-    r = roots(x->P(x), x->dP(x), -1..1, Krawczyk, 1e-3)
+    r = roots(x->P(x), x->dP(x), interval(-1, 1), Krawczyk, 1e-3)
         
     length(r) == 1 && return mid(r[1].interval)
     length(r) == 0 && return NaN

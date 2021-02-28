@@ -184,5 +184,5 @@ function pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
     R = Matrix{Float64}(Symmetric(sdata(R)))
 
     # Ensure that the resulting correlation matrix is positive definite
-    cor_fastPD(R)
+    iscorrelation(R) ? R : cor_fastPD(R)
 end

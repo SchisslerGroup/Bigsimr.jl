@@ -1,10 +1,10 @@
 module Bigsimr
 
-using Distributions
-using IntervalArithmetic
-
 import Base.Threads: @threads
+import Distributions: UnivariateDistribution, DiscreteUnivariateDistribution, ContinuousUnivariateDistribution
+import Distributions: mean, std, quantile, cdf
 import FastGaussQuadrature: gausshermite
+import IntervalArithmetic: interval, mid
 import IntervalRootFinding: roots, Krawczyk
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, Diagonal,
