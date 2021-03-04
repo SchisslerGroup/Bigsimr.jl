@@ -227,3 +227,14 @@ function cov2cor!(C::Matrix{<:AbstractFloat})
     cor_constrain!(C)
     nothing
 end
+
+
+Base.clamp(R::Matrix, L::Matrix, U::Matrix) = clamp.(R, L, U)
+function cor_clamp(R, L, U)
+    L2 = copy(L)
+    U2 = copy(U)
+    L2[diagind(L2)] .= -Inf
+    U2[diagind(U2)] .= Inf
+    R2 = clamp(R, L2, U2)
+    cor_constrain(R2)
+end
