@@ -19,3 +19,17 @@ precompile(cor_fastPD, (Matrix{Float64}, Float64))
 
 precompile(cor_nearPD, (Matrix{Float64},))
 precompile(cor_nearPD, (Matrix{Float64}, Float64, Float64))
+
+precompile(pearson_bounds, (DUD, DUD))
+precompile(pearson_bounds, (CUD, DUD))
+precompile(pearson_bounds, (DUD, CUD))
+precompile(pearson_bounds, (CUD, CUD))
+
+precompile(pearson_match, (Float64, CUD, CUD))
+precompile(pearson_match, (Float64, CUD, DUD))
+precompile(pearson_match, (Float64, DUD, CUD))
+precompile(pearson_match, (Float64, DUD, DUD))
+
+precompile(GSDist, (DUD,))
+precompile(GSDist, (DUD, Float64))
+precompile(GSDist, (DUD, Float64, Int64, Function, Float64))
