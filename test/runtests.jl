@@ -3,6 +3,7 @@ using Test
 const tests = [
     "Correlation",
     "PearsonMatching",
+    "GeneralizedSDistribution",
     "RandomVector",
     "Utilities"
 ]

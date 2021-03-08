@@ -93,4 +93,3 @@ function var(G::GSDist)
 end
 
 std(G::GSDist) = sqrt(var(G))
-cdf(G::GSDist, x::Real) = cdf(G.dist, x)
