@@ -2,20 +2,22 @@ module Bigsimr
 
 import Base.Threads: @threads
 import Distributions: UnivariateDistribution, DiscreteUnivariateDistribution, ContinuousUnivariateDistribution
-import Distributions: mean, std, quantile, cdf
+import Distributions: mean, std, quantile, cdf, pdf, var, params
 import FastGaussQuadrature: gausshermite
+import HypergeometricFunctions: _₂F₁
 import IntervalArithmetic: interval, mid
 import IntervalRootFinding: roots, Krawczyk
 import IterTools: subsets
 import LinearAlgebra: diagind, diagm, diag, Diagonal,
                       eigen, norm, inv, I, Symmetric,
                       cholesky, isposdef, issymmetric
+import LsqFit: curve_fit, coef
 import Polynomials: Polynomial, derivative
+import QuadGK: quadgk
 import SharedArrays: SharedMatrix, sdata
 import SpecialFunctions: erfc, erfcinv
 import Statistics: cor, clampcor
 import StatsBase: corspearman, corkendall
-import GeneralizedSDistributions: GSDist
 
 
 const UD  = UnivariateDistribution
@@ -84,6 +86,8 @@ include("PearsonMatching/pearson_match.jl")
 include("PearsonMatching/pearson_bounds.jl")
 include("PearsonMatching/utils.jl")
 
+include("GSDist/GSDist.jl")
+include("GSDist/utils.jl")
 
 include("precompile.jl")
 

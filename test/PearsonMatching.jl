@@ -133,4 +133,82 @@ end
         @test Bigsimr.nearest_root(-0.6, Bigsimr.solve_poly_pm_one(P6)) ≈ -0.5 atol=0.001
     end
 
+    @testset "GS-Distrubution" begin
+        D = Gamma(2, 2)
+        G = Bigsimr.GSDist(D)
+
+        @testset "Parameter retrieval" begin
+            @test_nowarn params(G)
+        end
+    
+        @testset "Computation of statistics" begin
+            @test_nowarn mean(G)
+            @test_nowarn var(G)
+            @test_nowarn std(G)
+            @test_nowarn median(G)
+
+            @test_throws MethodError modes(G)
+            @test_throws MethodError mode(G)
+            @test_throws MethodError maximum(G)
+            @test_throws MethodError minimum(G)
+            @test_throws MethodError extrema(G)
+            @test_throws MethodError skewness(G)
+            @test_throws MethodError kurtosis(G)
+            @test_throws MethodError kurtosis(G, true)
+            @test_throws MethodError kurtosis(G, false)
+            @test_throws MethodError isplatykurtic(G)
+            @test_throws MethodError isleptokurtic(G)
+            @test_throws MethodError ismesokurtic(G)
+            @test_throws MethodError entropy(G)
+            @test_throws MethodError mgf(G, 3)
+            @test_throws MethodError cf(G, 3)
+        end
+
+        @testset "Probability evaluation" begin
+            x = median(G)
+            y = median(G) + 1
+    
+            @test_nowarn cdf(G, x)
+            @test_nowarn logcdf(G, x)
+            @test_nowarn logdiffcdf(G, y, x)
+            @test_nowarn ccdf(G, x)
+            @test_nowarn logccdf(G, x)
+            
+            @test_nowarn quantile(G, 0.3)
+            @test_nowarn cquantile(G, 0.3)
+            
+            @test_nowarn invlogcdf(G, log(0.3))
+            @test_nowarn invlogccdf(G, log(0.3))
+
+            @test_throws MethodError insupport(G, x)
+            @test_throws MethodError pdf(G, x)
+            @test_throws MethodError logpdf(G, x)
+            @test_throws MethodError loglikelihood(G, x)
+        end
+
+        @testset "Sampling" begin
+            @test_nowarn sampler(G)
+            @test_nowarn rand(G, 10)
+        end
+
+        @testset "Pearson Matching w/ GSDist" begin
+            dA = NegativeBinomial(20, 0.1)
+            dB = Gamma(20, 2)
+
+            msg = "$dA was converted to a GSDist for computational efficiency"
+            
+            @test_logs (:warn, msg) (:warn, msg) pearson_match(-0.9, dA, dA)
+            @test_logs (:warn, msg) pearson_match(-0.9, dA, dB)
+            @test_logs (:warn, msg) pearson_match(-0.9, dB, dA)
+            @test_nowarn pearson_match(-0.9, dB, dB)
+            @test_nowarn pearson_match(-0.9, dA, dA, convert=false)
+
+            p1 = pearson_match(-0.9, dA, dB)
+            p2 = pearson_match(-0.9, dA, dB, convert=false)
+
+            @test p1 ≈ p2 atol=0.05
+        end
+
+    end
+
 end

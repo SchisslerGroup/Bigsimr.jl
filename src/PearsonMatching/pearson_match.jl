@@ -36,7 +36,7 @@ function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7, convert::Bool=true
             maxA = maximum(dA)
             if isinf(maxA) maxA = quantile(dA, 0.99_999) end
             if maxA > cutoff
-                @warn "Distribution `A` was converted to a Generalized S-Distribution for computational efficiency"
+                @warn "$dA was converted to a GSDist for computational efficiency"
                 dA = GSDist(dA)
             end
         end
@@ -45,7 +45,7 @@ function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7, convert::Bool=true
             maxB = maximum(dB)
             if isinf(maxB) maxB = quantile(dB, 0.99_999) end
             if maxB > cutoff
-                @warn "Distribution `B` was converted to a Generalized S-Distribution for computational efficiency"
+                @warn "$dB was converted to a GSDist for computational efficiency"
                 dB = GSDist(dB)
             end
         end
