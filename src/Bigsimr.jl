@@ -67,7 +67,8 @@ export
     cor_bounds,
     cor_constrain, cor_constrain!,
     cov2cor, cov2cor!,
-    clamp, cor_clamp
+    clamp, cor_clamp,
+    iscorrelation
 
 
 include("utils.jl")
