@@ -1,10 +1,9 @@
 # Bigsimr
 
-| **Documentation**                       | **Build and Coverage**                    | **Package Details**                    |
-|:---------------------------------------:|:-----------------------------------------:|:--------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] | [![CI][ci-img]][ci-url]                   | [![Licence][license-img]][license-url] |
-| [![][docs-latest-img]][docs-latest-url] | [![Coverage][codecov-img]][codecov-url]   | ![Release][release-img]                |
-
+| **Documentation**                       | **Build and Coverage**                  | **Package Details**                    |
+|:---------------------------------------:|:---------------------------------------:|:--------------------------------------:|
+| [![][docs-stable-img]][docs-stable-url] | [![CI][ci-img]][ci-url]                 | [![Lifecycle][life-img]][life-url]     |
+| [![][docs-latest-img]][docs-latest-url] | [![Coverage][codecov-img]][codecov-url] | [![Release][release-img]][release-url] |
 
 
 
@@ -17,7 +16,7 @@ A Julia package for simulating high-dimensional multivariate data with a target 
 
 * **Nearest Correlation Matrix** - Calculate the nearest positive [semi]definite correlation matrix (Qi and Sun 2006)
 * **Fast Approximate Correlation Matrix** - Calculate an approximation to the nearest positive definite correlation matrix
-* **Random Correlation Matrix** - Generate random positive [semi]definite correlation matrices 
+* **Random Correlation Matrix** - Generate random positive [semi]definite correlation matrices
 * **Fast Multivariate Normal Generation** - Utilize multithreading to generate multivariate normal samples in parallel
 
 ## Examples
@@ -78,7 +77,7 @@ isposdef(p)
 * Qi, H., & Sun, D. (2006). A quadratically convergent Newton method for computing the nearest correlation matrix. SIAM journal on matrix analysis and applications, 28(2), 360-385.
 * amoeba (https://stats.stackexchange.com/users/28666/amoeba), How to generate a large full-rank random correlation matrix with some strong correlations present?, URL (version: 2017-04-13): https://stats.stackexchange.com/q/125020
 
-
+---
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://adknudson.github.io/Bigsimr.jl/stable
@@ -93,6 +92,7 @@ isposdef(p)
 [ci-url]: https://github.com/adknudson/Bigsimr.jl/actions/workflows/CI.yml
 
 [release-img]: https://img.shields.io/github/v/tag/adknudson/Bigsimr.jl?label=release&sort=semver
+[release-url]: https://github.com/adknudson/Bigsimr.jl/releases
 
-[license-img]: https://img.shields.io/github/license/adknudson/Bigsimr.jl
-[license-url]: https://choosealicense.com/licenses/mit/
+[life-img]: https://img.shields.io/badge/lifecycle-experimental-orange
+[life-url]: https://lifecycle.r-lib.org/articles/stages.html
