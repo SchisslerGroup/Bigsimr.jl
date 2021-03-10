@@ -1,5 +1,6 @@
 name = "Bigsimr"
 uuid = "8782c2a4-92bb-4214-98d7-3150cbd7a677"
+repo = "https://github.com/SchisslerGroup/Bigsimr.jl.git"
 authors = ["Alex Knudson <aknudson@nevada.unr.edu>"]
 version = "0.8.3"
 
