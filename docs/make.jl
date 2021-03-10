@@ -21,6 +21,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/adknudson/Bigsimr.jl.git",
+    repo = "github.com/SchisslerGroup/Bigsimr.jl.git",
     versions = ["stable" => "v^", "v#.#", "dev" => "master"]
 )

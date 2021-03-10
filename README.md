@@ -80,19 +80,19 @@ isposdef(p)
 ---
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://adknudson.github.io/Bigsimr.jl/stable
+[docs-stable-url]: https://SchisslerGroup.github.io/Bigsimr.jl/stable
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-latest-url]: https://adknudson.github.io/Bigsimr.jl/dev
+[docs-latest-url]: https://SchisslerGroup.github.io/Bigsimr.jl/dev
 
-[codecov-img]: https://codecov.io/gh/adknudson/Bigsimr.jl/branch/master/graph/badge.svg
-[codecov-url]: https://codecov.io/gh/adknudson/Bigsimr.jl
+[codecov-img]: https://codecov.io/gh/SchisslerGroup/Bigsimr.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/SchisslerGroup/Bigsimr.jl
 
-[ci-img]: https://github.com/adknudson/Bigsimr.jl/actions/workflows/CI.yml/badge.svg
-[ci-url]: https://github.com/adknudson/Bigsimr.jl/actions/workflows/CI.yml
+[ci-img]: https://github.com/SchisslerGroup/Bigsimr.jl/actions/workflows/CI.yml/badge.svg
+[ci-url]: https://github.com/SchisslerGroup/Bigsimr.jl/actions/workflows/CI.yml
 
-[release-img]: https://img.shields.io/github/v/tag/adknudson/Bigsimr.jl?label=release&sort=semver
-[release-url]: https://github.com/adknudson/Bigsimr.jl/releases
+[release-img]: https://img.shields.io/github/v/tag/SchisslerGroup/Bigsimr.jl?label=release&sort=semver
+[release-url]: https://github.com/SchisslerGroup/Bigsimr.jl/releases
 
 [life-img]: https://img.shields.io/badge/lifecycle-experimental-orange
 [life-url]: https://lifecycle.r-lib.org/articles/stages.html
