@@ -1,23 +1,31 @@
 module Bigsimr
 
-import Base.Threads: @threads
-import Distributions: UnivariateDistribution, DiscreteUnivariateDistribution, ContinuousUnivariateDistribution
+using Distributions, LinearAlgebra
+using PDMats
+using SharedArrays
+
+using Base.Threads: @threads
+
+using FastGaussQuadrature: gausshermite
+using HypergeometricFunctions: _₂F₁
+using IntervalArithmetic: interval, mid
+using IntervalRootFinding: roots, Krawczyk
+using IterTools: subsets
+using LsqFit: curve_fit, coef
+using Polynomials: Polynomial, derivative
+using QuadGK: quadgk
+using SpecialFunctions: erfc, erfcinv
+using StatsBase: corspearman, corkendall
+
+
 import Distributions: mean, std, quantile, cdf, pdf, var, params
-import FastGaussQuadrature: gausshermite
-import HypergeometricFunctions: _₂F₁
-import IntervalArithmetic: interval, mid
-import IntervalRootFinding: roots, Krawczyk
-import IterTools: subsets
-import LinearAlgebra: diagind, diagm, diag, Diagonal,
-                      eigen, norm, inv, I, Symmetric,
-                      cholesky, isposdef, issymmetric
-import LsqFit: curve_fit, coef
-import Polynomials: Polynomial, derivative
-import QuadGK: quadgk
-import SharedArrays: SharedMatrix, sdata
-import SpecialFunctions: erfc, erfcinv
+import LinearAlgebra: diag, inv, logdet
+import PDMats: dim,
+               quad, quad!, invquad!, invquad,
+               pdadd, pdadd!,
+               X_A_Xt, Xt_A_X, X_invA_Xt, Xt_invA_X,
+               whiten!, unwhiten!
 import Statistics: cor, clampcor
-import StatsBase: corspearman, corkendall
 
 
 const UD  = UnivariateDistribution
@@ -59,6 +67,7 @@ export
     pearson_match, pearson_bounds,
     # Correlation Types
     Correlation, Pearson, Spearman, Kendall,
+    PDCorMat,
     # Correlation Utils
     cor, cor_fast,
     cor_nearPD, cor_fastPD, cor_fastPD!,
@@ -72,6 +81,8 @@ export
 
 
 include("utils.jl")
+
+include("PDCorMat.jl")
 
 include("RandomVector/rvec.jl")
 include("RandomVector/rmvn.jl")
