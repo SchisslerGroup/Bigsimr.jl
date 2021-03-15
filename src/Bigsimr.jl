@@ -1,43 +1,30 @@
 module Bigsimr
 
-using Distributions, LinearAlgebra
-using PDMats
-using SharedArrays
-
 using Base.Threads: @threads
-
+using Distributions
 using FastGaussQuadrature: gausshermite
 using HypergeometricFunctions: _₂F₁
 using IntervalArithmetic: interval, mid
 using IntervalRootFinding: roots, Krawczyk
 using IterTools: subsets
+using LinearAlgebra
 using LsqFit: curve_fit, coef
+using PDMats
 using Polynomials: Polynomial, derivative
 using QuadGK: quadgk
+using SharedArrays
 using SpecialFunctions: erfc, erfcinv
 using StatsBase: corspearman, corkendall
 
-
 import Distributions: mean, std, quantile, cdf, pdf, var, params
 import LinearAlgebra: diag, inv, logdet
-import PDMats: dim,
-               quad, quad!, invquad!, invquad,
-               pdadd, pdadd!,
-               X_A_Xt, Xt_A_X, X_invA_Xt, Xt_invA_X,
-               whiten!, unwhiten!
+import PDMats: dim, quad, quad!, invquad!, invquad, pdadd, pdadd!,
+    X_A_Xt, Xt_A_X, X_invA_Xt, Xt_invA_X,
+    whiten!, unwhiten!
 import Statistics: cor, clampcor
 
 
-const UD  = UnivariateDistribution
-const CUD = ContinuousUnivariateDistribution
-const DUD = DiscreteUnivariateDistribution
-
 struct ValidCorrelationError <: Exception end
-
-const sqrt2 = sqrt(2)
-const invsqrt2 = inv(sqrt(2))
-const invsqrtpi = inv(sqrt(π))
-const invsqrt2π = inv(sqrt(2π))
 
 
 abstract type Correlation end
@@ -61,23 +48,26 @@ Kendall's ``τ`` rank correlation
 struct Kendall <: Correlation end
 
 
-export
-    rvec, rmvn,
-    # Pearson matching
-    pearson_match, pearson_bounds,
-    # Correlation Types
-    Correlation, Pearson, Spearman, Kendall,
-    PDCorMat,
-    # Correlation Utils
-    cor, cor_fast,
-    cor_nearPD, cor_fastPD, cor_fastPD!,
-    cor_randPD, cor_randPSD,
-    cor_convert,
-    cor_bounds,
-    cor_constrain, cor_constrain!,
-    cov2cor, cov2cor!,
-    clamp, cor_clamp,
-    iscorrelation
+export rvec, rmvn
+export pearson_match, pearson_bounds
+export Correlation, Pearson, Spearman, Kendall
+export PDCorMat
+export cor, cor_fast
+export cor_nearPD, cor_fastPD, cor_fastPD!
+export cor_randPD, cor_randPSD
+export cor_convert, cor_bounds, cor_constrain, cor_constrain!
+export cov2cor, cov2cor!, clamp, cor_clamp
+export iscorrelation
+
+
+const UD  = UnivariateDistribution
+const CUD = ContinuousUnivariateDistribution
+const DUD = DiscreteUnivariateDistribution
+
+const sqrt2 = sqrt(2)
+const invsqrt2 = inv(sqrt(2))
+const invsqrtpi = inv(sqrt(π))
+const invsqrt2π = inv(sqrt(2π))
 
 
 include("utils.jl")
