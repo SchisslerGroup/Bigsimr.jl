@@ -55,6 +55,7 @@ julia> m = [Normal(78, 10), LogNormal(3, 1)];
 
 julia> b = pearson_bounds(m);
 
+
 julia> b.lower
 2×2 Matrix{Float64}:
   1.0       -0.762874
