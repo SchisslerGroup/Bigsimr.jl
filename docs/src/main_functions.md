@@ -60,3 +60,9 @@ cor_constrain!
 pearson_match
 pearson_bounds
 ```
+
+## Other
+
+```@docs
+Bigsimr.GSDist
+```

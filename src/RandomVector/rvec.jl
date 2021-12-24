@@ -11,10 +11,10 @@ julia> import LinearAlgebra: diagind
 
 julia> margins = [Normal(3, 1), LogNormal(3, 1), Exponential(3)]
 
-julia> R = fill(0.5, 3, 3); r[diagind(r)] .= 1.0;
+julia> R = fill(0.5, 3, 3); R[diagind(R)] .= 1.0;
 
 julia> rvec(10, R, margins)
-#>10×3 Array{Float64,2}:
+#>10×3 Matrix{Float64}:
  3.71109  82.0696   8.14332
  1.23022  38.8599   2.64595
  2.07222   3.76843  1.13465

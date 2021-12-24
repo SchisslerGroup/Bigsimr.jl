@@ -14,7 +14,7 @@ See also: [`cor_fastPD`](@ref), [`cor_fastPD!`](@ref)
 julia> import LinearAlgebra: isposdef
 
 julia> r = [1.00 0.82 0.56 0.44; 0.82 1.00 0.28 0.85; 0.56 0.28 1.00 0.22; 0.44 0.85 0.22 1.00]
-4×4 Array{Float64,2}:
+4×4 Matrix{Float64}:
  1.0   0.82  0.56  0.44
  0.82  1.0   0.28  0.85
  0.56  0.28  1.0   0.22
@@ -24,7 +24,7 @@ julia> isposdef(r)
 false
 
 julia> p = cor_nearPD(r)
-4×4 Array{Float64,2}:
+4×4 Matrix{Float64}:
  1.0       0.817095  0.559306  0.440514
  0.817095  1.0       0.280196  0.847352
  0.559306  0.280196  1.0       0.219582
