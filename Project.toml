@@ -2,7 +2,7 @@ name = "Bigsimr"
 uuid = "8782c2a4-92bb-4214-98d7-3150cbd7a677"
 authors = ["Alex Knudson <aknudson@nevada.unr.edu>"]
 repo = "https://github.com/SchisslerGroup/Bigsimr.jl.git"
-version = "0.8.5"
+version = "0.8.6"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
