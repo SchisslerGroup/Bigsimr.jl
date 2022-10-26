@@ -28,18 +28,21 @@ struct ValidCorrelationError <: Exception end
 
 
 abstract type Correlation end
+
 """
     Pearson <: Correlation
 
 Pearson's ``r`` product-moment correlation
 """
 struct Pearson <: Correlation end
+
 """
     Spearman <: Correlation
 
 Spearman's ``ρ`` rank correlation
 """
 struct Spearman <: Correlation end
+
 """
     Kendall <: Correlation
 

@@ -6,6 +6,7 @@ struct PDCorMat{T<:Real, S<:AbstractMatrix} <: AbstractPDMat{T}
 
     PDCorMat{T,S}(d::Int, m::AbstractMatrix{T}, c::Cholesky{T,S}, t::Type{<:Correlation}) where {T,S} = new{T,S}(d,m,c,t)
 end
+
 function PDCorMat(mat::AbstractMatrix, cortype::Type{<:Correlation})
     d = size(mat, 1)
 
@@ -78,6 +79,7 @@ logdet(a::PDCorMat) = logdet(a.chol)
 
 
 Base.Matrix(a::PDCorMat) = Matrix(a.mat)
+Base.size(a::PDCorMat) = size(a.mat)
 Base.getindex(a::PDCorMat, i::Int) = getindex(a.mat, i)
 Base.getindex(a::PDCorMat, I::Vararg{Int, N}) where {N} = getindex(a.mat, I...)
 
