@@ -2,12 +2,12 @@ function get_coefs(margin::UD, n::Int)
     aₖ = zeros(Float64, n + 1)
     m = 2n
     tₛ, wₛ = gausshermite(m)
-    tₛ    .= tₛ * sqrt2
-    Xₛ = normal_to_margin(margin, tₛ)
+    tₛ    .= tₛ * sqrt2_f64
+    Xₛ = _norm2margin(margin, tₛ)
 
     aₖ = [sum(wₛ .* _h(tₛ, k) .* Xₛ) for k in 0:n]
     
-    return invsqrtpi * aₖ ./ factorial.(0:n)
+    return invsqrtpi_f64 * aₖ ./ factorial.(0:n)
 end
 get_coefs(margins::UD, n::Real) = get_coefs(margins, Int(n))
 
@@ -39,9 +39,9 @@ function Gn0m(n::Int, A::UnitRange{Int}, α::Vector{Float64}, dB::UD, σAσB_inv
     end
     m = n + 4
     t, w = gausshermite(m)
-    t .= t * sqrt2
-    X = normal_to_margin(dB, t)
-    S = invsqrtpi * sum(w .* _h(t, n) .* X)
+    t .= t * sqrt2_f64
+    X = _norm2margin(dB, t)
+    S = invsqrtpi_f64 * sum(w .* _h(t, n) .* X)
     return -σAσB_inv * accu * S
 end
 

@@ -23,6 +23,7 @@ function pearson_bounds(dA::UD, dB::UD; n::Int=7)
     σB = std(dB)
     _pearson_bounds(dA, dB, μA, μB, σA, σB, n)
 end
+
 function _pearson_bounds(dA::UD, dB::UD, μA, μB, σA, σB, n)
     k = 0:1:n
     a = get_coefs(dA, n)

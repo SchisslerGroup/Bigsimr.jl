@@ -44,12 +44,15 @@ julia> cor(x, Kendall)
 ```
 """
 function cor end
+
 cor(x,    ::Type{Pearson})  = cor(x)
 cor(x, y, ::Type{Pearson})  = cor(x, y)
 cor(x,    ::Type{Spearman}) = corspearman(x)
 cor(x, y, ::Type{Spearman}) = corspearman(x, y)
 cor(x,    ::Type{Kendall})  = corkendall(x)
 cor(x, y, ::Type{Kendall})  = corkendall(x, y)
+
+
 
 """
     cor_fast(M::Matrix{S}, T::Type{<:Correlation}=Pearson) where {S<:Real}
@@ -69,7 +72,7 @@ end
 
 
 """
-    cor_convert(X::Matrix{<:Real}, from::Type{<:Correlation}, to::Type{<:Correlation})
+    cor_convert(X, from, to)
 
 Convert from one type of correlation matrix to another.
 
@@ -112,6 +115,7 @@ true
 ```
 """
 function cor_convert end
+
 cor_convert(x::Real, from::Type{C},        to::Type{C}) where {C<:Correlation} = x
 cor_convert(x::Real, from::Type{Pearson},  to::Type{Spearman}) = cor_constrain(asin(x / 2) * 6 / π)
 cor_convert(x::Real, from::Type{Pearson},  to::Type{Kendall})  = cor_constrain(asin(x) * 2 / π)
@@ -119,9 +123,11 @@ cor_convert(x::Real, from::Type{Spearman}, to::Type{Pearson})  = cor_constrain(s
 cor_convert(x::Real, from::Type{Spearman}, to::Type{Kendall})  = cor_constrain(asin(sin(x * π / 6) * 2) * 2 / π)
 cor_convert(x::Real, from::Type{Kendall},  to::Type{Pearson})  = cor_constrain(sin(x * π / 2))
 cor_convert(x::Real, from::Type{Kendall},  to::Type{Spearman}) = cor_constrain(asin(sin(x * π / 2) / 2) * 6 / π)
+
 function cor_convert(X::VecOrMat{<:Real}, from::Type{<:Correlation}, to::Type{<:Correlation})
-    cor_constrain(cor_convert.(copy(X), from, to))
+    cor_constrain(cor_convert.(X, from, to))
 end
+
 
 
 """
@@ -154,6 +160,7 @@ function cor_constrain!(C::Matrix{<:Real}, uplo=:U)
     C[diagind(C)] .= one(eltype(C))
     nothing
 end
+
 
 
 """
@@ -192,7 +199,9 @@ function cor_constrain(C::Matrix{<:Real}, uplo=:U)
     cor_constrain!(R, uplo)
     R 
 end
+
 cor_constrain(x::Real) = clamp(x, -one(eltype(x)), one(eltype(x)))
+
 
 
 """
@@ -216,6 +225,7 @@ function cov2cor(C::Matrix{<:AbstractFloat})
 end
 
 
+
 """
     cov2cor!(C::Matrix{<:AbstractFloat})
 
@@ -230,7 +240,10 @@ function cov2cor!(C::Matrix{<:AbstractFloat})
 end
 
 
+
 Base.clamp(R::Matrix{<:Real}, L::Matrix{<:Real}, U::Matrix{<:Real}) = clamp.(R, L, U)
+
+
 
 function cor_clamp(R, L, U)
     L2 = copy(L)
