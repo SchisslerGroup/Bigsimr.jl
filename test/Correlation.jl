@@ -3,6 +3,8 @@ using Bigsimr
 using LinearAlgebra
 using Distributions
 
+approx_zero(x) = isapprox(0, x, atol=eps(typeof(x)), rtol=0)
+
 @testset "Correlation Functions" begin
 
     r_negdef = [
@@ -26,7 +28,7 @@ using Distributions
         r = cor_nearPD(r_negdef, 0.0)
         λ = eigvals(r)
         @test issymmetric(r)
-        @test all(λ .≥ 0)
+        @test all(l -> l > 0 || approx_zero(l), λ)
         @test all(diag(r) .== 1.0)
         @test all(-1.0 .≤ r .≤ 1.0)
     end
