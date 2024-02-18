@@ -11,6 +11,7 @@ ENV["GKSwstype"] = "100"
 makedocs(
     sitename = "Bigsimr.jl",
     modules  = [Bigsimr],
+    format = Documeter.HTML(),
     doctest  = false,
     pages    = [
         "Bigsimr.jl" => "index.md",
