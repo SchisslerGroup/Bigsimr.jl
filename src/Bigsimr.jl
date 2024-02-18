@@ -9,7 +9,6 @@ using IntervalRootFinding: roots, Krawczyk
 using IterTools: subsets
 using LinearAlgebra
 using LsqFit: curve_fit, coef
-using PDMats
 using Polynomials: Polynomial, derivative
 using QuadGK: quadgk
 using SharedArrays
@@ -18,9 +17,6 @@ using StatsBase: corspearman, corkendall
 
 import Distributions: mean, std, quantile, cdf, pdf, var, params
 import LinearAlgebra: diag, inv, logdet
-import PDMats: dim, quad, quad!, invquad!, invquad, pdadd, pdadd!,
-    X_A_Xt, Xt_A_X, X_invA_Xt, Xt_invA_X,
-    whiten!, unwhiten!
 import Statistics: cor, clampcor
 
 
@@ -54,7 +50,6 @@ struct Kendall <: Correlation end
 export rvec, rmvn
 export pearson_match, pearson_bounds
 export Correlation, Pearson, Spearman, Kendall
-export PDCorMat
 export cor, cor_fast
 export cor_nearPD, cor_fastPD, cor_fastPD!
 export cor_randPD, cor_randPSD
@@ -74,8 +69,6 @@ const invsqrt2π = inv(sqrt(2π))
 
 
 include("utils.jl")
-
-include("PDCorMat.jl")
 
 include("RandomVector/rvec.jl")
 include("RandomVector/rmvn.jl")
