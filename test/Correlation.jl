@@ -19,7 +19,7 @@ approx_zero(x) = isapprox(0, x, atol=eps(typeof(x)), rtol=0)
         @test iscorrelation(r)
 
         # Must respect input eltype
-        for T in [Float64, Float32, Float64]
+        for T in (Float64, Float32, Float16)
             @test eltype(cor_nearPD(T.(r_negdef))) === T
         end
     end
@@ -38,15 +38,14 @@ approx_zero(x) = isapprox(0, x, atol=eps(typeof(x)), rtol=0)
         @test iscorrelation(r)
 
         # Must respect input eltype
-        test_types = [Float64, Float32, Float16]
-        for T in test_types
+        for T in (Float64, Float32, Float16)
             @test eltype(cor_fastPD(T.(r_negdef))) === T
         end
     end
 end
 
 @testset "Random Correlation Generation" begin
-    
+
     @testset "Random postive definite correlation matrix" begin
         r = cor_randPD(100)
         @test iscorrelation(r)
@@ -61,7 +60,7 @@ end
         test_types = [Float64, Float32, Float16, Rational, Int64, Int32, Int16]
         for T in test_types
             @test_nowarn cor_randPD(T(4))
-            
+
             for S in test_types
                 @test_nowarn cor_randPD(T(4), S(3))
             end
@@ -93,7 +92,7 @@ end
         test_types = [Float64, Float32, Float16, Rational, Int64, Int32, Int16]
         for T in test_types
             @test_nowarn cor_randPSD(T(4))
-            
+
             for S in test_types
                 @test_nowarn cor_randPSD(T(4), S(3))
             end
@@ -209,7 +208,7 @@ end
         test_types = [Float64, Float32]
         for T in test_types
             @test_throws InexactError cor_bounds(A, B, n_samples=T(10_000.5))
-        end 
+        end
     end
 
 end

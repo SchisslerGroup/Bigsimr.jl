@@ -4,6 +4,7 @@ using Base.Threads: @threads
 using Distributions
 using FastGaussQuadrature: gausshermite
 using HypergeometricFunctions: _₂F₁
+using IrrationalConstants
 using IntervalArithmetic: interval, mid
 using IntervalRootFinding: roots, Krawczyk
 using IterTools: subsets
@@ -14,53 +15,52 @@ using QuadGK: quadgk
 using SharedArrays
 using SpecialFunctions: erfc, erfcinv
 using StatsBase: corspearman, corkendall
+using Statistics: clampcor
 
 import Distributions: mean, std, quantile, cdf, pdf, var, params
-import LinearAlgebra: diag, inv, logdet
-import Statistics: cor, clampcor
+import Statistics
 
 
 struct ValidCorrelationError <: Exception end
 
 
-abstract type Correlation end
+"""
+    CorType
+
+A type used for specifiying the type of correlation. Supported correlations are:
+
+    - [`Pearson`](@ref)
+    - [`Spearman`](@ref)
+    - [`Kendall`](@ref)
+"""
+struct CorType{T} end
 
 """
-    Pearson <: Correlation
+    Pearson
 
 Pearson's ``r`` product-moment correlation
 """
-struct Pearson <: Correlation end
+const Pearson = CorType{:Pearson}()
 
 """
-    Spearman <: Correlation
+    Spearman
 
 Spearman's ``ρ`` rank correlation
 """
-struct Spearman <: Correlation end
+const Spearman = CorType{:Spearman}()
 
 """
-    Kendall <: Correlation
+    Kendall
 
 Kendall's ``τ`` rank correlation
 """
-struct Kendall <: Correlation end
+const Kendall = CorType{:Kendall}()
+
 
 
 const UD  = UnivariateDistribution
 const CUD = ContinuousUnivariateDistribution
 const DUD = DiscreteUnivariateDistribution
-
-const sqrt2_f64      ::Float64 = sqrt(2)
-const invsqrt2_f64   ::Float64 = inv(sqrt(2))
-const invsqrtpi_f64  ::Float64 = inv(sqrt(π))
-const invsqrt2pi_f64 ::Float64 = inv(sqrt(2π))
-
-const sqrt2_f32      ::Float32 = sqrt2_f64
-const invsqrt2_f32   ::Float32 = invsqrt2_f64
-const invsqrtpi_f32  ::Float32 = invsqrtpi_f64
-const invsqrt2pi_f32 ::Float32 = invsqrt2pi_f64
-
 
 
 include("utils.jl")
@@ -80,35 +80,35 @@ include("GSDist.jl")
 
 
 
-export 
+export
     # correlation types
-    Correlation, 
-    Pearson, 
-    Spearman, 
+    CorType,
+    Pearson,
+    Spearman,
     Kendall,
     # random vector generation
-    rvec, 
+    rvec,
     rmvn,
     # correlation calculation
     cor,
     cor_fast,
-    cor_convert, 
-    cor_bounds, 
+    cor_convert,
+    cor_bounds,
     # nearest correlation
-    cor_nearPD, 
-    cor_fastPD, 
+    cor_nearPD,
+    cor_fastPD,
     cor_fastPD!,
     # random correlation generation
-    cor_randPD, 
+    cor_randPD,
     cor_randPSD,
     # correlation Utils
     iscorrelation,
-    cor_constrain, 
+    cor_constrain,
     cor_constrain!,
     cov2cor,
     cov2cor!,
     # pearson methods
-    pearson_match, 
+    pearson_match,
     pearson_bounds
 
 

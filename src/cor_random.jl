@@ -1,7 +1,7 @@
 """
-    cor_randPSD(T::Type{<:Real}, d, k=d-1)
+    cor_randPSD(T, d, k=d-1)
 
-Return a random positive semidefinite correlation matrix where `d` is the 
+Return a random positive semidefinite correlation matrix where `d` is the
 dimension (``d ≥ 1``) and `k` is the number of factor loadings (``1 ≤ k < d``).
 
 See also: [`cor_randPD`](@ref)
@@ -30,10 +30,10 @@ julia> cor_randPSD(4)
   0.289011   0.190938  -0.102597   1.0
 ```
 """
-function cor_randPSD(T::Type{<:Real}, d, k=d-1)
-    d ≥ 1 || throw(ArgumentError("'d' must be greater than or equal to 1"))
-    1 ≤ k < d || throw(ArgumentError("'k' must be greater than '0' and less than 'd'"))
-    return _cor_randPSD(T, Int(d), Int(k))
+function cor_randPSD(t::Type{T}, d, k=d-1) where {T<:Real}
+    d ≥ 1 || throw(ArgumentError("`d` must be greater than or equal to 1"))
+    1 ≤ k < d || throw(ArgumentError("`k` must be greater than '0' and less than `d`"))
+    return _cor_randPSD(t, Int(d), Int(k))
 end
 
 cor_randPSD(d, k=d-1) = cor_randPSD(Float64, d, k)
@@ -52,7 +52,7 @@ end
 
 
 """
-    cor_randPD(T::Type{<:Real}, d, k=d-1)
+    cor_randPD(T, d, k=d-1)
 
 The same as [`cor_randPSD`](@ref), but calls [`cor_fastPD`](@ref) to ensure that
 the returned matrix is positive definite.
@@ -81,5 +81,5 @@ julia> cor_randPD(4)
  -0.251671  -0.117748  -0.424952   1.0
 ```
 """
-cor_randPD(T::Type{<:Real}, d, k=d-1) = cor_fastPD!(cor_randPSD(T, d, k))
+cor_randPD(t::Type{T}, d, k=d-1) where {T<:Real} = cor_fastPD!(cor_randPSD(t, d, k))
 cor_randPD(d, k=d-1) = cor_randPD(Float64, d, k)

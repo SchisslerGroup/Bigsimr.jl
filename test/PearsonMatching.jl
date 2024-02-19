@@ -7,7 +7,7 @@ using Distributions
     dA = Beta(2, 3)
     dB = Binomial(2, 0.2)
     dC = Binomial(20, 0.2)
-    
+
     @testset "Continuous-Continuous" begin
         @test -0.914 ≈ pearson_match(-0.9, dA, dA) atol=0.05
         @test -0.611 ≈ pearson_match(-0.6, dA, dA) atol=0.05
@@ -95,17 +95,17 @@ end
         P6 = coeffs(fromroots([-0.5, 0.5]))
 
         # One root at -1.0
-        @test Bigsimr._solve_poly_pm_one(P1) ≈ r1 atol=0.001
+        @test Bigsimr._find_root_or_nan(P1) ≈ r1 atol=0.001
         # One root at 1.0
-        @test Bigsimr._solve_poly_pm_one(P2) ≈ r2 atol=0.001
+        @test Bigsimr._find_root_or_nan(P2) ≈ r2 atol=0.001
         # Roots that are just outside [-1, 1]
-        @test Bigsimr._solve_poly_pm_one(P3) ≈ r3 atol=0.001
-        @test Bigsimr._solve_poly_pm_one(P4) ≈ r4 atol=0.001
+        @test Bigsimr._find_root_or_nan(P3) ≈ r3 atol=0.001
+        @test Bigsimr._find_root_or_nan(P4) ≈ r4 atol=0.001
         # Case of no roots
-        @test isnan(Bigsimr._solve_poly_pm_one(P5))
+        @test isnan(Bigsimr._find_root_or_nan(P5))
         # Case of multiple roots
-        @test length(Bigsimr._solve_poly_pm_one(P6)) == 2
-        @test Bigsimr._nearest_root(-0.6, Bigsimr._solve_poly_pm_one(P6)) ≈ -0.5 atol=0.001
+        @test length(Bigsimr._find_roots_pm1(P6)) == 2
+        @test Bigsimr._nearest_root(-0.6, Bigsimr._find_roots_pm1(P6)) ≈ -0.5 atol=0.001
     end
 
 end

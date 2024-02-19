@@ -1,22 +1,22 @@
-function _get_coefs(margin, n)
+function _get_coefs(margin, n::Int)
     m = 2n
     t, w = gausshermite(m)
-    t .*= sqrt2_f64
+    t .*= sqrt2
     X = _norm2margin(margin, t)
 
     ak = [sum(w .* _h(t, k) .* X) for k in 0:n]
-    
-    return invsqrtpi_f64 * ak ./ factorial.(0:n)
+
+    return invsqrtπ * ak ./ factorial.(0:n)
 end
 
 
 
-function _Gn0d(n, A, B, xs, ys, cov_inv)
-    n == 0 && return 0.0
+function _Gn0d(n::Int, A, B, xs, ys, cov_inv)
+    n == 0 && return zero(Float64)
     M = length(A)
     N = length(B)
 
-    accu = 0
+    accu = zero(Float64)
 
     for r=1:M, s=1:N
         r11 = _Hp(xs[r+1], n-1) * _Hp(ys[s+1], n-1)
@@ -31,50 +31,64 @@ end
 
 
 
-function _Gn0m(n, A, xs, dB, cov_inv)
-    n == 0 && return 0
+function _Gn0m(n::Int, A, xs, dB, cov_inv)
+    n == 0 && return zero(Float64)
     M = length(A)
-    
-    accu = 0
-    
+
+    accu = zero(Float64)
+
     for r = 1:M
         accu += A[r] * (_Hp(xs[r+1], n-1) - _Hp(xs[r], n-1))
     end
-    
+
     m = n + 4
     t, w = gausshermite(m)
-    t .*= sqrt2_f64
+    t .*= sqrt2
     X = _norm2margin(dB, t)
-    S = invsqrtpi_f64 * sum(w .* _h(t, n) .* X)
+    S = invsqrtπ * sum(w .* _h(t, n) .* X)
 
     return -cov_inv * accu * S
 end
 
 
-
-function _solve_poly_pm_one(coef)
+3
+function _find_roots_pm1(coef)
     P = Polynomial(coef)
 	dP = derivative(P)
-    r = roots(x -> P(x), x -> dP(x), interval(-1, 1), Krawczyk, 1e-3)
-
-    nr = length(r)
-
-    nr == 1 && return mid(first(r).interval)
-    nr == 0 && return NaN
-    
-    return [mid(rs.interval) for rs in r]
+    rs = roots(x -> P(x), x -> dP(x), interval(-1, 1), Krawczyk, 1e-3)
+    return map(r -> mid(interval(r)), rs)
 end
 
+# returns the only root, or the root nearest to the target, otherwise NaN
+function _find_root_or_nan(coef, target)
+    rs = _find_roots_pm1(coef)
+    nr = length(rs)
 
+    nr == 1 && return only(rs)
+    nr == 0 && return NaN
 
-_nearest_root(target, roots) = roots[argmin(abs.(roots .- target))]
+    # multiple roots, return the one nearest to the target
+    return _nearest_root(target, rs)
+end
+
+# returns the only root or NaN
+function _find_root_or_nan(coef)
+    rs = _find_roots_pm1(coef)
+    return length(rs) == 1 ? only(rs) : NaN
+end
+
+# finds the root nearest to the target
+function _nearest_root(target, roots)
+    i = argmin(abs(r - target) for r in  roots)
+    return roots[i]
+end
 
 
 
 function _h(x::Real, n::Int)
     n == 0 && return one(x)
     n == 1 && return x
-    
+
     Hkp1, Hk, Hkm1 = zero(x), x, one(x)
 
     for k in 2:n

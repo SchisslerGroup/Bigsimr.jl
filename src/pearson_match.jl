@@ -1,5 +1,5 @@
 """
-    pearson_match(p::Real, dA::UnivariateDistribution, dB::UnivariateDistribution; n=7)
+    pearson_match(p::Real, d1::UnivariateDistribution, d2::UnivariateDistribution; n=7)
 
 Compute the pearson correlation coefficient that is necessary to achieve the
 target correlation given a pair of marginal distributions.
@@ -16,7 +16,7 @@ julia> pearson_match(0.76, A, B)
 0.9962326957682248
 ```
 
-The target correlation may not be feasible (see [`pearson_bounds`](@ref)), in 
+The target correlation may not be feasible (see [`pearson_bounds`](@ref)), in
 which case the match to the nearest lower or upper bound is returned.
 
 ```julia-repl
@@ -34,10 +34,10 @@ function pearson_match(p::Real, d1::UD, d2::UD; n=7, convert=true)
         if typeof(d1) <: DUD
             max1 = maximum(d1)
 
-            if isinf(max1) 
-                max1 = quantile(d1, 0.99_999) 
+            if isinf(max1)
+                max1 = quantile(d1, 0.99_999)
             end
-            
+
             if max1 > cutoff
                 @warn "$d1 was converted to a GSDist for computational efficiency"
                 d1 = GSDist(d1)
@@ -57,7 +57,7 @@ function pearson_match(p::Real, d1::UD, d2::UD; n=7, convert=true)
             end
         end
     end
-    
+
     return _pearson_match(p, d1, d2, Int(n))
 end
 
@@ -82,11 +82,10 @@ function _pearson_match(p::Real, d1::CUD, d2::CUD, n::Int)
     end
     coef[1] = c1 * c2 + c2 * a[1] * b[1] - p
 
-    r = _solve_poly_pm_one(coef)
-    length(r) > 1 && return _nearest_root(p, r)
+    r = _find_root_or_nan(coef, p)
     !isnan(r) && return r
 
-    #= 
+    #=
         If the root does not exist, then compute the adjustment correlation for
         the theoretical upper or lower correlation bound.
     =#
@@ -124,11 +123,10 @@ function _pearson_match(p::Real, d1::DUD, d2::DUD, n::Int)
     end
     coef[1] = -p
 
-    r = _solve_poly_pm_one(coef)
-    length(r) > 1 && return _nearest_root(p, r)
+    r = _find_root_or_nan(coef, p)
     !isnan(r) && return r
 
-    #= 
+    #=
         If the root does not exist, then compute the adjustment correlation for
         the theoretical upper or lower correlation bound.
     =#
@@ -156,11 +154,10 @@ function _pearson_match(p::Real, d1::DUD, d2::CUD, n::Int)
     end
     coef[1] = -p
 
-    r = _solve_poly_pm_one(coef)
-    length(r) > 1 && return _nearest_root(p, r)
+    r = _find_root_or_nan(coef, p)
     !isnan(r) && return r
 
-    #= 
+    #=
         If the root does not exist, then compute the adjustment correlation for
         the theoretical upper or lower correlation bound.
     =#

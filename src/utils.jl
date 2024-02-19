@@ -15,21 +15,14 @@ end
 
 
 #--------------------------------------------------------------Normal PDF, CDF, Inverse CDF
-_normpdf(x) = exp(-abs2(x) / 2) * inv(sqrt(2π))
-_normpdf(x::Float32) = exp(-abs2(x) / 2) * invsqrt2pi_f32
-_normpdf(x::Float64) = exp(-abs2(x) / 2) * invsqrt2pi_f64
+_normpdf(x::Real) = exp(-abs2(x) / 2) * invsqrt2π
+_normpdf(x::Float16) = Float16(_normpdf(Float32(x)))
 
-_normcdf(x) = erfc(-x * inv(sqrt(2))) / 2
-_normcdf(x::Float32) = erfc(-x * invsqrt2_f32) / 2
-_normcdf(x::Float64) = erfc(-x * invsqrt2_f64) / 2
+_normcdf(x::Real) = erfc(-x * invsqrt2) / 2
+_normcdf(x::Float16) = Float16(_normcdf(Float32(x)))
 
-_norminvcdf(x) = erfcinv(2x) * -sqrt(2)
-_norminvcdf(x::Float32) = erfcinv(2x) * -sqrt2_f32
-_norminvcdf(x::Float64) = erfcinv(2x) * -sqrt2_f64
-
-for F in (:_normpdf, :_normcdf, :_norminvcdf)
-    @eval $F(x::Float16) = Float16($F(Float32(x)))
-end
+_norminvcdf(x::Real) = -1 * erfcinv(2 * x) * sqrt2
+_norminvcdf(x::Float16) = Float16(_norminvcdf(Float32(x)))
 
 _norm2margin(D::UD, x::Real) = quantile(D, _normcdf(x))
 _norm2margin(D::UD, A::AbstractArray{T,N}) where {T<:Real,N} = _norm2margin.(Ref(D), A)

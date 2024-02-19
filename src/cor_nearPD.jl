@@ -1,5 +1,5 @@
 """
-    cor_nearPD(R, τ=1e-6; tol=1e-3)
+    cor_nearPD(R::AbstractMatrix{<:Real}, τ=1e-6; tol=1e-3)
 
 Return the nearest positive definite correlation matrix to `R`. `τ` is a
 tuning parameter that controls the minimum eigenvalue of the resulting matrix.
@@ -34,13 +34,14 @@ julia> isposdef(p)
 true
 ```
 """
-function cor_nearPD(R::AbstractMatrix{<:Real}, τ=1e-6; tol=1e-3)
-    return _cor_nearPD(float(R), float(τ), float(tol))
+function cor_nearPD(R::AbstractMatrix{T}, tau=1e-6; tol=1e-3) where {T<:Real}
+    tau >= 0 || throw(ArgumentError("`tau` must be non-negative"))
+    tol >= 0 || throw(ArgumentError("`tol` must be non-negative"))
+    return _cor_nearPD(float(R), tau, tol)
 end
 
-function _cor_nearPD(R, tau, tol)
-    # Setup 
-    T = eltype(R)
+function _cor_nearPD(R::AbstractMatrix{T}, tau, tol) where {T<:Real}
+    # Setup
     n = size(R, 1)
     iter_outer = 200
     iter_inner = 20
@@ -51,13 +52,11 @@ function _cor_nearPD(R, tau, tol)
 
     # Make R symmetric
     R .= Symmetric(R, :U) # [n,n]
-    R[diagind(R)] .= one(T)
+    R[diagind(R)] .= one(Float64)
 
     b = ones(T, n)
-    if tau > 0
-        b .-= tau
-        R[diagind(R)] .-= tau
-    end
+    b .-= tau
+    R[diagind(R)] .-= T(tau)
     b₀ = copy(b)
 
     y    = zeros(T, n)        # [n,1]
@@ -126,8 +125,8 @@ function _cor_nearPD(R, tau, tol)
         k += 1
     end
 
-    X[diagind(X)] .+= tau
-    return cov2cor(X)
+    X[diagind(X)] .+= T(tau)
+    return cov2cor!(X)
 end
 
 
@@ -139,7 +138,7 @@ end
     f(y) = \\frac{1}{2} \\Vert (A + diag(y))_+ \\Vert_{F}^{2} - e^{T}y
     ```
 
-    and 
+    and
 
     ```math
     \\nabla f(y) = Diag((A + diag(y))_+) - e
@@ -151,7 +150,7 @@ function _npd_gradient(y, λ₀, P, b₀, n)
     λ = copy(λ₀)
 
     r == 0 && return (zero(T), zeros(T, n))
-    
+
     λ[λ .< 0] .= zero(T)
     Fy = Vector{T}(vec(sum((P .* λ') .* P, dims=2)))
     f  = T(T(0.5) * sum(λ.^2) - sum(b₀ .* y))
@@ -216,25 +215,25 @@ function _npd_pre_cg(b, c, Ω_0, P, ϵ, N, n)
         w .= _npd_jacobian(d, Ω_0, P, n)
 
         denom = sum(d .* w)
-        
+
         denom ≤ 0 && return T.(d / norm(d))
-        
+
         a = rz1 / denom
         p .+= a*d
         r .-= a*w
-        
+
         norm(r) ≤ ϵ_b && return T.(p)
-        
+
         z .= r ./ c
         rz2, rz1 = copy(rz1), sum(r .* z)
     end
-    
+
     T.(p)
 end
 
 
 
-# Create the precondition matrix used in solving the linear system 
+# Create the precondition matrix used in solving the linear system
 # Vₖdₖ = -∇f(yₖ) in the conjugate gradient method.
 function _npd_precond_matrix(W, P, n)
     T = eltype(W)
@@ -268,7 +267,7 @@ function _npd_set_omega(λ, n)
 
     r == 0 && return zeros(T, 0, 0)
     r == n && return ones(T, n, n)
-    
+
     M = zeros(T, r, s)
     λr = @view λ[1:r]
     λs = @view λ[r+1:n]

@@ -1,7 +1,7 @@
 """
-    pearson_bounds(dA::UnivariateDistribution, dB::UnivariateDistribution; n=7)
+    pearson_bounds(d1::UnivariateDistribution, d2::UnivariateDistribution; n=7)
 
-Compute the theoretical lower and upper Pearson correlation values for a pair of 
+Compute the theoretical lower and upper Pearson correlation values for a pair of
 univariate distributions.
 
 See also: [`pearson_match`](@ref)
@@ -47,9 +47,9 @@ end
 """
     pearson_bounds(margins::AbstractVector{<:UnivariateDistribution})
 
-Compute the theoretical lower and upper Pearson correlation values for a set of 
+Compute the theoretical lower and upper Pearson correlation values for a set of
 univariate distributions.
-    
+
 See also: [`pearson_match`](@ref)
 
 # Examples
@@ -87,6 +87,6 @@ function pearson_bounds(margins::AbstractVector{<:UD})
 
     upper .= Symmetric(upper)
     cor_constrain!(upper)
-    
+
     (lower = lower, upper = upper)
 end
