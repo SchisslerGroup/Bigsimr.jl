@@ -31,6 +31,7 @@ LsqFit = "0.10, 0.12, 0.13, 0.14, 0.15"
 Polynomials = "1, 2, 3"
 QuadGK = "2.4, 2.6"
 SpecialFunctions = "1, 2"
+Statistics = "1"
 StatsBase = "0.32, 0.33, 0.34"
 julia = "1.6, 1.7, 1.8, 1.9, 1.10"
 
