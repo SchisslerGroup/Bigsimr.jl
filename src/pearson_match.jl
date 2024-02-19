@@ -1,5 +1,5 @@
 """
-    pearson_match(ρ::Float64, dA::UnivariateDistribution, dB::UnivariateDistribution; n::Int=7)
+    pearson_match(p::Real, dA::UnivariateDistribution, dB::UnivariateDistribution; n=7)
 
 Compute the pearson correlation coefficient that is necessary to achieve the
 target correlation given a pair of marginal distributions.
@@ -26,163 +26,174 @@ julia> pearson_match(0.9, A, B)
 0.9986891675056113
 ```
 """
-function pearson_match(ρ::Float64, dA::UD, dB::UD; n::Int=7, convert::Bool=true)
-    
+function pearson_match(p::Real, d1::UD, d2::UD; n=7, convert=true)
     # Check support set size of any discrete distributions and convert if necessary
     if convert
         cutoff = 200
 
-        if typeof(dA) <: DUD
-            maxA = maximum(dA)
-            if isinf(maxA) maxA = quantile(dA, 0.99_999) end
-            if maxA > cutoff
-                @warn "$dA was converted to a GSDist for computational efficiency"
-                dA = GSDist(dA)
+        if typeof(d1) <: DUD
+            max1 = maximum(d1)
+
+            if isinf(max1) 
+                max1 = quantile(d1, 0.99_999) 
+            end
+            
+            if max1 > cutoff
+                @warn "$d1 was converted to a GSDist for computational efficiency"
+                d1 = GSDist(d1)
             end
         end
 
-        if typeof(dB) <: DUD
-            maxB = maximum(dB)
-            if isinf(maxB) maxB = quantile(dB, 0.99_999) end
-            if maxB > cutoff
-                @warn "$dB was converted to a GSDist for computational efficiency"
-                dB = GSDist(dB)
+        if typeof(d2) <: DUD
+            max2 = maximum(d2)
+
+            if isinf(max2)
+                max2 = quantile(d2, 0.99_999)
+            end
+
+            if max2 > cutoff
+                @warn "$d2 was converted to a GSDist for computational efficiency"
+                d2 = GSDist(d2)
             end
         end
     end
     
-    _pearson_match(ρ, dA, dB, n)
+    return _pearson_match(p, d1, d2, Int(n))
 end
 
 # Continuous-Continuous case
-function _pearson_match(ρ::Float64, dA::CUD, dB::CUD, n::Int)
-    μA = mean(dA)
-    μB = mean(dB)
-    σA = std(dA)
-    σB = std(dB)
+function _pearson_match(p::Real, d1::CUD, d2::CUD, n::Int)
+    μ1 = mean(d1)
+    μ2 = mean(d2)
+    s1 = std(d1)
+    s2 = std(d2)
 
     k = 0:1:n
-    a = get_coefs(dA, n)
-    b = get_coefs(dB, n)
+    a = _get_coefs(d1, n)
+    b = _get_coefs(d2, n)
 
-    c1 = -μA * μB
-    c2 = 1 / (σA * σB)
+    c1 = -μ1 * μ2
+    c2 = 1 / (s1 * s2)
     kab = factorial.(k) .* a .* b
 
     coef = zeros(Float64, n+1)
-    for k in 1:n
-        coef[k+1] = c2 .* a[k+1] * b[k+1] * factorial(k)
+    for i in 1:n
+        coef[i+1] = c2 .* a[i+1] * b[i+1] * factorial(i)
     end
-    coef[1] = c1 * c2 + c2 * a[1] * b[1] - ρ
+    coef[1] = c1 * c2 + c2 * a[1] * b[1] - p
 
-    r = solve_poly_pm_one(coef)
-    length(r) == 1 && return r
-    !isnan(r) && nearest_root(ρ, r)
+    r = _solve_poly_pm_one(coef)
+    length(r) > 1 && return _nearest_root(p, r)
+    !isnan(r) && return r
 
     #= 
         If the root does not exist, then compute the adjustment correlation for
         the theoretical upper or lower correlation bound.
     =#
     @warn "The target correlation is not feasible. Returning the match to the nearest bound instead."
-    ρ_l = c1 * c2 + c2 * sum((-1) .^ k .* kab)
-    ρ_u = c1 * c2 + c2 * sum(kab)
-    ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
+    pl = c1 * c2 + c2 * sum((-1) .^ k .* kab)
+    pu = c1 * c2 + c2 * sum(kab)
+    return p > 0 ? _pearson_match(pu-0.001, d1, d2, n) : _pearson_match(pl+0.001, d1, d2, n)
 end
 
 # Discrete-Discrete case
-function _pearson_match(ρ::Float64, dA::DUD, dB::DUD, n::Int)
-    maxA = maximum(dA)
-    maxB = maximum(dB)
-    maxA = isinf(maxA) ? quantile(dA, 0.99_999) : maxA
-    maxB = isinf(maxB) ? quantile(dB, 0.99_999) : maxB
+function _pearson_match(p::Real, d1::DUD, d2::DUD, n::Int)
+    max1 = maximum(d1)
+    max2 = maximum(d2)
+    max1 = isinf(max1) ? quantile(d1, 0.99_999) : max1
+    max2 = isinf(max2) ? quantile(d2, 0.99_999) : max2
 
-    σA = std(dA)
-    σB = std(dB)
-    minA = minimum(dA)
-    minB = minimum(dB)
+    s1 = std(d1)
+    s2 = std(d2)
+    min1 = minimum(d1)
+    min2 = minimum(d2)
 
     # Support sets
-    A = minA:maxA
-    B = minB:maxB
+    A = min1:max1
+    B = min2:max2
 
     # z = Φ⁻¹[F(A)], α[0] = -Inf, β[0] = -Inf
-    α = [-Inf; _norminvcdf.(cdf.(dA, A))]
-    β = [-Inf; _norminvcdf.(cdf.(dB, B))]
+    a = [-Inf; _norminvcdf.(cdf.(d1, A))]
+    b = [-Inf; _norminvcdf.(cdf.(d2, B))]
 
-    c2 = 1 / (σA * σB)
+    c2 = 1 / (s1 * s2)
 
     coef = zeros(Float64, n+1)
     for k in 1:n
-        coef[k+1] = Gn0d(k, A, B, α, β, c2) / factorial(k)
+        coef[k+1] = _Gn0d(k, A, B, a, b, c2) / factorial(k)
     end
-    coef[1] = -ρ
+    coef[1] = -p
 
-    r = solve_poly_pm_one(coef)
-    length(r) == 1 && return r
-    !isnan(r) && nearest_root(ρ, r)
+    r = _solve_poly_pm_one(coef)
+    length(r) > 1 && return _nearest_root(p, r)
+    !isnan(r) && return r
 
     #= 
         If the root does not exist, then compute the adjustment correlation for
         the theoretical upper or lower correlation bound.
     =#
-    ρ_l, ρ_u = pearson_bounds(dA, dB)
-    ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
+    pl, pu = pearson_bounds(d1, d2)
+    return p > 0 ? _pearson_match(pu-0.001, d1, d2, n) : _pearson_match(pl+0.001, d1, d2, n)
 end
 
 # Discrete-Continuous case
-function _pearson_match(ρ::Float64, dA::DUD, dB::CUD, n::Int)
-    σA = std(dA)
-    σB = std(dB)
-    minA = minimum(dA)
-    maxA = maximum(dA)
+function _pearson_match(p::Real, d1::DUD, d2::CUD, n::Int)
+    s1 = std(d1)
+    s2 = std(d2)
+    min1 = minimum(d1)
+    max1 = maximum(d1)
 
-    maxA = isinf(maxA) ? quantile(dA, 0.99) : maxA
+    max1 = isinf(max1) ? quantile(d1, 0.99) : max1
 
-    A = minA:maxA
-    α = [-Inf; _norminvcdf.(cdf.(dA, A))]
+    A = min1:max1
+    a = [-Inf; _norminvcdf.(cdf.(d1, A))]
 
-    c2 = 1 / (σA * σB)
+    c2 = 1 / (s1 * s2)
 
     coef = zeros(Float64, n+1)
     for k in 1:n
-        coef[k+1] = Gn0m(k, A, α, dB, c2) / factorial(k)
+        coef[k+1] = _Gn0m(k, A, a, d2, c2) / factorial(k)
     end
-    coef[1] = -ρ
+    coef[1] = -p
 
-    r = solve_poly_pm_one(coef)
-    length(r) == 1 && return r
-    !isnan(r) && nearest_root(ρ, r)
+    r = _solve_poly_pm_one(coef)
+    length(r) > 1 && return _nearest_root(p, r)
+    !isnan(r) && return r
 
     #= 
         If the root does not exist, then compute the adjustment correlation for
         the theoretical upper or lower correlation bound.
     =#
-    ρ_l, ρ_u = pearson_bounds(dA, dB)
-    ρ > 0 ? _pearson_match(ρ_u-0.001, dA, dB, n) : _pearson_match(ρ_l+0.001, dA, dB, n)
+    pl, pu = pearson_bounds(d1, d2)
+    return p > 0 ? _pearson_match(pu-0.001, d1, d2, n) : _pearson_match(pl+0.001, d1, d2, n)
 end
-_pearson_match(ρ::Float64, dA::CUD, dB::DUD, n::Int) = _pearson_match(ρ, dB, dA, n)
+
+_pearson_match(p::Real, d1::CUD, d2::DUD, n::Int) = _pearson_match(p, d2, d1, n)
 
 
 """
-    pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
+    pearson_match(p::AbstractMatrix{<:Real}, margins::AbstractVector{<:UnivariateDistribution})
 
 Compute the pearson correlation coefficient that is necessary to achieve the
 target correlation matrix given a set of marginal distributions.
 
 See also: [`pearson_bounds`](@ref)
 """
-function pearson_match(ρ::Matrix{Float64}, margins::Vector{<:UD})
-    !(length(margins) == size(ρ, 1) == size(ρ, 2)) && throw(DimensionMismatch("The number of margins must be the same size as the correlation matrix."))
-
+function pearson_match(X::AbstractMatrix{<:Real}, margins::AbstractVector{<:UD})
     d = length(margins)
+    r, s = size(X)
+    (r == s == d) || throw(DimensionMismatch(
+        "The number of margins must match the size of the correlation matrix."))
+
     R = SharedMatrix{Float64}(d, d)
 
     # Calculate the pearson matching pairs
     @threads for i in collect(subsets(1:d, Val{2}()))
-        @inbounds R[i...] = pearson_match(ρ[i...], margins[i[1]], margins[i[2]])
+        @inbounds R[i...] = pearson_match(X[i...], margins[i[1]], margins[i[2]])
     end
-    R = Matrix{Float64}(Symmetric(sdata(R)))
+
+    R = Symmetric(sdata(R))
 
     # Ensure that the resulting correlation matrix is positive definite
-    iscorrelation(R) ? R : cor_fastPD(R)
+    return iscorrelation(R) ? R : cor_fastPD!(R)
 end

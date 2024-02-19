@@ -1,14 +1,19 @@
-function fast_pca!(X::Matrix{T}, λ::Vector{T}, P::Matrix{T}, n::Int) where T<:AbstractFloat
+function _fast_pca!(X, λ, P, n)
     r = sum(λ .> 0)
+
+    r == n && return X
+    
+    T = eltype(X)
     s = n - r
 
-    if r == 0
-        X .= zeros(T, n, n)
-    elseif r == n
-        return nothing
-    elseif r == 1 
+    r == 0 && return fill!(X, zero(T))
+
+    if r == 1 
         X .= (λ[1] * λ[1]) * (P[:,1] * P[:,1]')   
-    elseif r ≤ s
+        return X
+    end
+
+    if r ≤ s
         P₁   = @view P[:, 1:r]
         λ₁   = sqrt.(λ[1:r])
         P₁λ₁ = P₁ .* λ₁'
@@ -19,12 +24,14 @@ function fast_pca!(X::Matrix{T}, λ::Vector{T}, P::Matrix{T}, n::Int) where T<:A
         P₂λ₂ = P₂ .* λ₂'
         X   .= X .+ P₂λ₂ * P₂λ₂'
     end
-    nothing
+
+    return X
 end
 
 
+
 """
-    cor_fastPD!(R::Matrix{<:AbstractFloat}[, τ=1e-6])
+    cor_fastPD!(R, τ=1e-6)
 
 Same as [`cor_fastPD`](@ref), but saves space by overwriting the input `R`
 instead of creating a copy.
@@ -52,27 +59,30 @@ julia> isposdef(r)
 true
 ```
 """
-function cor_fastPD!(R::Matrix{<:AbstractFloat}, τ=1e-6)
+function cor_fastPD!(R::AbstractMatrix{<:Real}, tau=1e-6)
+    T = eltype(R)
     n  = size(R, 1)
-    τ  = max(eps(eltype(R)), τ)
+    tau  = max(eps(T), tau)
     
     R .= Symmetric(R, :U)
-    R[diagind(R)] .= (one(eltype(R)) - τ)
+    R[diagind(R)] .= (one(T) - tau)
 
     λ, P = eigen(R)
     λ   .= reverse(λ)
     P   .= reverse(P, dims=2)
 
-    fast_pca!(R, λ, P, n)
+    _fast_pca!(R, λ, P, n)
 
-    R[diagind(R)] .+= τ
+    R[diagind(R)] .+= tau
     R .= cov2cor(R)
-    nothing
+
+    return R
 end
 
 
+
 """
-    cor_fastPD(R::Matrix{<:AbstractFloat}[, τ=1e-6])
+    cor_fastPD(R, tau=1e-6)
 
 Return a positive definite correlation matrix that is close to `R`. `τ` is a
 tuning parameter that controls the minimum eigenvalue of the resulting matrix.
@@ -105,13 +115,4 @@ julia> isposdef(p)
 true
 ```
 """
-function cor_fastPD(R::Matrix{<:AbstractFloat}, τ=1e-6)
-    X = copy(R)
-    cor_fastPD!(X, τ)
-    X
-end
-function cor_fastPD(R::Matrix{Float16}, τ=1e-6)
-    X = Matrix{Float32}(R)
-    cor_fastPD!(X, τ)
-    Matrix{Float16}(X)
-end
+cor_fastPD(R::AbstractMatrix{<:Real}, tau=1e-6) = cor_fastPD!(copy(R), tau)

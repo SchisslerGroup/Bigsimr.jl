@@ -1,5 +1,5 @@
 """
-    cor_bounds(dA::UnivariateDistribution, dB::UnivariateDistribution, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
+    cor_bounds(d1::UnivariateDistribution, d2::UnivariateDistribution, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
 
 Compute the stochastic lower and upper correlation bounds between two marginal
 distributions.
@@ -35,12 +35,17 @@ julia> cor_bounds(A, B, Spearman)
 (lower = -1.0, upper = 1.0)
 ```
 """
-function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
-    a = rand(dA, Int(n_samples))
-    b = rand(dB, Int(n_samples))
+function cor_bounds(d1::UD, d2::UD, C::Type{<:Correlation}=Pearson; n_samples=100_000)
+    return _cor_bounds(d1, d2, C, Int(n_samples))
+end
+
+function _cor_bounds(d1, d2, C, n)
+    a = rand(d1, n)
+    b = rand(d2, n)
 
     sort!(a)
     sort!(b)
+    
     upper = cor(a, b, C)
 
     reverse!(b)
@@ -50,8 +55,9 @@ function cor_bounds(dA::UD, dB::UD, C::Type{<:Correlation}=Pearson; n_samples::R
 end
 
 
+
 """
-    cor_bounds(margins::Vector{<:UD}, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
+    cor_bounds(margins::AbstractVector{<:UD}, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
 
 Compute the stochastic pairwise lower and upper correlation bounds between a set
 of marginal distributions.
@@ -61,13 +67,16 @@ The possible correlation types are:
   * [`Spearman`](@ref)
   * [`Kendall`](@ref)
 """
-function cor_bounds(margins::Vector{<:UD}, C::Type{<:Correlation}=Pearson; n_samples::Real=100_000)
+function cor_bounds(margins::AbstractVector{<:UD}, C::Type{<:Correlation}=Pearson; n_samples=100_000)
+    return _cor_bounds(margins, C, Int(n_samples))
+end
+
+function _cor_bounds(margins, C, n)
     d = length(margins)
     lower, upper = zeros(Float64, d, d), zeros(Float64, d, d)
-    n_samples = Int(n_samples)
 
     @threads for i in collect(subsets(1:d, Val{2}()))
-        l, u = cor_bounds(margins[i[1]], margins[i[2]], C, n_samples=n_samples)
+        l, u = cor_bounds(margins[i[1]], margins[i[2]], C; n_samples=n)
         lower[i...] = l
         upper[i...] = u
     end

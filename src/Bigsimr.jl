@@ -90,7 +90,7 @@ export
     rvec, 
     rmvn,
     # correlation calculation
-    cor, 
+    cor,
     cor_fast,
     cor_convert, 
     cor_bounds, 
@@ -99,18 +99,18 @@ export
     cor_fastPD, 
     cor_fastPD!,
     # random correlation generation
-    cor_randPD, cor_randPSD,
+    cor_randPD, 
+    cor_randPSD,
     # correlation Utils
     iscorrelation,
     cor_constrain, 
     cor_constrain!,
-    cov2cor, 
-    cov2cor!, 
-    clamp, 
-    cor_clamp,
+    cov2cor,
+    cov2cor!,
     # pearson methods
     pearson_match, 
     pearson_bounds
+
 
 
 end

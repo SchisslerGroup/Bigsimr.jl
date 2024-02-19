@@ -1,81 +1,93 @@
-function get_coefs(margin::UD, n::Int)
-    aₖ = zeros(Float64, n + 1)
+function _get_coefs(margin, n)
     m = 2n
-    tₛ, wₛ = gausshermite(m)
-    tₛ    .= tₛ * sqrt2_f64
-    Xₛ = _norm2margin(margin, tₛ)
+    t, w = gausshermite(m)
+    t .*= sqrt2_f64
+    X = _norm2margin(margin, t)
 
-    aₖ = [sum(wₛ .* _h(tₛ, k) .* Xₛ) for k in 0:n]
+    ak = [sum(w .* _h(t, k) .* X) for k in 0:n]
     
-    return invsqrtpi_f64 * aₖ ./ factorial.(0:n)
+    return invsqrtpi_f64 * ak ./ factorial.(0:n)
 end
-get_coefs(margins::UD, n::Real) = get_coefs(margins, Int(n))
 
-function Gn0d(n::Int, A::UnitRange{Int}, B::UnitRange{Int}, α::Vector{Float64}, β::Vector{Float64}, σAσB_inv::Float64)
-    if n == 0
-        return 0.0
-    end
+
+
+function _Gn0d(n, A, B, xs, ys, cov_inv)
+    n == 0 && return 0.0
     M = length(A)
     N = length(B)
-    accu = 0.0
+
+    accu = 0
+
     for r=1:M, s=1:N
-        r11 = Hp(α[r+1], n-1) * Hp(β[s+1], n-1)
-        r00 = Hp(α[r],   n-1) * Hp(β[s],   n-1)
-        r01 = Hp(α[r],   n-1) * Hp(β[s+1], n-1)
-        r10 = Hp(α[r+1], n-1) * Hp(β[s],   n-1)
+        r11 = _Hp(xs[r+1], n-1) * _Hp(ys[s+1], n-1)
+        r00 = _Hp(xs[r],   n-1) * _Hp(ys[s],   n-1)
+        r01 = _Hp(xs[r],   n-1) * _Hp(ys[s+1], n-1)
+        r10 = _Hp(xs[r+1], n-1) * _Hp(ys[s],   n-1)
         accu += A[r]*B[s] * (r11 + r00 - r01 - r10)
     end
-    accu * σAσB_inv
+
+    return accu * cov_inv
 end
 
-function Gn0m(n::Int, A::UnitRange{Int}, α::Vector{Float64}, dB::UD, σAσB_inv::Float64)
-    if n == 0
-        return 0.0
-    end
+
+
+function _Gn0m(n, A, xs, dB, cov_inv)
+    n == 0 && return 0
     M = length(A)
-    accu = 0.0
-    for r=1:M
-        accu += A[r] * (Hp(α[r+1], n-1) - Hp(α[r], n-1))
-    end
-    m = n + 4
-    t, w = gausshermite(m)
-    t .= t * sqrt2_f64
-    X = _norm2margin(dB, t)
-    S = invsqrtpi_f64 * sum(w .* _h(t, n) .* X)
-    return -σAσB_inv * accu * S
-end
-
-function solve_poly_pm_one(coef::Vector{<:Real})
-    P = Polynomial(coef)
-	dP = derivative(P)
-    r = roots(x->P(x), x->dP(x), interval(-1, 1), Krawczyk, 1e-3)
-
-    length(r) == 1 && return mid(r[1].interval)
-    length(r) == 0 && return NaN
-    length(r) >  1 && return [mid(rs.interval) for rs in r]
-end
-nearest_root(target::Real, roots::Vector{<:Real}) = roots[argmin(abs.(roots .- target))]
-
-
-function _h(x::T, n::Int) where {T<:Real}
-    if n == 0
-        return one(T)
-    elseif n == 1
-        return x
+    
+    accu = 0
+    
+    for r = 1:M
+        accu += A[r] * (_Hp(xs[r+1], n-1) - _Hp(xs[r], n-1))
     end
     
-    Hkp1, Hk, Hkm1 = zero(T), x, one(T)
+    m = n + 4
+    t, w = gausshermite(m)
+    t .*= sqrt2_f64
+    X = _norm2margin(dB, t)
+    S = invsqrtpi_f64 * sum(w .* _h(t, n) .* X)
+
+    return -cov_inv * accu * S
+end
+
+
+
+function _solve_poly_pm_one(coef)
+    P = Polynomial(coef)
+	dP = derivative(P)
+    r = roots(x -> P(x), x -> dP(x), interval(-1, 1), Krawczyk, 1e-3)
+
+    nr = length(r)
+
+    nr == 1 && return mid(first(r).interval)
+    nr == 0 && return NaN
+    
+    return [mid(rs.interval) for rs in r]
+end
+
+
+
+_nearest_root(target, roots) = roots[argmin(abs.(roots .- target))]
+
+
+
+function _h(x::Real, n::Int)
+    n == 0 && return one(x)
+    n == 1 && return x
+    
+    Hkp1, Hk, Hkm1 = zero(x), x, one(x)
+
     for k in 2:n
         Hkp1 = x*Hk - (k-1) * Hkm1
         Hkm1, Hk = Hk, Hkp1
     end
-    Hkp1
+
+    return Hkp1
 end
-_h(X::Real, n::Real) = _h(X, Int(n))
-_h(A::Array{<:Real, N}, n::Real) where N = _h.(A, Ref(n))
+
+_h(A::AbstractArray{<:Real,N}, n::Int) where {N} = _h.(A, Ref(n))
+
+
 
 # We need to account for when x is ±∞ otherwise Julia will return NaN for 0×∞
-function Hp(x::Real, n::Int)
-    isinf(x) ? zero(x) : _h(x, n) * _normpdf(x)
-end
-Hp(x::Real, n::Real) = Hp(x, Int(n))
+_Hp(x, n) = isinf(x) ? zero(x) : _h(x, n) * _normpdf(x)

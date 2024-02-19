@@ -1,5 +1,5 @@
 """
-    cor_randPSD([T::Type{<:AbstractFloat}], d::Int[, k::Int=d-1])
+    cor_randPSD(T::Type{<:Real}, d, k=d-1)
 
 Return a random positive semidefinite correlation matrix where `d` is the 
 dimension (``d ≥ 1``) and `k` is the number of factor loadings (``1 ≤ k < d``).
@@ -30,26 +30,29 @@ julia> cor_randPSD(4)
   0.289011   0.190938  -0.102597   1.0
 ```
 """
-function cor_randPSD(T::Type{<:AbstractFloat}, d::Int, k::Int=d-1)
-    @assert d ≥ 1
-    @assert 1 ≤ k < d
+function cor_randPSD(T::Type{<:Real}, d, k=d-1)
+    d ≥ 1 || throw(ArgumentError("'d' must be greater than or equal to 1"))
+    1 ≤ k < d || throw(ArgumentError("'k' must be greater than '0' and less than 'd'"))
+    return _cor_randPSD(T, Int(d), Int(k))
+end
 
+cor_randPSD(d, k=d-1) = cor_randPSD(Float64, d, k)
+
+function _cor_randPSD(T, d, k)
     d == 1 && return ones(T, 1, 1)
 
     W  = randn(T, d, k)
     S  = W * W' + diagm(rand(T, d))
     S2 = diagm(1 ./ sqrt.(diag(S)))
-    R = S2 * S * S2
+    R  = S2 * S * S2
 
-    cor_constrain(R)
+    return cor_constrain!(R)
 end
-cor_randPSD(d::Int, k::Int=d-1) = cor_randPSD(Float64, d, k)
-cor_randPSD(T::Type{<:AbstractFloat}, d::Real, k::Real=d-1) = cor_randPSD(T, Int(d), Int(k))
-cor_randPSD(d::Real, k::Real=d-1) = cor_randPSD(Float64, Int(d), Int(k))
+
 
 
 """
-    cor_randPD([T::Type{<:AbstractFloat}], d::Int[, k::Int=d-1])
+    cor_randPD(T::Type{<:Real}, d, k=d-1)
 
 The same as [`cor_randPSD`](@ref), but calls [`cor_fastPD`](@ref) to ensure that
 the returned matrix is positive definite.
@@ -78,7 +81,5 @@ julia> cor_randPD(4)
  -0.251671  -0.117748  -0.424952   1.0
 ```
 """
-cor_randPD(T::Type{<:AbstractFloat}, d::Int, k::Int=d-1) = cor_fastPD(cor_randPSD(T, d, k))
-cor_randPD(d::Int, k::Int=d-1) = cor_randPD(Float64, d, k)
-cor_randPD(T::Type{<:AbstractFloat}, d::Real, k::Real=d-1) = cor_randPD(T, Int(d), Int(k))
-cor_randPD(d::Real, k::Real=d-1) = cor_randPD(Float64, d, k)
+cor_randPD(T::Type{<:Real}, d, k=d-1) = cor_fastPD!(cor_randPSD(T, d, k))
+cor_randPD(d, k=d-1) = cor_randPD(Float64, d, k)

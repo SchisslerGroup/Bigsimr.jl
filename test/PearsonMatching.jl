@@ -53,28 +53,6 @@ end
 
 @testset "Pearson Correlation Utilities" begin
 
-    @testset "Get Hermite Coefficients" begin
-        dA = Binomial(20, 0.2)
-        dB = NegativeBinomial(20, 0.002)
-        dC = LogitNormal(3, 1)
-        dD = Beta(5, 3)
-
-        @test_nowarn Bigsimr.get_coefs(dA, 7)
-        @test_nowarn Bigsimr.get_coefs(dB, 7)
-        @test_nowarn Bigsimr.get_coefs(dC, 7)
-        @test_nowarn Bigsimr.get_coefs(dD, 7)
-
-        @test_nowarn Bigsimr.get_coefs(dA, 7.0)
-        @test_nowarn Bigsimr.get_coefs(dB, 7.0)
-        @test_nowarn Bigsimr.get_coefs(dC, 7.0)
-        @test_nowarn Bigsimr.get_coefs(dD, 7.0)
-
-        @test_throws InexactError Bigsimr.get_coefs(dA, 7.5)
-        @test_throws InexactError Bigsimr.get_coefs(dB, 7.5)
-        @test_throws InexactError Bigsimr.get_coefs(dC, 7.5)
-        @test_throws InexactError Bigsimr.get_coefs(dD, 7.5)
-    end
-
     @testset "Core Hermite Function" begin
         # Must work for any real input
         test_types = (Float64, Float32, Float16, BigFloat, Int128, Int64, Int32, Int16, BigInt, Rational)
@@ -88,9 +66,6 @@ end
             @test Bigsimr._h(one(T), 5) isa T
         end
 
-        @test_nowarn Bigsimr._h(3.14, 5.0)
-        @test_throws InexactError Bigsimr._h(3.14, 5.5)
-
         # Must work for arrays/matrices/vectors
         A = rand(3)
         B = rand(3, 3)
@@ -101,9 +76,9 @@ end
     end
 
     @testset "Hermite-Normal PDF" begin
-        @test iszero(Bigsimr.Hp(Inf, 10))
-        @test iszero(Bigsimr.Hp(-Inf, 10))
-        @test 1.45182435 ≈ Bigsimr.Hp(1.0, 5)
+        @test iszero(Bigsimr._Hp(Inf, 10))
+        @test iszero(Bigsimr._Hp(-Inf, 10))
+        @test 1.45182435 ≈ Bigsimr._Hp(1.0, 5)
     end
 
     @testset "Solve Polynomial on [-1, 1]" begin
@@ -120,17 +95,17 @@ end
         P6 = coeffs(fromroots([-0.5, 0.5]))
 
         # One root at -1.0
-        @test Bigsimr.solve_poly_pm_one(P1) ≈ r1 atol=0.001
+        @test Bigsimr._solve_poly_pm_one(P1) ≈ r1 atol=0.001
         # One root at 1.0
-        @test Bigsimr.solve_poly_pm_one(P2) ≈ r2 atol=0.001
+        @test Bigsimr._solve_poly_pm_one(P2) ≈ r2 atol=0.001
         # Roots that are just outside [-1, 1]
-        @test Bigsimr.solve_poly_pm_one(P3) ≈ r3 atol=0.001
-        @test Bigsimr.solve_poly_pm_one(P4) ≈ r4 atol=0.001
+        @test Bigsimr._solve_poly_pm_one(P3) ≈ r3 atol=0.001
+        @test Bigsimr._solve_poly_pm_one(P4) ≈ r4 atol=0.001
         # Case of no roots
-        @test isnan(Bigsimr.solve_poly_pm_one(P5))
+        @test isnan(Bigsimr._solve_poly_pm_one(P5))
         # Case of multiple roots
-        @test length(Bigsimr.solve_poly_pm_one(P6)) == 2
-        @test Bigsimr.nearest_root(-0.6, Bigsimr.solve_poly_pm_one(P6)) ≈ -0.5 atol=0.001
+        @test length(Bigsimr._solve_poly_pm_one(P6)) == 2
+        @test Bigsimr._nearest_root(-0.6, Bigsimr._solve_poly_pm_one(P6)) ≈ -0.5 atol=0.001
     end
 
 end
