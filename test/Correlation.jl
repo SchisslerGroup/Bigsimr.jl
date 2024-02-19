@@ -16,11 +16,11 @@ approx_zero(x) = isapprox(0, x, atol=eps(typeof(x)), rtol=0)
 
     @testset "Nearest positive definite correlation matrix" begin
         r = cor_nearPD(r_negdef)
-        @test Bigsimr.iscorrelation(r)
+        @test iscorrelation(r)
 
         # Must respect input eltype
-        for T in [Float64, Float32, Float64]
-            @test eltype(cor_nearPD(Matrix{T}(r_negdef))) === T
+        for T in (Float64, Float32, Float16)
+            @test eltype(cor_nearPD(T.(r_negdef))) === T
         end
     end
 
@@ -35,21 +35,20 @@ approx_zero(x) = isapprox(0, x, atol=eps(typeof(x)), rtol=0)
 
     @testset "Fast near positive definite correlation matrix" begin
         r = cor_fastPD(r_negdef)
-        @test Bigsimr.iscorrelation(r)
+        @test iscorrelation(r)
 
         # Must respect input eltype
-        test_types = [Float64, Float32, Float16]
-        for T in test_types
-            @test eltype(cor_fastPD(Matrix{T}(r_negdef))) === T
+        for T in (Float64, Float32, Float16)
+            @test eltype(cor_fastPD(T.(r_negdef))) === T
         end
     end
 end
 
 @testset "Random Correlation Generation" begin
-    
+
     @testset "Random postive definite correlation matrix" begin
         r = cor_randPD(100)
-        @test Bigsimr.iscorrelation(r)
+        @test iscorrelation(r)
 
         # The element type must be respected
         test_types = [Float64, Float32, Float16]
@@ -61,35 +60,18 @@ end
         test_types = [Float64, Float32, Float16, Rational, Int64, Int32, Int16]
         for T in test_types
             @test_nowarn cor_randPD(T(4))
-            @test_nowarn cor_randPD(Float64, T(4))
-            @test_nowarn cor_randPD(Float32, T(4))
-            @test_nowarn cor_randPD(Float16, T(4))
-            
+
             for S in test_types
                 @test_nowarn cor_randPD(T(4), S(3))
-                @test_nowarn cor_randPD(Float64, T(4), S(3))
-                @test_nowarn cor_randPD(Float32, T(4), S(3))
-                @test_nowarn cor_randPD(Float16, T(4), S(3))
             end
         end
 
         # `d` must not be less than 1
-        @test_throws AssertionError cor_randPD(-1)
-        @test_throws AssertionError cor_randPD(Float64, -1)
-        @test_throws AssertionError cor_randPD(Float32, -1)
-        @test_throws AssertionError cor_randPD(Float16, -1)
-
+        @test_throws ArgumentError cor_randPD(-1)
         # `k` must not be larger than `d`
-        @test_throws AssertionError cor_randPD(4, 5)
-        @test_throws AssertionError cor_randPD(Float64, 4, 5)
-        @test_throws AssertionError cor_randPD(Float32, 4, 5)
-        @test_throws AssertionError cor_randPD(Float16, 4, 5)
-
+        @test_throws ArgumentError cor_randPD(4, 5)
         # `k` must not be less than 1
-        @test_throws AssertionError cor_randPD(4, 0)
-        @test_throws AssertionError cor_randPD(Float64, 4, 0)
-        @test_throws AssertionError cor_randPD(Float32, 4, 0)
-        @test_throws AssertionError cor_randPD(Float16, 4, 0)
+        @test_throws ArgumentError cor_randPD(4, 0)
     end
 
     @testset "Random positive semi-definite correlation matrix" begin
@@ -110,35 +92,18 @@ end
         test_types = [Float64, Float32, Float16, Rational, Int64, Int32, Int16]
         for T in test_types
             @test_nowarn cor_randPSD(T(4))
-            @test_nowarn cor_randPSD(Float64, T(4))
-            @test_nowarn cor_randPSD(Float32, T(4))
-            @test_nowarn cor_randPSD(Float16, T(4))
-            
+
             for S in test_types
                 @test_nowarn cor_randPSD(T(4), S(3))
-                @test_nowarn cor_randPSD(Float64, T(4), S(3))
-                @test_nowarn cor_randPSD(Float32, T(4), S(3))
-                @test_nowarn cor_randPSD(Float16, T(4), S(3))
             end
         end
 
         # `d` must not be less than 1
-        @test_throws AssertionError cor_randPSD(-1)
-        @test_throws AssertionError cor_randPSD(Float64, -1)
-        @test_throws AssertionError cor_randPSD(Float32, -1)
-        @test_throws AssertionError cor_randPSD(Float16, -1)
-
+        @test_throws ArgumentError cor_randPSD(-1)
         # `k` must not be larger than `d`
-        @test_throws AssertionError cor_randPSD(4, 5)
-        @test_throws AssertionError cor_randPSD(Float64, 4, 5)
-        @test_throws AssertionError cor_randPSD(Float32, 4, 5)
-        @test_throws AssertionError cor_randPSD(Float16, 4, 5)
-
+        @test_throws ArgumentError cor_randPSD(4, 5)
         # `k` must not be less than 1
-        @test_throws AssertionError cor_randPSD(4, 0)
-        @test_throws AssertionError cor_randPSD(Float64, 4, 0)
-        @test_throws AssertionError cor_randPSD(Float32, 4, 0)
-        @test_throws AssertionError cor_randPSD(Float16, 4, 0)
+        @test_throws ArgumentError cor_randPSD(4, 0)
     end
 
 end
@@ -157,7 +122,6 @@ end
             for C in cor_types
                 @test_nowarn cor(A, C)
                 @test_nowarn cor(x, y, C)
-
                 @test_nowarn cor_fast(A, C)
             end
         end
@@ -244,7 +208,7 @@ end
         test_types = [Float64, Float32]
         for T in test_types
             @test_throws InexactError cor_bounds(A, B, n_samples=T(10_000.5))
-        end 
+        end
     end
 
 end

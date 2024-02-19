@@ -1,7 +1,7 @@
 """
-    cor(x[, y], ::Type{<:Correlation})
+    cor(x[, y], ::CorType)
 
-Compute the correlation matrix of a given type. 
+Compute the correlation matrix of a given type.
 
 The possible correlation types are:
   * [`Pearson`](@ref)
@@ -43,40 +43,48 @@ julia> cor(x, Kendall)
   0.555556   0.555556  -0.422222   1.0
 ```
 """
-function cor end
-cor(x,    ::Type{Pearson})  = cor(x)
-cor(x, y, ::Type{Pearson})  = cor(x, y)
-cor(x,    ::Type{Spearman}) = corspearman(x)
-cor(x, y, ::Type{Spearman}) = corspearman(x, y)
-cor(x,    ::Type{Kendall})  = corkendall(x)
-cor(x, y, ::Type{Kendall})  = corkendall(x, y)
+Statistics.cor(x,    cortype::CorType) = _cor(x, cortype)
+Statistics.cor(x, y, cortype::CorType) = _cor(x, y, cortype)
+
+_cor(::Any,        ::CorType) = throw(MethodError)
+_cor(::Any, ::Any, ::CorType) = throw(MethodError)
+
+_cor(x,    ::CorType{:Pearson})  = cor(x)
+_cor(x, y, ::CorType{:Pearson})  = cor(x, y)
+_cor(x,    ::CorType{:Spearman}) = corspearman(x)
+_cor(x, y, ::CorType{:Spearman}) = corspearman(x, y)
+_cor(x,    ::CorType{:Kendall})  = corkendall(x)
+_cor(x, y, ::CorType{:Kendall})  = corkendall(x, y)
+
+
 
 """
-    cor_fast(M::Matrix{S}, T::Type{<:Correlation}=Pearson) where {S<:Real}
+    cor_fast(X::AbstractMatrix{<:Real}, C::CorType=Pearson)
 
 Calculate the correlation matrix in parallel.
 """
-function cor_fast(M::Matrix{S}, T::Type{<:Correlation}=Pearson) where {S<:Real}
-    n, d = size(M)
-    C = SharedMatrix{S}(d, d)
+function cor_fast(X::AbstractMatrix{<:Real}, cortype::CorType=Pearson)
+    d = size(X, 2)
+    Y = SharedMatrix{eltype(X)}(d, d)
     @threads for i in collect(subsets(1:d, Val{2}()))
-        C[i...] = cor(view(M, :, i[1]), view(M, :, i[2]), T)
+        Y[i...] = cor(view(X, :, i[1]), view(X, :, i[2]), cortype)
     end
-    C .= Symmetric(C, :U)
-    C[diagind(C)] .= one(S)
-    sdata(C)
+    Y .= Symmetric(Y, :U)
+    Y[diagind(Y)] .= one(eltype(X))
+    return sdata(Y)
 end
 
 
+
 """
-    cor_convert(X::Matrix{<:Real}, from::Type{<:Correlation}, to::Type{<:Correlation})
+    cor_convert(X, from, to)
 
 Convert from one type of correlation matrix to another.
 
-The role of conversion in this package is typically used from either Spearman or 
+The role of conversion in this package is typically used from either Spearman or
 Kendall to Pearson where the Pearson correlation is used in the generation of
 random multivariate normal samples. After converting, the correlation matrix
-may not be positive semidefinite, so it is recommended to check using 
+may not be positive semidefinite, so it is recommended to check using
 `LinearAlgebra.isposdef`, and subsequently calling [`cor_nearPD`](@ref).
 
 See also: [`cor_nearPD`](@ref), [`cor_fastPD`](@ref)
@@ -111,24 +119,32 @@ julia> r == cor_convert(r, Pearson, Pearson)
 true
 ```
 """
-function cor_convert end
-cor_convert(x::Real, from::Type{C},        to::Type{C}) where {C<:Correlation} = x
-cor_convert(x::Real, from::Type{Pearson},  to::Type{Spearman}) = cor_constrain(asin(x / 2) * 6 / π)
-cor_convert(x::Real, from::Type{Pearson},  to::Type{Kendall})  = cor_constrain(asin(x) * 2 / π)
-cor_convert(x::Real, from::Type{Spearman}, to::Type{Pearson})  = cor_constrain(sin(x * π / 6) * 2)
-cor_convert(x::Real, from::Type{Spearman}, to::Type{Kendall})  = cor_constrain(asin(sin(x * π / 6) * 2) * 2 / π)
-cor_convert(x::Real, from::Type{Kendall},  to::Type{Pearson})  = cor_constrain(sin(x * π / 2))
-cor_convert(x::Real, from::Type{Kendall},  to::Type{Spearman}) = cor_constrain(asin(sin(x * π / 2) / 2) * 6 / π)
-function cor_convert(X::VecOrMat{<:Real}, from::Type{<:Correlation}, to::Type{<:Correlation})
-    cor_constrain(cor_convert.(copy(X), from, to))
+cor_convert(x::Real, from::CorType, to::CorType) = _cor_convert(x, from, to)
+
+# This method is required for R compatibility.
+function cor_convert(xs::AbstractVector{<:Real}, from::CorType, to::CorType)
+    return cor_convert.(xs, Ref(from), Ref(to))
 end
+
+function cor_convert(X::AbstractMatrix{<:Real}, from::CorType, to::CorType)
+    return cor_constrain!(cor_convert.(X, Ref(from), Ref(to)))
+end
+
+_cor_convert(x::Real, ::CorType{T}, ::CorType{T}) where T = x
+_cor_convert(x::Real, ::CorType{:Pearson},  ::CorType{:Spearman}) = clampcor(asin(x / 2) * 6 / π)
+_cor_convert(x::Real, ::CorType{:Pearson},  ::CorType{:Kendall})  = clampcor(asin(x) * 2 / π)
+_cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Pearson})  = clampcor(sin(x * π / 6) * 2)
+_cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Kendall})  = clampcor(asin(sin(x * π / 6) * 2) * 2 / π)
+_cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Pearson})  = clampcor(sin(x * π / 2))
+_cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Spearman}) = clampcor(asin(sin(x * π / 2) / 2) * 6 / π)
+
+
 
 
 """
-    cor_constrain!(C::Matrix{<:Real}[, uplo=:U])
+    cor_constrain!(X::AbstractMatrix{<:Real}, uplo=:U)
 
-Same as [`cor_constrain`](@ref), except that the matrix `C` is updated in place
-to save memory.
+Same as [`cor_constrain`](@ref), except that the matrix is updated in place to save memory.
 
 # Examples
 ```jldoctest
@@ -138,9 +154,6 @@ julia> a = [ 0.802271   0.149801  -1.1072     1.13451
              0.638291  -0.682503   1.12092   -1.27018];
 
 julia> cor_constrain!(a)
-
-
-julia> a
 4×4 Matrix{Float64}:
   1.0       0.149801  -1.0        1.0
   0.149801  1.0        0.38965    0.965936
@@ -148,16 +161,17 @@ julia> a
   1.0       0.965936  -0.362526   1.0
 ```
 """
-function cor_constrain!(C::Matrix{<:Real}, uplo=:U)
-    C .= clampcor.(C)
-    C .= Symmetric(C, uplo)
-    C[diagind(C)] .= one(eltype(C))
-    nothing
+function cor_constrain!(X::AbstractMatrix{<:Real}, uplo=:U)
+    X .= clampcor.(X)
+    X .= Symmetric(X, uplo)
+    X[diagind(X)] .= one(eltype(X))
+    return X
 end
 
 
+
 """
-    cor_constrain(C::Matrix{<:Real}[, uplo=:U])
+    cor_constrain(X::AbstractMatrix{<:Real}, uplo=:U)
 
 Constrain a matrix so that its diagonal elements are 1, off-diagonal elements
 are bounded between -1 and 1, and a symmetric view of the upper (if `uplo = :U`)
@@ -187,16 +201,12 @@ julia> cor_constrain(a, :L)
   0.638291  -0.682503   1.0   1.0
 ```
 """
-function cor_constrain(C::Matrix{<:Real}, uplo=:U)
-    R = copy(C)
-    cor_constrain!(R, uplo)
-    R 
-end
-cor_constrain(x::Real) = clamp(x, -one(eltype(x)), one(eltype(x)))
+cor_constrain(X::AbstractMatrix{<:Real}, uplo=:U) = cor_constrain!(copy(X), uplo)
+
 
 
 """
-    cov2cor(C::Matrix{<:AbstractFloat})
+    cov2cor(X::AbstractMatrix{<:Real})
 
 Transform a covariance matrix into a correlation matrix.
 
@@ -210,33 +220,20 @@ If ``X \\in \\mathbb{R}^{n \\times n}`` is a covariance matrix, then
 
 is the associated correlation matrix.
 """
-function cov2cor(C::Matrix{<:AbstractFloat})
-    D = sqrt(inv(Diagonal(C)))
-    cor_constrain(D * C * D)
+function cov2cor(X::AbstractMatrix{<:Real})
+    D = sqrt(inv(Diagonal(X)))
+    return cor_constrain!(D * X * D)
 end
 
 
+
 """
-    cov2cor!(C::Matrix{<:AbstractFloat})
+    cov2cor!(X::AbstractMatrix{<:Real})
 
-Same as [`cov2cor`](@ref), except that the matrix `C` is updated in place
-to save memory.
+Same as [`cov2cor`](@ref), except that the matrix `C` is updated in place to save memory.
 """
-function cov2cor!(C::Matrix{<:AbstractFloat})
-    D = sqrt(inv(Diagonal(C)))
-    C .= D * C * D
-    cor_constrain!(C)
-    nothing
-end
-
-
-Base.clamp(R::Matrix{<:Real}, L::Matrix{<:Real}, U::Matrix{<:Real}) = clamp.(R, L, U)
-
-function cor_clamp(R, L, U)
-    L2 = copy(L)
-    U2 = copy(U)
-    L2[diagind(L2)] .= -Inf
-    U2[diagind(U2)] .= Inf
-    R2 = clamp(R, L2, U2)
-    cor_constrain(R2)
+function cov2cor!(X::AbstractMatrix{<:Real})
+    D = sqrt(inv(Diagonal(X)))
+    X .= D * X * D
+    return cor_constrain!(X)
 end

@@ -1,4 +1,10 @@
-using Test
+using Test, Bigsimr
+using Aqua
+
+
+Aqua.test_all(Bigsimr; ambiguities=false)
+Aqua.test_ambiguities(Bigsimr)
+
 
 const tests = [
     "Correlation",

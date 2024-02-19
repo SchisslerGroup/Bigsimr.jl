@@ -4,6 +4,7 @@ using Base.Threads: @threads
 using Distributions
 using FastGaussQuadrature: gausshermite
 using HypergeometricFunctions: _₂F₁
+using IrrationalConstants
 using IntervalArithmetic: interval, mid
 using IntervalRootFinding: roots, Krawczyk
 using IterTools: subsets
@@ -14,80 +15,102 @@ using QuadGK: quadgk
 using SharedArrays
 using SpecialFunctions: erfc, erfcinv
 using StatsBase: corspearman, corkendall
+using Statistics: clampcor
 
 import Distributions: mean, std, quantile, cdf, pdf, var, params
-import LinearAlgebra: diag, inv, logdet
-import Statistics: cor, clampcor
+import Statistics
 
 
 struct ValidCorrelationError <: Exception end
 
 
-abstract type Correlation end
+"""
+    CorType
+
+A type used for specifiying the type of correlation. Supported correlations are:
+
+    - [`Pearson`](@ref)
+    - [`Spearman`](@ref)
+    - [`Kendall`](@ref)
+"""
+struct CorType{T} end
 
 """
-    Pearson <: Correlation
+    Pearson
 
 Pearson's ``r`` product-moment correlation
 """
-struct Pearson <: Correlation end
+const Pearson = CorType{:Pearson}()
 
 """
-    Spearman <: Correlation
+    Spearman
 
 Spearman's ``ρ`` rank correlation
 """
-struct Spearman <: Correlation end
+const Spearman = CorType{:Spearman}()
 
 """
-    Kendall <: Correlation
+    Kendall
 
 Kendall's ``τ`` rank correlation
 """
-struct Kendall <: Correlation end
+const Kendall = CorType{:Kendall}()
 
-
-export rvec, rmvn
-export pearson_match, pearson_bounds
-export Correlation, Pearson, Spearman, Kendall
-export cor, cor_fast
-export cor_nearPD, cor_fastPD, cor_fastPD!
-export cor_randPD, cor_randPSD
-export cor_convert, cor_bounds, cor_constrain, cor_constrain!
-export cov2cor, cov2cor!, clamp, cor_clamp
-export iscorrelation
 
 
 const UD  = UnivariateDistribution
 const CUD = ContinuousUnivariateDistribution
 const DUD = DiscreteUnivariateDistribution
 
-const sqrt2 = sqrt(2)
-const invsqrt2 = inv(sqrt(2))
-const invsqrtpi = inv(sqrt(π))
-const invsqrt2π = inv(sqrt(2π))
-
 
 include("utils.jl")
+include("random_vector.jl")
 
-include("RandomVector/rvec.jl")
-include("RandomVector/rmvn.jl")
-include("RandomVector/utils.jl")
+include("cor_bounds.jl")
+include("cor_fastPD.jl")
+include("cor_nearPD.jl")
+include("cor_random.jl")
+include("cor_utils.jl")
 
-include("Correlation/cor_bounds.jl")
-include("Correlation/fast_pos_def.jl")
-include("Correlation/nearest_pos_def.jl")
-include("Correlation/random.jl")
-include("Correlation/utils.jl")
+include("pearson_utils.jl")
+include("pearson_match.jl")
+include("pearson_bounds.jl")
 
-include("PearsonMatching/pearson_match.jl")
-include("PearsonMatching/pearson_bounds.jl")
-include("PearsonMatching/utils.jl")
+include("GSDist.jl")
 
-include("GSDist/GSDist.jl")
-include("GSDist/utils.jl")
 
-include("precompile.jl")
+
+export
+    # correlation types
+    CorType,
+    Pearson,
+    Spearman,
+    Kendall,
+    # random vector generation
+    rvec,
+    rmvn,
+    # correlation calculation
+    cor,
+    cor_fast,
+    cor_convert,
+    cor_bounds,
+    # nearest correlation
+    cor_nearPD,
+    cor_fastPD,
+    cor_fastPD!,
+    # random correlation generation
+    cor_randPD,
+    cor_randPSD,
+    # correlation Utils
+    iscorrelation,
+    cor_constrain,
+    cor_constrain!,
+    cov2cor,
+    cov2cor!,
+    # pearson methods
+    pearson_match,
+    pearson_bounds
+
 
 
 end

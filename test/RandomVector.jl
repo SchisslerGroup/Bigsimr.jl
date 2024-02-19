@@ -69,25 +69,25 @@ import Bigsimr: ValidCorrelationError
         ω = randn(Float64, 2, 2, 2)
         γ = randn(Float32)
 
-        @test_nowarn Bigsimr.normal_to_margin(D, x)
-        @test_nowarn Bigsimr.normal_to_margin(D, y)
-        @test_nowarn Bigsimr.normal_to_margin(D, z)
+        @test_nowarn Bigsimr._norm2margin(D, x)
+        @test_nowarn Bigsimr._norm2margin(D, y)
+        @test_nowarn Bigsimr._norm2margin(D, z)
 
-        @test_nowarn Bigsimr.normal_to_margin(D, ω)
-        @test_nowarn Bigsimr.normal_to_margin(D, γ)
+        @test_nowarn Bigsimr._norm2margin(D, ω)
+        @test_nowarn Bigsimr._norm2margin(D, γ)
 
         # Standard normal to standard normal should be invariant
         z = rand(Normal(0, 1), 100000)
-        @test z ≈ Bigsimr.normal_to_margin(Normal(0, 1), z)
+        @test z ≈ Bigsimr._norm2margin(Normal(0, 1), z)
 
         # Estimated parameters must be close to true parameters
         d1 = Binomial(20, 0.2)
         d2 = Poisson(3)
         d3 = Normal(12, π)
 
-        x1 = Bigsimr.normal_to_margin(d1, z)
-        x2 = Bigsimr.normal_to_margin(d2, z)
-        x3 = Bigsimr.normal_to_margin(d3, z)
+        x1 = Bigsimr._norm2margin(d1, z)
+        x2 = Bigsimr._norm2margin(d2, z)
+        x3 = Bigsimr._norm2margin(d3, z)
 
         f1 = fit_mle(Binomial, 20, x1)
         f2 = fit_mle(Poisson, x2)
