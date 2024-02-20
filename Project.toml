@@ -2,7 +2,7 @@ name = "Bigsimr"
 uuid = "8782c2a4-92bb-4214-98d7-3150cbd7a677"
 authors = ["Alex Knudson <alexk.706@gmail.com>"]
 repo = "https://github.com/SchisslerGroup/Bigsimr.jl.git"
-version = "1.0.0-DEV"
+version = "0.10.0-DEV"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -21,7 +21,7 @@ Aqua = "0.8"
 Distributions = "0.25"
 LinearAlgebra = "1"
 NearestCorrelationMatrix = "0.2"
-PearsonCorrelationMatch = "0.1"
+PearsonCorrelationMatch = "0.2"
 PrecompileTools = "1"
 Reexport = "1"
 SharedArrays = "1"
