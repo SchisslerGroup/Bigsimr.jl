@@ -374,13 +374,13 @@ julia> A = Normal(78, 10); B = LogNormal(3, 1);
 julia> cor_bounds(A, B)
 (lower = -0.7646512417819491, upper = 0.7649206069306482)
 
-julia> cor_bounds(A, B, n_samples=Int(1e9))
-(lower = -0.7629776825238167, upper = 0.7629762333824238)
+julia> cor_bounds(A, B, 1e6)
+(lower = -0.765850375468031, upper = 0.7655170605697716)
 
-julia> cor_bounds(A, B, n_samples=Int(1e4))
-(lower = -0.7507010142250724, upper = 0.7551879647701095)
+julia> cor_bounds(A, B, Pearson)
+(lower = -0.7631871539735006, upper = 0.7624398609255689)
 
-julia> cor_bounds(A, B, Spearman)
+julia> cor_bounds(A, B, Spearman, 250_000)
 (lower = -1.0, upper = 1.0)
 ```
 """
@@ -420,6 +420,28 @@ The possible correlation types are:
 - [`Pearson`](@ref)
 - [`Spearman`](@ref)
 - [`Kendall`](@ref)
+
+# Examples
+
+```julia-repl
+julia> using Distributions
+
+julia> margins = [Normal(78, 10), Binomial(20, 0.2), LogNormal(3, 1)];
+
+julia> lower, upper = cor_bounds(margins, Pearson);
+
+julia> lower
+3×3 Matrix{Float64}:
+  1.0       -0.983111  -0.768184
+ -0.983111   1.0       -0.702151
+ -0.768184  -0.702151   1.0
+
+julia> upper
+3×3 Matrix{Float64}:
+ 1.0       0.982471  0.766727
+ 0.982471  1.0       0.798379
+ 0.766727  0.798379  1.0
+```
 """
 function cor_bounds(margins::AbstractVector{<:UD}, cortype::CorType, samples::Real)
     return _cor_bounds(margins, cortype, Int(samples))
