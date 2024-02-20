@@ -1,13 +1,10 @@
 # Nearest Correlation Matrix
 
 ```@setup ncm
-using Bigsimr, JLD, LinearAlgebra, BenchmarkTools
+using Bigsimr, JLD2, LinearAlgebra, BenchmarkTools
 using Statistics, Distributions
 
-tmp_dir = mktempdir()
-tarball = "assets/brca200.tar.xz"
-run(`tar -xf $tarball -C $tmp_dir`)
-brca = JLD.load(joinpath(tmp_dir, "brca200.jld"), "brca200")
+brca = JLD2.load("assets/brca200.jld2", "brca")
 
 function fit_mom(x)
     μ = mean(x)

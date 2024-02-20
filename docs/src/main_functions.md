@@ -61,6 +61,12 @@ cov2cor!
 ## Pearson Matching
 
 ```@docs
-pearson_match
-pearson_bounds
+PearsonCorrelationMatch.pearson_match
+PearsonCorrelationMatch.pearson_bounds
+```
+
+## Other
+
+```@docs
+is_correlation
 ```

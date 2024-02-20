@@ -10,10 +10,11 @@ ENV["GKSwstype"] = "100"
 
 makedocs(
     sitename = "Bigsimr.jl",
-    modules  = [Bigsimr],
+    modules = [Bigsimr, PearsonCorrelationMatch],
     format = Documenter.HTML(),
-    doctest  = false,
-    pages    = [
+    doctest = false,
+    checkdocs = :exports,
+    pages = [
         "Bigsimr.jl" => "index.md",
         "Guides" => [
             "Getting Started" => "getting_started.md",
@@ -23,7 +24,7 @@ makedocs(
         "API Reference" => "main_functions.md",
         "Details" => "details.md",
         "Index" => "function_index.md"
-    ]
+    ],
 )
 
 deploydocs(
