@@ -46,14 +46,14 @@ end
 
 
 
-# copies the lower part of a square matrix to the upper (not including the diagonal)
+# copies the upper part of a square matrix to the lower (not including the diagonal)
 function _symmetric!(X::AbstractMatrix{T}) where {T}
     m, n = size(X)
     m == n || throw(DimensionMismatch("Input matrix must be square"))
 
     for i = 1:n-1
         for j = i+1:n
-            X[i,j] = X[j,i]
+            X[j,i] = X[i,j]
         end
     end
 

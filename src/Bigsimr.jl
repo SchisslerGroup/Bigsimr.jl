@@ -5,9 +5,11 @@ using Distributions: UnivariateDistribution, ContinuousUnivariateDistribution,
 using LinearAlgebra: issymmetric, isposdef, cholesky, Diagonal, diagm, diag
 using SharedArrays
 using Statistics
+using Statistics: cor
 using StatsBase: corspearman, corkendall
 using StatsFuns: normcdf
-using NearestCorrelationMatrix
+using PearsonCorrelationMatch
+using PearsonCorrelationMatch: pearson_match
 
 
 export
@@ -65,6 +67,24 @@ function is_correlation(X::AbstractMatrix{T}) where {T<:Real}
     isposdef(X)        || return false
 
     return true
+end
+
+
+function PearsonCorrelationMatch.pearson_match(rho::AbstractMatrix{T}, margins::Vector{<:UD}) where {T<:Real}
+    d = length(margins)
+    r, s = size(rho)
+    (r == s == d) || throw(DimensionMismatch("The number of margins must be the same size as the correlation matrix."))
+
+    R = SharedMatrix{Float64}(d, d)
+
+    # Calculate the pearson matching pairs
+    Base.Threads.@threads for (i, j) in _idx_subsets2(d)
+        @inbounds R[i, j] = pearson_match(rho[i,j], margins[i], margins[j])
+    end
+
+    _symmetric!(R)
+    _set_diag1!(R)
+    return cor_fastPD!(R)
 end
 
 
