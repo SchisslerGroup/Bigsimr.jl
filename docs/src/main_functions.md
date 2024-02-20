@@ -14,9 +14,10 @@ rmvn
 ### Types
 
 ```@docs
-Bigsimr.Pearson
-Bigsimr.Spearman
-Bigsimr.Kendall
+CorType
+Pearson
+Spearman
+Kendall
 ```
 
 ### Estimating
@@ -40,6 +41,9 @@ Convert a correlation matrix by finding a positive [semi]definite representation
 
 ```@docs
 cor_nearPD
+cor_nearPD!
+cor_nearPSD
+cor_nearPSD!
 cor_fastPD
 cor_fastPD!
 ```
@@ -48,10 +52,10 @@ Convert a correlation matrix using other utilities.
 
 ```@docs
 cor_convert
-cov2cor
-cov2cor!
 cor_constrain
 cor_constrain!
+cov2cor
+cov2cor!
 ```
 
 ## Pearson Matching
@@ -59,10 +63,4 @@ cor_constrain!
 ```@docs
 pearson_match
 pearson_bounds
-```
-
-## Other
-
-```@docs
-Bigsimr.GSDist
 ```
