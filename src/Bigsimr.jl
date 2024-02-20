@@ -45,7 +45,6 @@ export
 
 
 using Reexport
-@reexport using Distributions
 @reexport using PearsonCorrelationMatch
 @reexport using NearestCorrelationMatrix
 
