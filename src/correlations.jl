@@ -192,7 +192,7 @@ end
     cor_constrain(X::AbstractMatrix{<:Real})
 
 Constrain a matrix so that its diagonal elements are 1, off-diagonal elements
-are bounded between -1 and 1, and a symmetric view of the lower triangle is made.
+are bounded between -1 and 1, and a symmetric view of the upper triangle is made.
 
 See also: [`cor_constrain!`](@ref)
 
@@ -205,10 +205,10 @@ julia> a = [ 0.802271   0.149801  -1.1072     1.13451
 
 julia> cor_constrain(a)
 4×4 Matrix{Float64}:
-  1.0        0.869788  -1.0   0.638291
-  0.869788   1.0       -1.0  -0.682503
- -1.0       -1.0        1.0   1.0
-  0.638291  -0.682503   1.0   1.0
+  1.0       0.149801  -1.0        1.0
+  0.149801  1.0        0.38965    0.965936
+ -1.0       0.38965    1.0       -0.362526
+  1.0       0.965936  -0.362526   1.0
 ```
 """
 cor_constrain(X::AbstractMatrix{<:Real}) = cor_constrain!(copy(X))

@@ -12,7 +12,7 @@ makedocs(
     sitename = "Bigsimr.jl",
     modules = [Bigsimr, PearsonCorrelationMatch],
     format = Documenter.HTML(),
-    doctest = false,
+    doctest = true,
     checkdocs = :exports,
     pages = [
         "Bigsimr.jl" => "index.md",
