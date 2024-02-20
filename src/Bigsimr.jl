@@ -91,8 +91,6 @@ function __init__()
 
         julia> using Pkg; Pkg.install("Distributions")
 
-        julia> using Distributions
-
         """
     end
 end
