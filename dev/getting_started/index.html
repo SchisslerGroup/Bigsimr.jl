@@ -10,47 +10,47 @@ using RDatasets, DataFrames, Statistics</code></pre><pre><code class="language-j
 | 114 |    14 |    75 |
 | 115 |    18 |    76 |
 | 116 |    20 |    68 |
-       110 rows omitted</code></pre><p>Let’s look at the joint distribution of the Ozone and Temperature</p><img src="a689e5c1.svg" alt="Example block output"/><p>We can see that not all margins are normally distributed; the ozone level is highly skewed. Though we don’t know the true distribution of ozone levels, we can go forward assuming that it is log-normally distributed.</p><p>To simulate observations from this joint distribution, we need to estimate the correlation and the marginal parameters.</p><h2 id="Estimating-Correlation"><a class="docs-heading-anchor" href="#Estimating-Correlation">Estimating Correlation</a><a id="Estimating-Correlation-1"></a><a class="docs-heading-anchor-permalink" href="#Estimating-Correlation" title="Permalink"></a></h2><p>To estimate the correlation, we use <code>cor</code> with an argument specifying the type of correlation to estimate. The options are <code>Pearson</code>, <code>Spearman</code>, or <code>Kendall</code>.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; ρ = cor(Matrix(df), Pearson)</code><code class="nohighlight hljs ansi" style="display:block;">2×2 Matrix{Float64}:
+       110 rows omitted</code></pre><p>Let’s look at the joint distribution of the Ozone and Temperature</p><img src="2db19501.svg" alt="Example block output"/><p>We can see that not all margins are normally distributed; the ozone level is highly skewed. Though we don’t know the true distribution of ozone levels, we can go forward assuming that it is log-normally distributed.</p><p>To simulate observations from this joint distribution, we need to estimate the correlation and the marginal parameters.</p><h2 id="Estimating-Correlation"><a class="docs-heading-anchor" href="#Estimating-Correlation">Estimating Correlation</a><a id="Estimating-Correlation-1"></a><a class="docs-heading-anchor-permalink" href="#Estimating-Correlation" title="Permalink"></a></h2><p>To estimate the correlation, we use <code>cor</code> with an argument specifying the type of correlation to estimate. The options are <code>Pearson</code>, <code>Spearman</code>, or <code>Kendall</code>.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; ρ = cor(Matrix(df), Pearson)</code><code class="nohighlight hljs ansi" style="display:block;">2×2 Matrix{Float64}:
  1.0      0.69836
  0.69836  1.0</code></pre><h2 id="Defining-Marginal-Distributions"><a class="docs-heading-anchor" href="#Defining-Marginal-Distributions">Defining Marginal Distributions</a><a id="Defining-Marginal-Distributions-1"></a><a class="docs-heading-anchor-permalink" href="#Defining-Marginal-Distributions" title="Permalink"></a></h2><p>Next we can estimate the marginal parameters. Assuming that the <code>Temperature</code> is normally distributed, it has parameters:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; μ_Temp = mean(df.Temp)</code><code class="nohighlight hljs ansi" style="display:block;">77.87068965517241</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; σ_Temp = std(df.Temp)</code><code class="nohighlight hljs ansi" style="display:block;">9.48548563759966</code></pre><p>and assuming that <code>Ozone</code> is log-normally distributed, it has parameters:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; μ_Ozone = mean(log.(df.Ozone))</code><code class="nohighlight hljs ansi" style="display:block;">3.418515100812007</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; σ_Ozone = sqrt(mean((log.(df.Ozone) .- mean(log.(df.Ozone))).^2))</code><code class="nohighlight hljs ansi" style="display:block;">0.8617359690270703</code></pre><p>Finally we take the parameters and put them into a vector of margins:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; margins = [Normal(μ_Temp, σ_Temp), LogNormal(μ_Ozone, σ_Ozone)]</code><code class="nohighlight hljs ansi" style="display:block;">2-element Vector{Distribution{Univariate, Continuous}}:
  Normal{Float64}(μ=77.87068965517241, σ=9.48548563759966)
  LogNormal{Float64}(μ=3.418515100812007, σ=0.8617359690270703)</code></pre><h2 id="Correlation-Bounds"><a class="docs-heading-anchor" href="#Correlation-Bounds">Correlation Bounds</a><a id="Correlation-Bounds-1"></a><a class="docs-heading-anchor-permalink" href="#Correlation-Bounds" title="Permalink"></a></h2><p>Given a vector of margins, the theoretical lower and upper correlation coefficients can be estimated using simulation:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; lower, upper = cor_bounds(margins, Pearson);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; lower</code><code class="nohighlight hljs ansi" style="display:block;">2×2 Matrix{Float64}:
-  1.0       -0.817638
- -0.817638   1.0</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; upper</code><code class="nohighlight hljs ansi" style="display:block;">2×2 Matrix{Float64}:
- 1.0       0.819653
- 0.819653  1.0</code></pre><p>The <code>pearson_bounds</code> function uses more sophisticated methods to determine the theoretical lower and upper Pearson correlation bounds. It also requires more computational time.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; lower, upper = pearson_bounds(margins);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; lower</code><code class="nohighlight hljs ansi" style="display:block;">2×2 Matrix{Float64}:
+  1.0       -0.821767
+ -0.821767   1.0</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; upper</code><code class="nohighlight hljs ansi" style="display:block;">2×2 Matrix{Float64}:
+ 1.0       0.822736
+ 0.822736  1.0</code></pre><p>The <code>pearson_bounds</code> function uses more sophisticated methods to determine the theoretical lower and upper Pearson correlation bounds. It also requires more computational time.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; lower, upper = pearson_bounds(margins);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; lower</code><code class="nohighlight hljs ansi" style="display:block;">2×2 Matrix{Float64}:
   1.0       -0.821122
  -0.821122   1.0</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; upper</code><code class="nohighlight hljs ansi" style="display:block;">2×2 Matrix{Float64}:
  1.0       0.821122
  0.821122  1.0</code></pre><h2 id="Simulating-Multivariate-Data"><a class="docs-heading-anchor" href="#Simulating-Multivariate-Data">Simulating Multivariate Data</a><a id="Simulating-Multivariate-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Simulating-Multivariate-Data" title="Permalink"></a></h2><p>Let’s now simulate 10,000 observations from the joint distribution using <code>rvec</code>:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; x = rvec(10_000, ρ, margins)</code><code class="nohighlight hljs ansi" style="display:block;">10000×2 Matrix{Float64}:
- 79.8479   61.5865
- 80.703    42.0735
- 82.9166   60.0388
- 77.0628   37.4102
- 66.482    27.8807
- 82.4118   34.4844
- 86.0495   27.8833
- 57.0325    3.47371
- 77.9898   43.9106
- 59.5829   18.583
-  ⋮
- 83.3163   83.9858
- 80.6452  110.197
- 74.5009    7.70112
- 77.2031   56.8566
- 76.6949   41.2547
- 71.8207    8.3279
- 77.4156   27.9537
- 81.8208   44.933
- 70.2996   40.6372</code></pre><h2 id="Visualizing-Bivariate-Data"><a class="docs-heading-anchor" href="#Visualizing-Bivariate-Data">Visualizing Bivariate Data</a><a id="Visualizing-Bivariate-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Visualizing-Bivariate-Data" title="Permalink"></a></h2><pre><code class="language-julia hljs">df_sim = DataFrame(x, [:Temp, :Ozone]);
+  79.1376  39.4955
+  65.7897  13.686
+  86.0033  33.1469
+  81.5947  53.0379
+  75.9794  17.7471
+  76.6177  30.5924
+  74.581   52.1818
+  72.3013  16.6182
+ 100.101   51.9803
+  56.5929   4.80034
+   ⋮
+  83.6396  38.2237
+  79.0307  28.3907
+  71.8968  32.0616
+  89.8469  86.2288
+  87.4368  71.1011
+  59.1233   7.20156
+  87.2022  78.5242
+  84.3553  97.0724
+  65.7943   5.11422</code></pre><h2 id="Visualizing-Bivariate-Data"><a class="docs-heading-anchor" href="#Visualizing-Bivariate-Data">Visualizing Bivariate Data</a><a id="Visualizing-Bivariate-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Visualizing-Bivariate-Data" title="Permalink"></a></h2><pre><code class="language-julia hljs">df_sim = DataFrame(x, [:Temp, :Ozone]);
 
 histogram2d(df_sim.:Temp, df_sim.:Ozone, nbins=250, legend=false,
 			xlims=extrema(df.:Temp) .+ (-10, 10),
-			ylims=extrema(df.:Ozone) .+ (0, 20))</code></pre><img src="024d3f4c.svg" alt="Example block output"/><p><strong>Compared to Uncorrelated Samples</strong></p><p>We can compare the bivariate distribution above to one where no correlation is taken into account.</p><pre><code class="language-julia hljs">df_sim2 = DataFrame(
+			ylims=extrema(df.:Ozone) .+ (0, 20))</code></pre><img src="dc535618.svg" alt="Example block output"/><p><strong>Compared to Uncorrelated Samples</strong></p><p>We can compare the bivariate distribution above to one where no correlation is taken into account.</p><pre><code class="language-julia hljs">df_sim2 = DataFrame(
 	Temp  = rand(margins[1], 10000),
 	Ozone = rand(margins[2], 10000)
 );
 
 histogram2d(df_sim2.:Temp, df_sim2.:Ozone, nbins=250, legend=false,
 			xlims=extrema(df.:Temp) .+ (-10, 10),
-			ylims=extrema(df.:Ozone) .+ (0, 20))</code></pre><img src="dea3d342.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Bigsimr.jl</a><a class="docs-footer-nextpage" href="../pearson_matching/">Pearson Matching »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Tuesday 20 February 2024 15:56">Tuesday 20 February 2024</span>. Using Julia version 1.10.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+			ylims=extrema(df.:Ozone) .+ (0, 20))</code></pre><img src="5132a10c.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Bigsimr.jl</a><a class="docs-footer-nextpage" href="../pearson_matching/">Pearson Matching »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Tuesday 20 February 2024 16:32">Tuesday 20 February 2024</span>. Using Julia version 1.10.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
