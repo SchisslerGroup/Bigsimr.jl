@@ -59,6 +59,48 @@ const DUD = DiscreteUnivariateDistribution
     is_correlation(X)
 
 Check if the given matrix passes all the checks required to be a valid correlation matrix.
+
+# Criteria
+
+A matrix is a valid correlation matrix if:
+
+- Square
+- Symmetric
+- Diagonal elements are equal to `1`
+- Off diagonal elements are between `-1` and `1`
+- Is positive definite
+
+# Examples
+
+```julia-repl
+julia> x = rand(3, 3)
+3×3 Matrix{Float64}:
+ 0.834446  0.183285  0.837872
+ 0.637295  0.270709  0.458703
+ 0.626566  0.736907  0.61903
+
+julia> is_correlation(x)
+false
+
+julia> x = cor_randPD(3)
+3×3 Matrix{Float64}:
+ 1.0       0.190911  0.449104
+ 0.190911  1.0       0.636305
+ 0.449104  0.636305  1.0
+
+julia> is_correlation(x)
+true
+
+julia> r_negdef = [
+    1.00 0.82 0.56 0.44
+    0.82 1.00 0.28 0.85
+    0.56 0.28 1.00 0.22
+    0.44 0.85 0.22 1.00
+];
+
+julia> is_correlation(r_negdef)
+false
+```
 """
 function is_correlation(X::AbstractMatrix{T}) where {T<:Real}
     issymmetric(X)     || return false

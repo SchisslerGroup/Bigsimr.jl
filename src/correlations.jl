@@ -3,9 +3,9 @@
 
 A type used for specifiying the type of correlation. Supported correlations are:
 
-    - [`Pearson`](@ref)
-    - [`Spearman`](@ref)
-    - [`Kendall`](@ref)
+- [`Pearson`](@ref)
+- [`Spearman`](@ref)
+- [`Kendall`](@ref)
 """
 struct CorType{T} end
 
@@ -38,11 +38,13 @@ const Kendall = CorType{:Kendall}()
 Compute the correlation matrix of a given type.
 
 The possible correlation types are:
-  * [`Pearson`](@ref)
-  * [`Spearman`](@ref)
-  * [`Kendall`](@ref)
+
+- [`Pearson`](@ref)
+- [`Spearman`](@ref)
+- [`Kendall`](@ref)
 
 # Examples
+
 ```jldoctest
 julia> x = [-1.62169     0.0158613   0.500375  -0.794381
              2.50689     3.31666    -1.3049     2.16058
@@ -92,7 +94,7 @@ _cor(x, y, ::CorType{:Kendall})  = corkendall(x, y)
 """
     cor_fast(X::AbstractMatrix{<:Real}, C::CorType=Pearson)
 
-Calculate the correlation matrix in parallel.
+Calculate the correlation matrix in parallel using available threads.
 """
 function cor_fast(X::AbstractMatrix{T}, cortype::CorType=Pearson) where {T<:Real}
     d = size(X, 2)
@@ -123,11 +125,13 @@ may not be positive semidefinite, so it is recommended to check using
 See also: [`cor_nearPD`](@ref), [`cor_fastPD`](@ref)
 
 The possible correlation types are:
-  * [`Pearson`](@ref)
-  * [`Spearman`](@ref)
-  * [`Kendall`](@ref)
+
+- [`Pearson`](@ref)
+- [`Spearman`](@ref)
+- [`Kendall`](@ref)
 
 # Examples
+
 ```jldoctest
 julia> r = [ 1.0       -0.634114   0.551645   0.548993
             -0.634114   1.0       -0.332105  -0.772114
@@ -197,6 +201,7 @@ are bounded between -1 and 1, and a symmetric view of the upper triangle is made
 See also: [`cor_constrain!`](@ref)
 
 # Examples
+
 ```jldoctest
 julia> a = [ 0.802271   0.149801  -1.1072     1.13451
              0.869788  -0.824395   0.38965    0.965936
@@ -240,7 +245,7 @@ end
 """
     cov2cor!(X::AbstractMatrix{<:Real})
 
-Same as [`cov2cor`](@ref), except that the matrix `C` is updated in place to save memory.
+Same as [`cov2cor`](@ref), except that the matrix is updated in place to save memory.
 """
 function cov2cor!(X::AbstractMatrix{<:Real})
     D = sqrt(inv(Diagonal(X)))
@@ -251,7 +256,7 @@ end
 
 
 """
-    cor_randPSD(T, d, k=d-1)
+    cor_randPSD(T::Type{<:Real}, d::Int, k::Int=d-1)
 
 Return a random positive semidefinite correlation matrix where `d` is the
 dimension (``d ≥ 1``) and `k` is the number of factor loadings (``1 ≤ k < d``).
@@ -259,9 +264,10 @@ dimension (``d ≥ 1``) and `k` is the number of factor loadings (``1 ≤ k < d`
 See also: [`cor_randPD`](@ref)
 
 # Examples
+
 ```julia-repl
 julia> cor_randPSD(Float64, 4, 2)
-#>4×4 Matrix{Float64}:
+4×4 Matrix{Float64}:
  1.0        0.276386   0.572837   0.192875
  0.276386   1.0        0.493806  -0.352386
  0.572837   0.493806   1.0       -0.450259
@@ -304,15 +310,16 @@ end
 
 
 """
-    cor_randPD(T, d, k=d-1)
+    cor_randPD(T::Type{<:Real}, d::Int, k::Int=d-1)
 
 The same as [`cor_randPSD`](@ref), but calls [`cor_fastPD`](@ref) to ensure that
 the returned matrix is positive definite.
 
 # Examples
+
 ```julia-repl
 julia> cor_randPD(Float64, 4, 2)
-#>4×4 Matrix{Float64}:
+4×4 Matrix{Float64}:
   1.0        0.458549  -0.33164    0.492572
   0.458549   1.0       -0.280873   0.62544
  -0.33164   -0.280873   1.0       -0.315011
@@ -339,7 +346,7 @@ cor_randPD(d, k=d-1) = cor_randPD(Float64, d, k)
 
 
 """
-    cor_bounds(d1, d2, cortype, samples)
+    cor_bounds(d1::UnivariateDistribution, d2::UnivariateDistribution, cortype::CorType, samples::Int)
 
 Compute the stochastic lower and upper correlation bounds between two marginal
 distributions.
@@ -352,11 +359,13 @@ take longer to sort. Therefore ≈100,000 samples (the default) are recommended 
 that it runs fast while still returning a good estimate.
 
 The possible correlation types are:
-  * [`Pearson`](@ref)
-  * [`Spearman`](@ref)
-  * [`Kendall`](@ref)
+
+- [`Pearson`](@ref)
+- [`Spearman`](@ref)
+- [`Kendall`](@ref)
 
 # Examples
+
 ```julia-repl
 julia> using Distributions
 
@@ -401,15 +410,16 @@ end
 
 
 """
-    cor_bounds(margins, cortype, samples)
+    cor_bounds(margins::AbstractVector{<:UnivariateDistribution}, cortype::CorType, samples::Int)
 
 Compute the stochastic pairwise lower and upper correlation bounds between a set
 of marginal distributions.
 
 The possible correlation types are:
-  * [`Pearson`](@ref)
-  * [`Spearman`](@ref)
-  * [`Kendall`](@ref)
+
+- [`Pearson`](@ref)
+- [`Spearman`](@ref)
+- [`Kendall`](@ref)
 """
 function cor_bounds(margins::AbstractVector{<:UD}, cortype::CorType, samples::Real)
     return _cor_bounds(margins, cortype, Int(samples))
@@ -476,9 +486,9 @@ See also: [`cor_nearPD!`](@ref), [`cor_fastPD!`](@ref)
 cor_nearPSD!(X) = nearest_cor!(X, Newton(;τ=zero(eltype(X))))
 
 """
-    cor_fastPD(X, tau=1e-6)
+    cor_fastPD(X::AbstractMatrix{<:Real}, tau=1e-6)
 
-Return a positive definite correlation matrix that is close to `X`. `τ` is a
+Return a positive definite correlation matrix that is close to `X`. `tau` is a
 tuning parameter that controls the minimum eigenvalue of the resulting matrix.
 `τ` can be set to zero if only a positive semidefinite matrix is needed.
 
@@ -487,7 +497,7 @@ See also: [`cor_nearPD`](@ref), [`cor_nearPSD`](@ref)
 cor_fastPD(X, tau=1e-6) = nearest_cor(X, DirectProjection(tau))
 
 """
-    cor_fastPD!(X, tau=1e-6)
+    cor_fastPD!(X::AbstractMatrix{<:Real}, tau=1e-6)
 
 Same as [`cor_fastPD`](@ref), but saves space by overwriting the input `X` instead of
 creating a copy.

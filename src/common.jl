@@ -76,10 +76,12 @@ end
 
 
 
+# constrains a value between ±1
 _clampcor(x::Real) = clamp(x, -one(x), one(x))
 
 
 
+# convenience function for getting a negative definite matrix for testing
 function _make_negdef_matrix()
     return [
         1.00 0.82 0.56 0.44
