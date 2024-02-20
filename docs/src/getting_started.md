@@ -8,7 +8,7 @@ gr()
 We’re going to show the basic use and syntax of *Bigsimr* by using the New York air quality data set (airquality) included in the *RDatasets* package. We will focus specifically on the temperature (degrees Fahrenheit) and ozone level (parts per billion).
 
 ```@example started
-using Bigsimr
+using Distributions, Bigsimr
 using RDatasets, DataFrames, Statistics
 ```
 
@@ -16,7 +16,7 @@ using RDatasets, DataFrames, Statistics
 df = dataset("datasets", "airquality")[:, [:Ozone, :Temp]] |> dropmissing;
 ```
 
-```julia
+```
 | Row | Ozone |  Temp |
 |     | Int64 | Int64 |
 |-----|-------|-------|

@@ -10,7 +10,7 @@ ENV["GKSwstype"] = "100"
 
 makedocs(
     sitename = "Bigsimr.jl",
-    modules = [Bigsimr, PearsonCorrelationMatch],
+    modules = [Bigsimr, PearsonCorrelationMatch, NearestCorrelationMatrix],
     format = Documenter.HTML(),
     doctest = true,
     checkdocs = :exports,

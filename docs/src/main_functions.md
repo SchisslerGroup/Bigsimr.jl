@@ -1,17 +1,13 @@
 # API Reference
 
-## Random Multivariate Vector
-
-### Functions
+## Random Vector Generation
 
 ```@docs
 rvec
 rmvn
 ```
 
-## Correlations
-
-### Types
+## Correlation Types
 
 ```@docs
 CorType
@@ -20,7 +16,7 @@ Spearman
 Kendall
 ```
 
-### Estimating
+## Correlation Computation
 
 ```@docs
 cor
@@ -28,16 +24,49 @@ cor_fast
 cor_bounds
 ```
 
-### Generating
+## Random Correlation Matrix
 
 ```@docs
 cor_randPSD
 cor_randPD
 ```
 
-### Converting
+## Converting Correlation Types
 
-Convert a correlation matrix by finding a positive [semi]definite representation.
+```@docs
+cor_convert
+```
+
+## Correlation Utils
+
+Convert a correlation matrix using other utilities.
+
+```@docs
+cor_constrain
+cor_constrain!
+cov2cor
+cov2cor!
+is_correlation
+```
+
+## Nearest Correlation Matrix
+
+### Provided by NearestCorrelationMatrix.jl
+
+```@docs
+NearestCorrelationMatrix.NearestCorrelationAlgorithm
+NearestCorrelationMatrix.Newton
+NearestCorrelationMatrix.AlternatingProjection
+NearestCorrelationMatrix.DirectProjection
+NearestCorrelationMatrix.default_alg
+```
+
+```@docs
+NearestCorrelationMatrix.nearest_cor
+NearestCorrelationMatrix.nearest_cor!
+```
+
+### Simplified Wrappers
 
 ```@docs
 cor_nearPD
@@ -48,25 +77,9 @@ cor_fastPD
 cor_fastPD!
 ```
 
-Convert a correlation matrix using other utilities.
-
-```@docs
-cor_convert
-cor_constrain
-cor_constrain!
-cov2cor
-cov2cor!
-```
-
-## Pearson Matching
+## Pearson Correlation Matching
 
 ```@docs
 PearsonCorrelationMatch.pearson_match
 PearsonCorrelationMatch.pearson_bounds
-```
-
-## Other
-
-```@docs
-is_correlation
 ```
