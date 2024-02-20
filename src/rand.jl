@@ -4,7 +4,11 @@
 Fast parrallel generation of multivariate normal samples.
 """
 function rmvn(n, μ, Σ)
-    return μ' .+ _rmvn(n, Σ)
+    d = length(μ)
+    r, s = size(Σ)
+    (r == s == d)  || throw(DimensionMismatch())
+    issymmetric(Σ) || throw(ArgumentError("Invalid Covariance matrix"))
+    return μ' .+ _rmvn(Int(n), Σ)
 end
 
 function rmvn(n, Σ)
@@ -44,20 +48,22 @@ julia> rvec(10, R, margins)
 ```
 """
 function rvec(n, rho, margins::AbstractVector{<:UD})
-    T = eltype(rho)
+    is_correlation(rho) || throw(ArgumentError("`rho` must be a valid correlation matrix"))
+    return _rvec(Int(n), rho, margins)
+end
+
+function _rvec(n::Int, rho::AbstractMatrix{T}, margins::AbstractVector{<:UD}) where {T}
     d = length(margins)
     r,s = size(rho)
 
-    (r == s == d) || throw(DimensionMismatch(
-        "The number of margins must match the size of the correlation matrix."))
-    
-    iscorrelation(rho) || throw(ValidCorrelationError())
+    (r == s == d) || throw(DimensionMismatch("The number of margins must match the size of the correlation matrix."))
+    is_correlation(rho) || throw(ArgumentError("``rho`` must be a valid correlation matrix"))
 
     Z = SharedMatrix{T}(_rmvn(n, rho))
 
-    @inbounds @threads for i in 1:d
-        Z[:,i] = _norm2margin(margins[i], Z[:,i])
+    Base.Threads.@threads for i in 1:d
+        @inbounds Z[:,i] = _norm2margin(margins[i], Z[:,i])
     end
-    
+
     return sdata(Z)
 end
