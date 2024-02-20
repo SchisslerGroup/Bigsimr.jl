@@ -1,4 +1,4 @@
-using Test, Bigsimr
+using Test, Distributions, Bigsimr
 
 #=
 One of the strengths of this package is that it is intended to be compatible with R. Since

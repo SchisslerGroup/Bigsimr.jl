@@ -1,4 +1,4 @@
-using Test, Bigsimr
+using Test, Distributions, Bigsimr
 using Bigsimr: _norm2margin, _randn, _rmvn, _idx_subsets2, _symmetric!, _set_diag1!,
     _clampcor
 
