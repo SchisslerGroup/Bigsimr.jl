@@ -75,4 +75,26 @@ include("correlations.jl")
 include("rand.jl")
 
 
+function __init__()
+    if :Distributions ∉ names(Main; imported=true)
+        @info """
+
+          Bigsimr.jl gains a lot of functionality
+          when used with Distributions.jl, which
+          is not currently loaded. If you have it
+          installed, then you can load it by:
+
+        julia> using Distributions
+
+          If you don't have Distributions.jl installed,
+          then you can add it with:
+
+        julia> using Pkg; Pkg.install("Distributions")
+
+        julia> using Distributions
+
+        """
+    end
+end
+
 end
