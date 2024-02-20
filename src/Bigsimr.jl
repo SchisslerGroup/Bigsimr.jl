@@ -19,6 +19,7 @@ export
     # Correlation Methods
     cor,
     cor_fast,
+    cor_bounds,
     cor_convert,
     cor_constrain,
     cor_constrain!,
@@ -28,8 +29,6 @@ export
     # Random Correlation Generation
     cor_randPSD,
     cor_randPD,
-    # Correlation Bounds
-    cor_bounds,
     # Nearest Correlation Matrix
     cor_nearPD,
     cor_nearPD!,
