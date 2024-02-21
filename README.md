@@ -82,7 +82,7 @@ isposdef(p)
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://SchisslerGroup.github.io/Bigsimr.jl/stable
 
-[docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
+[docs-latest-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-latest-url]: https://SchisslerGroup.github.io/Bigsimr.jl/dev
 
 [codecov-img]: https://codecov.io/gh/SchisslerGroup/Bigsimr.jl/branch/master/graph/badge.svg
@@ -94,5 +94,5 @@ isposdef(p)
 [release-img]: https://img.shields.io/github/v/tag/SchisslerGroup/Bigsimr.jl?label=release&sort=semver
 [release-url]: https://github.com/SchisslerGroup/Bigsimr.jl/releases
 
-[life-img]: https://img.shields.io/badge/lifecycle-experimental-orange
+[life-img]: https://img.shields.io/badge/lifecycle-stable-green
 [life-url]: https://lifecycle.r-lib.org/articles/stages.html
