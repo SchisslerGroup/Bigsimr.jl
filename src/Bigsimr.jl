@@ -103,10 +103,10 @@ false
 ```
 """
 function is_correlation(X::AbstractMatrix{T}) where {T<:Real}
-    issymmetric(X)     || return false
-    all(diag(X) .== 1) || return false
-    all(-1 .≤ X .≤ 1)  || return false
-    isposdef(X)        || return false
+    issymmetric(X)              || return false
+    all(diag(X) .== one(T))     || return false
+    all(-one(T) .≤ X .≤ one(T)) || return false
+    isposdef(X)                 || return false
 
     return true
 end
