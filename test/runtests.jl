@@ -1,12 +1,7 @@
-using Test
-using Aqua
+using SafeTestsets
 
-
-include("Internals.jl")
-include("Correlations.jl")
-include("RandomVectors.jl")
-include("RInterface.jl")
-
-
-Aqua.test_all(Bigsimr; ambiguities=false)
-Aqua.test_ambiguities(Bigsimr)
+@safetestset "Quality Assurance" include("qa.jl")
+@safetestset "Internals" include("internals.jl")
+@safetestset "Correlation Utils" include("correlations.jl")
+@safetestset "Random Gen Utils" include("random_vectors.jl")
+@safetestset "R Interface" include("r_interface.jl")

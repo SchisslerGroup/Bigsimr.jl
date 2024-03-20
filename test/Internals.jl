@@ -1,6 +1,9 @@
-using Test, Distributions, Bigsimr
-using Bigsimr: _norm2margin, _randn, _rmvn, _idx_subsets2, _symmetric!, _set_diag1!,
-    _clampcor
+using Test, Bigsimr
+using Bigsimr.Internals
+using Distributions
+
+
+include("test_macros.jl")
 
 
 @testset "Internal Utilities" begin
@@ -8,19 +11,19 @@ using Bigsimr: _norm2margin, _randn, _rmvn, _idx_subsets2, _symmetric!, _set_dia
         D = Binomial(10, 0.5)
 
         # Must work for scalars, vectors, and matrices of type Float64
-        @test_nowarn _norm2margin(D, randn())
-        @test_nowarn _norm2margin(D, randn(2))
-        @test_nowarn _norm2margin(D, randn(2, 2))
-        @test_nowarn _norm2margin(D, randn(2, 2, 2))
+        @test_nothrow _norm2margin(D, randn())
+        @test_nothrow _norm2margin(D, randn(2))
+        @test_nothrow _norm2margin(D, randn(2, 2))
+        @test_nothrow _norm2margin(D, randn(2, 2, 2))
 
         # Must work for other input types
-        @test_nowarn _norm2margin(D, 1)
-        @test_nowarn _norm2margin(D, 1//2)
-        @test_nowarn _norm2margin(D, π)
-        @test_nowarn _norm2margin(D, 0.57)
-        @test_nowarn _norm2margin(D, 0.57f0)
-        @test_nowarn _norm2margin(D, Float16(0.57))
-        @test_nowarn _norm2margin(D, BigFloat(0.57))
+        @test_nothrow _norm2margin(D, 1)
+        @test_nothrow _norm2margin(D, 1//2)
+        @test_nothrow _norm2margin(D, π)
+        @test_nothrow _norm2margin(D, 0.57)
+        @test_nothrow _norm2margin(D, 0.57f0)
+        @test_nothrow _norm2margin(D, Float16(0.57))
+        @test_nothrow _norm2margin(D, BigFloat(0.57))
 
         # Standard normal to standard normal should be invariant
         z = rand(Normal(0, 1), 100_000)
@@ -47,8 +50,8 @@ using Bigsimr: _norm2margin, _randn, _rmvn, _idx_subsets2, _symmetric!, _set_dia
 
     @testset "Random Normal" begin
         # General usage
-        @test_nowarn _randn(Float64, 100, 10)
-        @test_nowarn _randn(100, 10)
+        @test_nothrow _randn(Float64, 100, 10)
+        @test_nothrow _randn(100, 10)
 
         # Must work for common floating-point types
         for T in (Float16, Float32, Float64)
@@ -63,34 +66,34 @@ using Bigsimr: _norm2margin, _randn, _rmvn, _idx_subsets2, _symmetric!, _set_dia
         rho = cor_nearPD(r)
 
         # General usage
-        @test_nowarn _rmvn(100, rho)
-        @test_nowarn _rmvn(100, 0.5)
+        @test_nothrow _rmvn(100, rho)
+        @test_nothrow _rmvn(100, 0.5)
     end
 
 
     @testset "Other Helpers" begin
         X = reshape(collect(1:16), 4, 4)
 
-        @test_nowarn _idx_subsets2(10)
-        @test_nowarn _symmetric!(X)
-        @test_nowarn _set_diag1!(X)
+        @test_nothrow _idx_subsets2(10)
+        @test_nothrow _symmetric!(X)
+        @test_nothrow _set_diag1!(X)
 
-        @test_nowarn _clampcor(BigFloat(3))
-        @test_nowarn _clampcor(3.14)
-        @test_nowarn _clampcor(3.14f0)
-        @test_nowarn _clampcor(Float16(3))
-        @test_nowarn _clampcor(BigInt(3))
-        @test_nowarn _clampcor(3)
-        @test_nowarn _clampcor(3//1)
-        @test_nowarn _clampcor(π)
+        @test_nothrow _clampcor(BigFloat(3))
+        @test_nothrow _clampcor(3.14)
+        @test_nothrow _clampcor(3.14f0)
+        @test_nothrow _clampcor(Float16(3))
+        @test_nothrow _clampcor(BigInt(3))
+        @test_nothrow _clampcor(3)
+        @test_nothrow _clampcor(3//1)
+        @test_nothrow _clampcor(π)
 
-        @test typeof(_clampcor(BigFloat(3))) === BigFloat
-        @test typeof(_clampcor(3.14)) === Float64
-        @test typeof(_clampcor(3.14f0)) === Float32
-        @test typeof(_clampcor(Float16(3))) === Float16
-        @test typeof(_clampcor(BigInt(3))) === BigInt
-        @test typeof(_clampcor(3)) === Int
-        @test typeof(_clampcor(3//1)) === Rational{Int}
-        @test typeof(_clampcor(π)) === Float64
+        @test _clampcor(BigFloat(3)) isa BigFloat
+        @test _clampcor(3.14) isa Float64
+        @test _clampcor(3.14f0) isa Float32
+        @test _clampcor(Float16(3)) isa Float16
+        @test _clampcor(BigInt(3)) isa BigInt
+        @test _clampcor(3) isa Int
+        @test _clampcor(3//1) isa Rational{Int}
+        @test _clampcor(π) isa Float64
     end
 end
