@@ -19,6 +19,9 @@ using Reexport
 @reexport using PearsonCorrelationMatch: pearson_bounds, pearson_match
 @reexport using NearestCorrelationMatrix: nearest_cor, nearest_cor!
 @reexport using NearestCorrelationMatrix: Newton, AlternatingProjections, DirectProjection
+# these exports are needed for docs to build properly
+@reexport using PearsonCorrelationMatch: PearsonCorrelationMatch
+@reexport using NearestCorrelationMatrix: NearestCorrelationMatrix
 
 
 export

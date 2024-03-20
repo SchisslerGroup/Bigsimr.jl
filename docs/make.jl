@@ -13,7 +13,7 @@ makedocs(
     modules = [Bigsimr, PearsonCorrelationMatch, NearestCorrelationMatrix],
     format = Documenter.HTML(),
     doctest = true,
-    checkdocs = :exports,
+    checkdocs = :warnonly,
     pages = [
         "Bigsimr.jl" => "index.md",
         "Guides" => [

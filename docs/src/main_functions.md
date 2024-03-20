@@ -54,11 +54,9 @@ is_correlation
 ### Provided by NearestCorrelationMatrix.jl
 
 ```@docs
-NearestCorrelationMatrix.NearestCorrelationAlgorithm
 NearestCorrelationMatrix.Newton
-NearestCorrelationMatrix.AlternatingProjection
+NearestCorrelationMatrix.AlternatingProjections
 NearestCorrelationMatrix.DirectProjection
-NearestCorrelationMatrix.default_alg
 ```
 
 ```@docs
