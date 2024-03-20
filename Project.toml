@@ -2,7 +2,7 @@ name = "Bigsimr"
 uuid = "8782c2a4-92bb-4214-98d7-3150cbd7a677"
 authors = ["Alex Knudson <alexk.706@gmail.com>"]
 repo = "https://github.com/SchisslerGroup/Bigsimr.jl.git"
-version = "0.10.0"
+version = "0.11.0"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -20,22 +20,22 @@ StatsFuns = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 Aqua = "0.8"
 Distributions = "0.25"
 LinearAlgebra = "1"
-NearestCorrelationMatrix = "0.2"
+NearestCorrelationMatrix = "0.3"
 PearsonCorrelationMatch = "0.3"
 PrecompileTools = "1"
 Reexport = "1"
+SafeTestsets = "0.1"
 SharedArrays = "1"
 Statistics = "1"
 StatsBase = "0.34"
 StatsFuns = "1"
-Suppressor = "0.2"
 Test = "1"
-julia = "1.7, 1.8, 1.9, 1.10"
+julia = "1.9, 1.10"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
 [targets]
-test = ["Aqua", "Test", "Suppressor"]
+test = ["Aqua", "Test", "SafeTestsets"]
