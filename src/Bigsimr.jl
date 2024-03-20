@@ -1,16 +1,24 @@
 module Bigsimr
 
-using Distributions: UnivariateDistribution, ContinuousUnivariateDistribution,
-    DiscreteUnivariateDistribution
+
+using Distributions: UnivariateDistribution as UD
+using Distributions: ContinuousUnivariateDistribution as CUD
+using Distributions: DiscreteUnivariateDistribution as DUD
+
 using LinearAlgebra: issymmetric, isposdef, cholesky, Diagonal, diagm, diag
 using NearestCorrelationMatrix
-using PearsonCorrelationMatch
-using PearsonCorrelationMatch: pearson_match, pearson_bounds
+using NearestCorrelationMatrix.Internals: isprecorrelation
 using SharedArrays
-using Statistics
 using Statistics: cor
 using StatsBase: corspearman, corkendall
-using StatsFuns: normcdf
+
+import Statistics
+
+
+using Reexport
+@reexport using PearsonCorrelationMatch: pearson_bounds, pearson_match
+@reexport using NearestCorrelationMatrix: nearest_cor, nearest_cor!
+@reexport using NearestCorrelationMatrix: Newton, AlternatingProjections, DirectProjection
 
 
 export
@@ -33,10 +41,10 @@ export
     cor_randPSD,
     cor_randPD,
     # Nearest Correlation Matrix
-    cor_nearPD,
-    cor_nearPD!,
     cor_nearPSD,
     cor_nearPSD!,
+    cor_nearPD,
+    cor_nearPD!,
     cor_fastPD,
     cor_fastPD!,
     # Random Vector Generation
@@ -44,15 +52,15 @@ export
     rvec
 
 
-using Reexport
-@reexport using PearsonCorrelationMatch
-@reexport using NearestCorrelationMatrix
+include("internals/Internals.jl")
+using .Internals
 
-
-# shorthand constants
-const UD  = UnivariateDistribution
-const CUD = ContinuousUnivariateDistribution
-const DUD = DiscreteUnivariateDistribution
+include("cortype.jl")
+include("cor.jl")
+include("cor_utils.jl")
+include("cor_gen.jl")
+include("nearest_cor.jl")
+include("rand.jl")
 
 
 """
@@ -102,39 +110,7 @@ julia> is_correlation(r_negdef)
 false
 ```
 """
-function is_correlation(X::AbstractMatrix{T}) where {T<:Real}
-    issymmetric(X)              || return false
-    all(diag(X) .== one(T))     || return false
-    all(-one(T) .≤ X .≤ one(T)) || return false
-    isposdef(X)                 || return false
+is_correlation(X) = isprecorrelation(X) && isposdef(X)
 
-    return true
-end
-
-
-include("common.jl")
-include("correlations.jl")
-include("rand.jl")
-
-
-function __init__()
-    if :Distributions ∉ names(Main; imported=true)
-        @info """
-
-          Bigsimr.jl gains a lot of functionality
-          when used with Distributions.jl, which
-          is not currently loaded. If you have it
-          installed, then you can load it by:
-
-        julia> using Distributions
-
-          If you don't have Distributions.jl installed,
-          then you can add it with:
-
-        julia> using Pkg; Pkg.install("Distributions")
-
-        """
-    end
-end
 
 end

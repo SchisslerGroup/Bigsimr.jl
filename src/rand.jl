@@ -76,17 +76,14 @@ julia> rvec(10, R, margins)
 ```
 """
 function rvec(n, rho::AbstractMatrix{<:Real}, margins::AbstractVector{<:UD})
-    is_correlation(rho) || throw(ArgumentError("`rho` must be a valid correlation matrix"))
-    return _rvec(Int(n), rho, margins)
-end
-
-function _rvec(n::Int, rho::AbstractMatrix{<:Real}, margins::AbstractVector{<:UD})
     d = length(margins)
     r, s = size(rho)
 
+    is_correlation(rho) || throw(ArgumentError("`rho` must be a valid correlation matrix"))
     (r == s == d) || throw(DimensionMismatch(
         "The number of margins must match the size of the correlation matrix."))
-    is_correlation(rho) || throw(ArgumentError("`rho` must be a valid correlation matrix"))
+
+    n = convert(Int, n)
 
     T = eltype(rho)
     Z = SharedMatrix{T}(_rmvn(n, rho))
