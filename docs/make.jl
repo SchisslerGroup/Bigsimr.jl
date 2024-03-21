@@ -1,5 +1,5 @@
 using Documenter, Bigsimr
-using Distributions
+using NearestCorrelationMatrix, PearsonCorrelationMatch
 
 DocMeta.setdocmeta!(Bigsimr, :DocTestSetup, :(using Bigsimr); recursive=true)
 
