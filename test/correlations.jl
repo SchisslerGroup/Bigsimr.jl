@@ -1,5 +1,6 @@
 using Test, Bigsimr
 using Distributions
+using Bigsimr.BigsimrBase: make_negdef_matrix
 
 
 include("test_macros.jl")
@@ -11,22 +12,22 @@ include("test_macros.jl")
     M = rand(100, 10)
 
     for cortype in (Pearson, Spearman, Kendall)
-        @test_nothrow cor(x, y, cortype)
-        @test_nothrow cor(M,    cortype)
-        @test_nothrow cor_fast(M, cortype)
+        @test_nothrow cor(cortype, x, y)
+        @test_nothrow cor(cortype, M,  )
+        @test_nothrow cor_fast(cortype, M)
     end
 
     x = 0.5
     xs = rand(10)
-    r = cor_nearPD(Bigsimr._make_negdef_matrix())
+    r = cor_nearPD(make_negdef_matrix(Float64))
 
-    for cortype1 in (Pearson, Spearman, Kendall)
-        for cortype2 in (Pearson, Spearman, Kendall)
-            @test_nothrow cor_convert(x, cortype1, cortype2)
-            @test_nothrow cor_convert(xs, cortype1, cortype2)
-            @test_nothrow cor_convert(r, cortype1, cortype2)
-            if cortype1 === cortype2
-                @test cor_convert(x, cortype1, cortype2) == x
+    for C1 in (Pearson, Spearman, Kendall)
+        for C2 in (Pearson, Spearman, Kendall)
+            @test_nothrow cor_convert(x, C1, C2)
+            @test_nothrow cor_convert(xs, C1, C2)
+            @test_nothrow cor_convert(r, C1, C2)
+            if C1 === C2
+                @test cor_convert(x, C1, C2) === x
             end
         end
     end
@@ -38,7 +39,8 @@ include("test_macros.jl")
     end
 
     for T in (Float16, Float32, Float64)
-        X = T.(cor_nearPD(Bigsimr._make_negdef_matrix()))
+        X = cor_nearPD(make_negdef_matrix(T))
+        X = convert(AbstractMatrix{T}, X)
         @test_nothrow cov2cor(X)
         Y = cov2cor(X)
         @test eltype(Y) === T
@@ -77,7 +79,7 @@ include("test_macros.jl")
     end
 
     for T in (Float16, Float32, Float64)
-        r = T.(Bigsimr._make_negdef_matrix())
+        r = make_negdef_matrix(T)
 
         @test_nothrow cor_nearPD(r)
         @test_nothrow cor_nearPSD(r)
