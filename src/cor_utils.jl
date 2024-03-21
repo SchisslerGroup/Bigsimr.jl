@@ -44,27 +44,34 @@ true
 ```
 """
 function cor_convert(::Real, ::CorType{T1}, ::CorType{T2}) where {T1, T2}
-    error("cor_convert is not implemented for cortypes $T1 and $T2")
+    error("`cor_convert` is not implemented for cortypes $T1 and $T2")
 end
+
 
 # This method is required for R compatibility.
 function cor_convert(xs::AbstractVector{<:Real}, from::CorType, to::CorType)
     return cor_convert.(xs, Ref(from), Ref(to))
 end
 
+
+"""
+    cor_convert(X::AbstractMatrix, from, to)
+
+When the input is a matrix, it is assumed to be a correlation matrix, and the resulting
+matrix is also constrained to be a correlation matrix (e.g. unit diagonal and off-digonal
+elements constrained between -1 and 1).
+"""
 function cor_convert(X::AbstractMatrix{<:Real}, from::CorType, to::CorType)
     return cor_constrain!(cor_convert.(X, Ref(from), Ref(to)))
 end
 
-cor_convert(x::Real, ::CorType{T}, ::CorType{T}) where T = x
+cor_convert(x::Real, ::CorType{T},         ::CorType{T}) where T = x
 cor_convert(x::Real, ::CorType{:Pearson},  ::CorType{:Spearman}) = _clampcor(asin(x / 2) * 6 / π)
 cor_convert(x::Real, ::CorType{:Pearson},  ::CorType{:Kendall})  = _clampcor(asin(x) * 2 / π)
-cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Pearson})  = _clampcor(sin(x * π / 6) * 2)
-cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Kendall})  = _clampcor(asin(sin(x * π / 6) * 2) * 2 / π)
-cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Pearson})  = _clampcor(sin(x * π / 2))
-cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Spearman}) = _clampcor(asin(sin(x * π / 2) / 2) * 6 / π)
-
-
+cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Pearson})  = _clampcor(sinpi(x / 6) * 2)
+cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Kendall})  = _clampcor(asin(sinpi(x / 6) * 2) * 2 / π)
+cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Pearson})  = _clampcor(sinpi(x / 2))
+cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Spearman}) = _clampcor(asin(sinpi(x / 2) / 2) * 6 / π)
 
 
 """
@@ -78,7 +85,6 @@ function cor_constrain!(X::AbstractMatrix{<:Real})
     _set_diag1!(X)
     return X
 end
-
 
 
 """
@@ -108,7 +114,6 @@ julia> cor_constrain(a)
 cor_constrain(X::AbstractMatrix{<:Real}) = cor_constrain!(copy(X))
 
 
-
 """
     cov2cor(X::AbstractMatrix{<:Real})
 
@@ -130,7 +135,6 @@ function cov2cor(X::AbstractMatrix{<:Real})
 end
 
 
-
 """
     cov2cor!(X::AbstractMatrix{<:Real})
 
@@ -143,9 +147,8 @@ function cov2cor!(X::AbstractMatrix{<:Real})
 end
 
 
-
 """
-    cor_bounds(d1::UnivariateDistribution, d2::UnivariateDistribution, cortype::CorType, samples::Int)
+    cor_bounds(d1, d2, cortype, samples)
 
 Compute the stochastic lower and upper correlation bounds between two marginal
 distributions.
@@ -205,7 +208,7 @@ cor_bounds(d1::UD, d2::UD, cortype::CorType) = cor_bounds(d1, d2, cortype, 100_0
 
 
 """
-    cor_bounds(margins::AbstractVector{<:UnivariateDistribution}, cortype::CorType, samples::Int)
+    cor_bounds(margins, cortype, samples)
 
 Compute the stochastic pairwise lower and upper correlation bounds between a set
 of marginal distributions.
@@ -238,11 +241,14 @@ julia> upper
  0.766727  0.798379  1.0
 ```
 """
-function cor_bounds(margins::AbstractVector{<:UD}, cortype::CorType, samples::Real)
+function cor_bounds(margins, cortype::CorType, samples::Real)
     n = convert(Int, samples)
-    d = length(margins)
 
-    lower, upper = zeros(Float64, d, d), zeros(Float64, d, d)
+    d = length(margins)
+    d > 1 || error("The number of margins must be greater than 1")
+
+    lower = zeros(Float64, d, d)
+    upper = zeros(Float64, d, d)
 
     Base.Threads.@threads for (i,j) in _idx_subsets2(d)
         l, u = cor_bounds(margins[i], margins[j], cortype, n)
@@ -256,6 +262,5 @@ function cor_bounds(margins::AbstractVector{<:UD}, cortype::CorType, samples::Re
     return (lower = lower, upper = upper)
 end
 
-cor_bounds(margins::AbstractVector{<:UD}) = cor_bounds(margins, Pearson)
-cor_bounds(margins::AbstractVector{<:UD}, samples::Real) = cor_bounds(margins, Pearson, samples)
-cor_bounds(margins::AbstractVector{<:UD}, cortype::CorType) = cor_bounds(margins, cortype, 100_000)
+cor_bounds(margins, cortype::CorType=Pearson) = cor_bounds(margins, cortype, 100_000)
+cor_bounds(margins, samples::Real)            = cor_bounds(margins, Pearson, samples)

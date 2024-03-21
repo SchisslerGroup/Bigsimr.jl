@@ -61,21 +61,22 @@ Statistics.cor(x,    ::CorType{:Kendall})  = corkendall(x)
 Statistics.cor(x, y, ::CorType{:Kendall})  = corkendall(x, y)
 
 
-
 """
-    cor_fast(X::AbstractMatrix{<:Real}, C::CorType=Pearson)
+    cor_fast(X, cortype=Pearson)
 
 Calculate the correlation matrix in parallel using available threads.
 """
 function cor_fast(X::AbstractMatrix{T}, cortype::CorType=Pearson) where T
     d = size(X, 2)
+
     Y = SharedMatrix{T}(d, d)
 
     Base.Threads.@threads for (i, j) in _idx_subsets2(d)
-        Y[i,j] = cor(view(X, :, i), view(X, :, j), cortype)
+        @inbounds Y[i,j] = cor(@view(X[:,i]), @view(X[:,j]), cortype)
     end
 
-    _symmetric!(Y)
-    _set_diag1!(Y)
-    return sdata(Y)
+    C = sdata(Y)
+    cor_constrain!(C)
+
+    return C
 end

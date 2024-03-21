@@ -50,12 +50,12 @@ include("test_macros.jl")
 
     @testset "Random Normal" begin
         # General usage
-        @test_nothrow _randn(Float64, 100, 10)
-        @test_nothrow _randn(100, 10)
+        @test_nothrow _randn_shared(Float64, 100, 10)
+        @test_nothrow _randn_shared(100, 10)
 
         # Must work for common floating-point types
         for T in (Float16, Float32, Float64)
-            Z = _randn(T, 100_000, 10)
+            Z = _randn_shared(T, 100_000, 10)
             @test eltype(Z) === T
         end
     end
@@ -66,8 +66,8 @@ include("test_macros.jl")
         rho = cor_nearPD(r)
 
         # General usage
-        @test_nothrow _rmvn(100, rho)
-        @test_nothrow _rmvn(100, 0.5)
+        @test_nothrow _rmvn_shared(100, rho)
+        @test_nothrow _rmvn_shared(100, 0.5)
     end
 
 

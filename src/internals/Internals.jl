@@ -3,15 +3,15 @@ module Internals
 
 using Distributions: UnivariateDistribution as UD
 using Distributions: quantile
-using LinearAlgebra: cholesky
+using LinearAlgebra: cholesky, rmul!
 using SharedArrays
 using StatsFuns: normcdf
 
 
 export
     _norm2margin,
-    _randn,
-    _rmvn,
+    _randn_shared,
+    _rmvn_shared,
     _idx_subsets2,
     _symmetric!,
     _set_diag1!,
@@ -24,29 +24,31 @@ _norm2margin(D::UD, x::Real) = quantile(D, normcdf(x))
 _norm2margin(D::UD, A::AbstractArray{T,N}) where {T<:Real,N} = _norm2margin.(Ref(D), A)
 
 
-
 # generates random normal samples in parallel
-function _randn(::Type{T}, n::Int, d::Int) where {T<:Real}
+function _randn_shared(::Type{T}, n::Int, d::Int) where {T<:Real}
+    n * d < 1_000_000 && return SharedMatrix(randn(T, n, d))
+
     Z = SharedMatrix{T}(n, d)
-    Base.Threads.@threads for i in eachindex(Z)
-        @inbounds Z[i] = randn(T)
+
+    Base.Threads.@threads for i in 1:d
+        @inbounds @view(Z[:,i]) .= randn(T, n)
     end
-    return sdata(Z)
+
+    return Z
 end
 
-_randn(n::Int, d::Int) = _randn(Float64, n, d)
-
+_randn_shared(n::Int, d::Int) = _randn_shared(Float64, n, d)
 
 
 # generates random multivariate normal samples in parallel
-function _rmvn(n::Int, rho::AbstractMatrix{T}) where {T<:Real}
-    Z = _randn(T, n, size(rho, 1))
+function _rmvn_shared(n::Int, rho::AbstractMatrix{T}) where {T<:Real}
+    Z = _randn_shared(T, n, size(rho, 1))
     C = cholesky(rho)
-    return Z * C.U
+    rmul!(Z, C.U)
+    return Z
 end
 
-_rmvn(n::Int, rho::Real) = _rmvn(n, [1 rho; rho 1])
-
+_rmvn_shared(n::Int, rho::Real) = _rmvn_shared(n, [1 rho; rho 1])
 
 
 # equivalent to IterTools.subsets(1:d, Val(2)), but allocates for all elements
@@ -66,7 +68,6 @@ function _idx_subsets2(d::Int)
 end
 
 
-
 # copies the upper part of a square matrix to the lower (not including the diagonal)
 function _symmetric!(X::AbstractMatrix{T}) where {T}
     m, n = size(X)
@@ -82,24 +83,21 @@ function _symmetric!(X::AbstractMatrix{T}) where {T}
 end
 
 
-
 # sets the diagonal elements of a square matrix to 1
 function _set_diag1!(X::AbstractMatrix{T}) where {T}
     m, n = size(X)
     m == n || throw(DimensionMismatch("Input matrix must be square"))
 
     for i in 1:n
-        X[i,i] = one(T)
+        @inbounds X[i,i] = one(T)
     end
 
     return X
 end
 
 
-
 # constrains a value between ±1
 _clampcor(x::Real) = clamp(x, -one(x), one(x))
-
 
 
 # convenience function for getting a negative definite matrix for testing

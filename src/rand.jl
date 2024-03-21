@@ -1,5 +1,5 @@
 """
-    rmvn(n::Int[, μ::AbstractVector{<:Real}], Σ::AbstractMatrix{<:Real})
+    rmvn(n [, μ], Σ)
 
 Utilizes available threads for fast generation of multivariate normal samples.
 
@@ -28,23 +28,26 @@ julia> rmvn(10, μ, S)
  -1.77849    0.157933     9.15944
 ```
 """
-function rmvn(n, μ::AbstractVector{<:Real}, Σ::AbstractMatrix{<:Real})
+function rmvn(n::Real, μ::AbstractVector{<:Real}, Σ::AbstractMatrix{<:Real})
     d = length(μ)
     r, s = size(Σ)
-    (r == s == d)  || throw(DimensionMismatch())
-    issymmetric(Σ) || throw(ArgumentError("Invalid Covariance matrix"))
-    return μ' .+ _rmvn(Int(n), Σ)
+
+    (r == s == d)  || throw(DimensionMismatch(
+        "The number of margins must match the size of the correlation matrix."))
+
+    n = convert(Int, n)
+
+    return μ' .+ _rmvn_shared(n, Σ)
 end
 
-function rmvn(n, Σ::AbstractMatrix{<:Real})
-    μ = zeros(eltype(Σ), size(Σ, 2))
+function rmvn(n, Σ::AbstractMatrix{T}) where {T<:Real}
+    μ = zeros(T, size(Σ, 2))
     return rmvn(n, μ, Σ)
 end
 
 
-
 """
-    rvec(n::Int, rho::AbstractMatrix{<:Real}, margins::AbstractVector{<:UnivariateDistribution})
+    rvec(n, rho, margins)
 
 Generate samples for a list of marginal distributions and a correaltion structure.
 
@@ -75,7 +78,7 @@ julia> rvec(10, R, margins)
  3.19883  39.3707    0.581781
 ```
 """
-function rvec(n, rho::AbstractMatrix{<:Real}, margins::AbstractVector{<:UD})
+function rvec(n, rho::AbstractMatrix{T}, margins) where {T<:Real}
     d = length(margins)
     r, s = size(rho)
 
@@ -85,11 +88,10 @@ function rvec(n, rho::AbstractMatrix{<:Real}, margins::AbstractVector{<:UD})
 
     n = convert(Int, n)
 
-    T = eltype(rho)
-    Z = SharedMatrix{T}(_rmvn(n, rho))
+    Z = _rmvn_shared(n, rho)
 
     Base.Threads.@threads for i in 1:d
-        @inbounds Z[:,i] = _norm2margin(margins[i], Z[:,i])
+        @inbounds @view(Z[:,i]) .= _norm2margin(margins[i], @view(Z[:,i]))
     end
 
     return sdata(Z)
