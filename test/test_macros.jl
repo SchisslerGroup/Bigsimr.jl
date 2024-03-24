@@ -1,27 +1,42 @@
 using Test
 
 """
-    @test_isdefined expr
+    @test_isdefined s
 
-Test if the expression evaluates successfully, or results in an `UndefVarError`. Any other
-exception will be rethrown.
+Tests whether variable `s` is defined in the current scope.
+
+## Examples
+
+```julia-repl
+julia> @test_isdefined newvar
+The symbol 'newvar' is not defined
+Test Failed at ...
+  Expression: false
+ERROR: There was an error during testing
+
+julia> newvar = 1
+
+julia> @test_isdefined newvar
+Test Passed
+
+julia> function f end
+f (generic function with 0 methods)
+
+julia> @test_isdefined f
+Test Passed
+```
 """
 macro test_isdefined(ex)
+    msg = "The symbol '$ex' is not defined"
     return quote
-        try
-            $(esc(ex))
-        catch e
-            if e isa UndefVarError
-                @test false
-            else
-                rethrow()
-            end
-        else
+        if @isdefined $ex
             @test true
+        else
+            println($(msg))
+            @test false
         end
     end
 end
-
 
 """
     @test_isimplemented expr
@@ -44,7 +59,6 @@ macro test_isimplemented(ex)
         end
     end
 end
-
 
 """
     @test_nothrow expr
