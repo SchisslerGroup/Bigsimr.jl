@@ -1,32 +1,44 @@
 module Bigsimr
+include("submodules/BigsimrBase.jl")
 
 
 using Distributions: UnivariateDistribution as UD
 using Distributions: ContinuousUnivariateDistribution as CUD
 using Distributions: DiscreteUnivariateDistribution as DUD
 
-using LinearAlgebra: issymmetric, isposdef, cholesky, Diagonal, diagm, diag
+using LinearAlgebra: issymmetric, isposdef, cholesky, diagm, diag
+using LinearAlgebra: Diagonal, Symmetric
 using NearestCorrelationMatrix
 using NearestCorrelationMatrix.Internals: isprecorrelation
+using PearsonCorrelationMatch
+using Reexport
 using SharedArrays
 using Statistics: cor
 using StatsBase: corspearman, corkendall
 
+
+using .BigsimrBase:
+    clampcor,
+    make_symmetric!,
+    set_diag1!,
+    norm2margin,
+    randn_shared,
+    rmvn_shared,
+    idx_subsets2
+
+
 import Statistics
+import .BigsimrBase: _cor
 
 
-using Reexport
+
+@reexport using .BigsimrBase
 @reexport using PearsonCorrelationMatch: pearson_bounds, pearson_match
 @reexport using NearestCorrelationMatrix: nearest_cor, nearest_cor!
 @reexport using NearestCorrelationMatrix: Newton, AlternatingProjections, DirectProjection
 
 
 export
-    # Correlation Types
-    CorType,
-    Pearson,
-    Spearman,
-    Kendall,
     # Correlation Methods
     cor,
     cor_fast,
@@ -52,15 +64,13 @@ export
     rvec
 
 
-include("internals/Internals.jl")
-using .Internals
-
-include("cortype.jl")
 include("cor.jl")
 include("cor_utils.jl")
 include("cor_gen.jl")
 include("nearest_cor.jl")
 include("rand.jl")
+
+include("deprecated.jl")
 
 
 """

@@ -33,7 +33,7 @@ margins = [Binomial(20, 0.2), Beta(2, 3), LogNormal(3, 1)]
 adjusted_corr = pearson_match(target_corr, margins)
 
 x = rvec(100_000, adjusted_corr, margins)
-cor(x, Pearson)
+cor(Pearson, x)
 ```
 
 Spearman/Kendall matching
@@ -43,7 +43,7 @@ spearman_corr = cor_randPD(3)
 adjusted_corr = cor_convert(spearman_corr, Spearman, Pearson)
 
 x = rvec(100_000, adjusted_corr, margins)
-cor(x, Spearman)
+cor(Spearman, x)
 ```
 
 Nearest correlation matrix

@@ -23,7 +23,7 @@ We provide the function `cor_nearPD` to handle this problem. It is based off of 
 
 ```@repl ncm
 m = Matrix(brca)
-spearman_corr = cor(m, Spearman);
+spearman_corr = cor(Spearman, m);
 pearson_corr = cor_convert(spearman_corr, Spearman, Pearson);
 isposdef(spearman_corr), isposdef(pearson_corr)
 ```

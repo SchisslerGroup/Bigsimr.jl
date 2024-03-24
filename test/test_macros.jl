@@ -1,46 +1,68 @@
 using Test
 
 """
-    @test_isdefined expr
+    @test_isdefined s
 
-Test if the expression evaluates successfully, or results in an `UndefVarError`. Any other
-exception will be rethrown.
+Tests whether variable `s` is defined in the current scope.
+
+## Examples
+
+```julia-repl
+julia> @test_isdefined newvar
+The symbol 'newvar' is not defined
+Test Failed at ...
+  Expression: false
+
+ERROR: There was an error during testing
+
+julia> newvar = 1
+
+julia> @test_isdefined newvar
+Test Passed
+
+julia> function f end
+f (generic function with 0 methods)
+
+julia> @test_isdefined f
+Test Passed
+```
 """
 macro test_isdefined(ex)
+    fail_msg = "The symbol '$ex' is not defined"
     return quote
-        try
-            $(esc(ex))
-        catch e
-            if e isa UndefVarError
-                @test false
-            else
-                rethrow()
-            end
-        else
+        if @isdefined $ex
             @test true
+        else
+            println($fail_msg)
+            @test false
         end
     end
 end
 
 
 """
-    @test_isimplemented expr
-
-Test if the expression evaluates successfully, or results in a `MethodError`. Any other
-exception will be rethrown.
+    @test_hasmethod f args kws
 """
-macro test_isimplemented(ex)
+macro test_hasmethod(f, args, kws::Tuple{Vararg{Symbol}})
+    fail_msg = "The method '$f' does not support arguments $args and keywords $kws"
     return quote
-        try
-            $(esc(ex))
-        catch e
-            if e isa MethodError
-                @test false
-            else
-                rethrow()
-            end
-        else
+        if hasmethod($f, $args, $kws)
             @test true
+        else
+            println($fail_msg)
+            @test false
+        end
+    end
+end
+
+macro test_hasmethod(f, args)
+    fail_msg = "The method '$f' does not support arguments $args"
+    return quote
+        if hasmethod($f, $args)
+            @test true
+        else
+            println($fail_msg)
+            @test false
         end
     end
 end
@@ -55,7 +77,8 @@ macro test_nothrow(ex)
     return quote
         try
             $(esc(ex))
-        catch
+        catch e
+            print(e)
             @test false
         else
             @test true

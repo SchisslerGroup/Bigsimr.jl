@@ -66,12 +66,12 @@ function cor_convert(X::AbstractMatrix{<:Real}, from::CorType, to::CorType)
 end
 
 cor_convert(x::Real, ::CorType{T},         ::CorType{T}) where T = x
-cor_convert(x::Real, ::CorType{:Pearson},  ::CorType{:Spearman}) = _clampcor(asin(x / 2) * 6 / π)
-cor_convert(x::Real, ::CorType{:Pearson},  ::CorType{:Kendall})  = _clampcor(asin(x) * 2 / π)
-cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Pearson})  = _clampcor(sinpi(x / 6) * 2)
-cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Kendall})  = _clampcor(asin(sinpi(x / 6) * 2) * 2 / π)
-cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Pearson})  = _clampcor(sinpi(x / 2))
-cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Spearman}) = _clampcor(asin(sinpi(x / 2) / 2) * 6 / π)
+cor_convert(x::Real, ::CorType{:Pearson},  ::CorType{:Spearman}) = clampcor(asin(x / 2) * 6 / π)
+cor_convert(x::Real, ::CorType{:Pearson},  ::CorType{:Kendall})  = clampcor(asin(x) * 2 / π)
+cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Pearson})  = clampcor(sinpi(x / 6) * 2)
+cor_convert(x::Real, ::CorType{:Spearman}, ::CorType{:Kendall})  = clampcor(asin(sinpi(x / 6) * 2) * 2 / π)
+cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Pearson})  = clampcor(sinpi(x / 2))
+cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Spearman}) = clampcor(asin(sinpi(x / 2) / 2) * 6 / π)
 
 
 """
@@ -80,11 +80,13 @@ cor_convert(x::Real, ::CorType{:Kendall},  ::CorType{:Spearman}) = _clampcor(asi
 Same as [`cor_constrain`](@ref), except that the matrix is updated in place to save memory.
 """
 function cor_constrain!(X::AbstractMatrix{<:Real})
-    X .= _clampcor.(X)
-    _symmetric!(X)
-    _set_diag1!(X)
+    X .= clampcor.(X)
+    make_symmetric!(X)
+    set_diag1!(X)
     return X
 end
+
+cor_constrain!(X::Symmetric) = cor_constrain!(X.data)
 
 
 """
@@ -146,6 +148,12 @@ function cov2cor!(X::AbstractMatrix{<:Real})
     return cor_constrain!(X)
 end
 
+function cov2cor!(X::Symmetric)
+    D = sqrt(inv(Diagonal(X)))
+    X.data .= D * X * D
+    return cor_constrain!(X)
+end
+
 
 """
     cor_bounds(d1, d2, cortype, samples)
@@ -194,10 +202,10 @@ function cor_bounds(d1::UD, d2::UD, cortype::CorType, samples::Real)
     sort!(a)
     sort!(b)
 
-    upper = cor(a, b, cortype)
+    upper = cor(cortype, a, b)
 
     reverse!(b)
-    lower = cor(a, b, cortype)
+    lower = cor(cortype, a, b)
 
     return (lower = lower, upper = upper)
 end
@@ -250,7 +258,7 @@ function cor_bounds(margins, cortype::CorType, samples::Real)
     lower = zeros(Float64, d, d)
     upper = zeros(Float64, d, d)
 
-    Base.Threads.@threads for (i,j) in _idx_subsets2(d)
+    Base.Threads.@threads for (i,j) in idx_subsets2(d)
         l, u = cor_bounds(margins[i], margins[j], cortype, n)
         lower[i,j] = l
         upper[i,j] = u
