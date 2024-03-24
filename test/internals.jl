@@ -3,9 +3,7 @@ using Distributions
 
 import Bigsimr.BigsimrBase as Utils
 
-
 include("test_macros.jl")
-
 
 @testset "Internal Utilities" begin
     @testset "Normal to Marginal" begin
@@ -48,7 +46,6 @@ include("test_macros.jl")
         @test all(isapprox.(params(d3), params(f3), rtol=0.01))
     end
 
-
     @testset "Random Normal" begin
         # General usage
         @test_nothrow Utils.randn_shared(Float64, 100, 10)
@@ -61,7 +58,6 @@ include("test_macros.jl")
         end
     end
 
-
     @testset "Random Multivariate Normal" begin
         r = Utils.make_negdef_matrix(Float64)
         rho = cor_nearPD(r)
@@ -70,7 +66,6 @@ include("test_macros.jl")
         @test_nothrow Utils.rmvn_shared(100, rho)
         @test_nothrow Utils.rmvn_shared(100, 0.5)
     end
-
 
     @testset "Other Helpers" begin
         X = reshape(collect(1:16), 4, 4)

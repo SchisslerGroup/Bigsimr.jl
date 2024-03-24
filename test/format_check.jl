@@ -1,7 +1,7 @@
 using Test
-using NearestCorrelationMatrix
+using Bigsimr
 using JuliaFormatter
 
 if VERSION >= v"1.6"
-    @test JuliaFormatter.format(NearestCorrelationMatrix; verbose=false, overwrite=false)
+    @test JuliaFormatter.format(Bigsimr; verbose=false, overwrite=false)
 end
