@@ -27,35 +27,40 @@ Test Passed
 ```
 """
 macro test_isdefined(ex)
-    msg = "The symbol '$ex' is not defined"
+    fail_msg = "The symbol '$ex' is not defined"
     return quote
         if @isdefined $ex
             @test true
         else
-            println($(msg))
+            println($fail_msg)
             @test false
         end
     end
 end
 
 """
-    @test_isimplemented expr
-
-Test if the expression evaluates successfully, or results in a `MethodError`. Any other
-exception will be rethrown.
+    @test_hasmethod f args kws
 """
-macro test_isimplemented(ex)
+macro test_hasmethod(f, args, kws::Tuple{Vararg{Symbol}})
+    fail_msg = "The method '$f' does not support arguments $args and keywords $kws"
     return quote
-        try
-            $(esc(ex))
-        catch e
-            if e isa MethodError
-                @test false
-            else
-                rethrow()
-            end
-        else
+        if hasmethod($f, $args, $kws)
             @test true
+        else
+            println($fail_msg)
+            @test false
+        end
+    end
+end
+
+macro test_hasmethod(f, args)
+    fail_msg = "The method '$f' does not support arguments $args"
+    return quote
+        if hasmethod($f, $args)
+            @test true
+        else
+            println($fail_msg)
+            @test false
         end
     end
 end
@@ -69,7 +74,8 @@ macro test_nothrow(ex)
     return quote
         try
             $(esc(ex))
-        catch
+        catch e
+            print(e)
             @test false
         else
             @test true

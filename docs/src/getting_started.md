@@ -49,7 +49,7 @@ To simulate observations from this joint distribution, we need to estimate the c
 To estimate the correlation, we use `cor` with an argument specifying the type of correlation to estimate. The options are `Pearson`, `Spearman`, or `Kendall`.
 
 ```@repl started
-ρ = cor(Matrix(df), Pearson)
+ρ = cor(Pearson, Matrix(df))
 ```
 
 ## Defining Marginal Distributions

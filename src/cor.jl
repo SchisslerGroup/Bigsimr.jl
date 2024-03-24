@@ -1,5 +1,5 @@
 """
-    cor(x[, y], ::CorType)
+    cor(cortype, x [,y])
 
 Compute the correlation matrix of a given type.
 
@@ -23,21 +23,21 @@ julia> x = [-1.62169     0.0158613   0.500375  -0.794381
             -3.38438    -1.93058     1.77413   -1.23657
              1.57527     0.836351   -1.13275   -0.277048];
 
-julia> cor(x, Pearson)
+julia> cor(Pearson, x)
 4×4 Matrix{Float64}:
   1.0        0.86985   -0.891312   0.767433
   0.86985    1.0       -0.767115   0.817407
  -0.891312  -0.767115   1.0       -0.596762
   0.767433   0.817407  -0.596762   1.0
 
-julia> cor(x, Spearman)
+julia> cor(Spearman, x)
 4×4 Matrix{Float64}:
   1.0        0.866667  -0.854545   0.709091
   0.866667   1.0       -0.781818   0.684848
  -0.854545  -0.781818   1.0       -0.612121
   0.709091   0.684848  -0.612121   1.0
 
-julia> cor(x, Kendall)
+julia> cor(Kendall, x)
 4×4 Matrix{Float64}:
   1.0        0.733333  -0.688889   0.555556
   0.733333   1.0       -0.688889   0.555556
@@ -45,34 +45,27 @@ julia> cor(x, Kendall)
   0.555556   0.555556  -0.422222   1.0
 ```
 """
-function Statistics.cor(::Any, ::Any, ::CorType{T}) where T
-    error("Method `cor(x, y, cortype)` is not implemented for cortype $T")
+function Statistics.cor(cortype::CorType, args...; kwargs...)
+    _cor(cortype, args...; kwargs...)
 end
 
-function Statistics.cor(::Any, ::CorType{T}) where T
-    error("Method `cor(x, cortype)` is not implemented for cortype $T")
-end
-
-Statistics.cor(x,    ::CorType{:Pearson})  = cor(x)
-Statistics.cor(x, y, ::CorType{:Pearson})  = cor(x, y)
-Statistics.cor(x,    ::CorType{:Spearman}) = corspearman(x)
-Statistics.cor(x, y, ::CorType{:Spearman}) = corspearman(x, y)
-Statistics.cor(x,    ::CorType{:Kendall})  = corkendall(x)
-Statistics.cor(x, y, ::CorType{:Kendall})  = corkendall(x, y)
+_cor(::CorType{:Pearson} , args...; kwargs...) = cor(args...; kwargs...)
+_cor(::CorType{:Spearman}, args...; kwargs...) = corspearman(args...; kwargs...)
+_cor(::CorType{:Kendall} , args...; kwargs...) = corkendall(args...; kwargs...)
 
 
 """
-    cor_fast(X, cortype=Pearson)
+    cor_fast([cortype,] X)
 
 Calculate the correlation matrix in parallel using available threads.
 """
-function cor_fast(X::AbstractMatrix{T}, cortype::CorType=Pearson) where T
+function cor_fast(cortype::CorType, X::AbstractMatrix{T}) where T
     d = size(X, 2)
 
     Y = SharedMatrix{T}(d, d)
 
-    Base.Threads.@threads for (i, j) in _idx_subsets2(d)
-        @inbounds Y[i,j] = cor(@view(X[:,i]), @view(X[:,j]), cortype)
+    Base.Threads.@threads for (i, j) in idx_subsets2(d)
+        @inbounds Y[i,j] = cor(cortype, @view(X[:,i]), @view(X[:,j]))
     end
 
     C = sdata(Y)
@@ -80,3 +73,5 @@ function cor_fast(X::AbstractMatrix{T}, cortype::CorType=Pearson) where T
 
     return C
 end
+
+cor_fast(X) = cor_fast(Pearson, X)

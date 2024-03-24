@@ -37,7 +37,13 @@ function rmvn(n::Real, μ::AbstractVector{<:Real}, Σ::AbstractMatrix{<:Real})
 
     n = convert(Int, n)
 
-    return μ' .+ _rmvn_shared(n, Σ)
+    X = rmvn_shared(n, Σ)
+
+    Base.Threads.@threads for i in 1:n
+        X[i,:] .+= μ
+    end
+
+    return sdata(X)
 end
 
 function rmvn(n, Σ::AbstractMatrix{T}) where {T<:Real}
@@ -88,10 +94,10 @@ function rvec(n, rho::AbstractMatrix{T}, margins) where {T<:Real}
 
     n = convert(Int, n)
 
-    Z = _rmvn_shared(n, rho)
+    Z = rmvn_shared(n, rho)
 
     Base.Threads.@threads for i in 1:d
-        @inbounds @view(Z[:,i]) .= _norm2margin(margins[i], @view(Z[:,i]))
+        @inbounds @view(Z[:,i]) .= norm2margin(margins[i], @view(Z[:,i]))
     end
 
     return sdata(Z)
