@@ -8,13 +8,13 @@ DocMeta.setdocmeta!(Bigsimr, :DocTestSetup, :(using Bigsimr); recursive=true)
 # See: https://github.com/jheinen/GR.jl/issues/278
 ENV["GKSwstype"] = "100"
 
-makedocs(
-    sitename = "Bigsimr.jl",
-    modules = [Bigsimr, PearsonCorrelationMatch, NearestCorrelationMatrix],
-    format = Documenter.HTML(),
-    doctest = true,
-    checkdocs = :warnonly,
-    pages = [
+makedocs(;
+    sitename="Bigsimr.jl",
+    modules=[Bigsimr, PearsonCorrelationMatch, NearestCorrelationMatrix],
+    format=Documenter.HTML(),
+    doctest=true,
+    checkdocs=:warnonly,
+    pages=[
         "Bigsimr.jl" => "index.md",
         "Guides" => [
             "Getting Started" => "getting_started.md",
@@ -24,10 +24,10 @@ makedocs(
         "API Reference" => "main_functions.md",
         "Details" => "details.md",
         "Index" => "function_index.md"
-    ],
+    ]
 )
 
-deploydocs(
-    repo = "github.com/SchisslerGroup/Bigsimr.jl.git",
-    versions = ["stable" => "v^", "v#.#", "dev" => "master"]
+deploydocs(;
+    repo="github.com/SchisslerGroup/Bigsimr.jl.git",
+    versions=["stable" => "v^", "v#.#", "dev" => "main"]
 )

@@ -12,7 +12,6 @@ julia> @test_isdefined newvar
 The symbol 'newvar' is not defined
 Test Failed at ...
   Expression: false
-
 ERROR: There was an error during testing
 
 julia> newvar = 1
@@ -38,7 +37,6 @@ macro test_isdefined(ex)
         end
     end
 end
-
 
 """
     @test_hasmethod f args kws
@@ -66,7 +64,6 @@ macro test_hasmethod(f, args)
         end
     end
 end
-
 
 """
     @test_nothrow expr

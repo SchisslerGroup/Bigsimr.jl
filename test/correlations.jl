@@ -2,9 +2,7 @@ using Test, Bigsimr
 using Distributions
 using Bigsimr.BigsimrBase: make_negdef_matrix
 
-
 include("test_macros.jl")
-
 
 @testset "Correlations" begin
     x = rand(100)
@@ -13,7 +11,7 @@ include("test_macros.jl")
 
     for cortype in (Pearson, Spearman, Kendall)
         @test_nothrow cor(cortype, x, y)
-        @test_nothrow cor(cortype, M,  )
+        @test_nothrow cor(cortype, M)
         @test_nothrow cor_fast(cortype, M)
     end
 

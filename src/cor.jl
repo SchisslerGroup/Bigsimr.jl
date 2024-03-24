@@ -46,26 +46,25 @@ julia> cor(Kendall, x)
 ```
 """
 function Statistics.cor(cortype::CorType, args...; kwargs...)
-    _cor(cortype, args...; kwargs...)
+    return _cor(cortype, args...; kwargs...)
 end
 
-_cor(::CorType{:Pearson} , args...; kwargs...) = cor(args...; kwargs...)
+_cor(::CorType{:Pearson}, args...; kwargs...) = cor(args...; kwargs...)
 _cor(::CorType{:Spearman}, args...; kwargs...) = corspearman(args...; kwargs...)
-_cor(::CorType{:Kendall} , args...; kwargs...) = corkendall(args...; kwargs...)
-
+_cor(::CorType{:Kendall}, args...; kwargs...) = corkendall(args...; kwargs...)
 
 """
     cor_fast([cortype,] X)
 
 Calculate the correlation matrix in parallel using available threads.
 """
-function cor_fast(cortype::CorType, X::AbstractMatrix{T}) where T
+function cor_fast(cortype::CorType, X::AbstractMatrix{T}) where {T}
     d = size(X, 2)
 
     Y = SharedMatrix{T}(d, d)
 
     Base.Threads.@threads for (i, j) in idx_subsets2(d)
-        @inbounds Y[i,j] = cor(cortype, @view(X[:,i]), @view(X[:,j]))
+        @inbounds Y[i, j] = cor(cortype, @view(X[:, i]), @view(X[:, j]))
     end
 
     C = sdata(Y)

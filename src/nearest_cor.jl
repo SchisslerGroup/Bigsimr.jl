@@ -7,7 +7,6 @@ See also: [`cor_nearPSD`](@ref), [`cor_fastPD`](@ref)
 """
 cor_nearPD(X) = nearest_cor(X)
 
-
 """
     cor_nearPD!(X)
 
@@ -17,7 +16,6 @@ creating a copy.
 See also: [`cor_nearPSD!`](@ref), [`cor_fastPD!`](@ref)
 """
 cor_nearPD!(X) = nearest_cor!(X)
-
 
 """
     cor_nearPSD(X)
@@ -30,7 +28,7 @@ function cor_nearPSD(X)
     sol = solve(
         NCMProblem(X),
         nothing;
-        alias_A = false,
+        alias_A=false,
         fix_sym=true,
         convert_f16=true,
         ensure_pd=false
@@ -38,7 +36,6 @@ function cor_nearPSD(X)
 
     return sol.X
 end
-
 
 """
     cor_nearPSD!(X)
@@ -50,18 +47,12 @@ See also: [`cor_nearPD!`](@ref), [`cor_fastPD!`](@ref)
 """
 function cor_nearPSD!(X)
     sol = solve(
-        NCMProblem(X),
-        nothing;
-        alias_A = true,
-        fix_sym=true,
-        convert_f16=true,
-        ensure_pd=true
+        NCMProblem(X), nothing; alias_A=true, fix_sym=true, convert_f16=true, ensure_pd=true
     )
 
     copyto!(X, sol.X)
     return X
 end
-
 
 """
     cor_fastPD(X[, tau])
@@ -73,8 +64,7 @@ tuning parameter that controls the minimum eigenvalue of the resulting matrix.
 See also: [`cor_nearPD`](@ref), [`cor_nearPSD`](@ref)
 """
 cor_fastPD(X, tau) = nearest_cor(X, DirectProjection(tau))
-cor_fastPD(X     ) = nearest_cor(X, DirectProjection)
-
+cor_fastPD(X) = nearest_cor(X, DirectProjection)
 
 """
     cor_fastPD!(X[, tau])
@@ -85,4 +75,4 @@ creating a copy.
 See also: [`cor_nearPD!`](@ref), [`cor_nearPSD!`](@ref)
 """
 cor_fastPD!(X, tau) = nearest_cor!(X, DirectProjection(tau))
-cor_fastPD!(X     ) = nearest_cor!(X, DirectProjection)
+cor_fastPD!(X) = nearest_cor!(X, DirectProjection)

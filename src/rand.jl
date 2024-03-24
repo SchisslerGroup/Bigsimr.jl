@@ -32,15 +32,15 @@ function rmvn(n::Real, μ::AbstractVector{<:Real}, Σ::AbstractMatrix{<:Real})
     d = length(μ)
     r, s = size(Σ)
 
-    (r == s == d)  || throw(DimensionMismatch(
-        "The number of margins must match the size of the correlation matrix."))
+    (r == s == d) ||
+        throw(DimensionMismatch("The number of margins must match the size of the correlation matrix."))
 
     n = convert(Int, n)
 
     X = rmvn_shared(n, Σ)
 
     Base.Threads.@threads for i in 1:n
-        X[i,:] .+= μ
+        X[i, :] .+= μ
     end
 
     return sdata(X)
@@ -50,7 +50,6 @@ function rmvn(n, Σ::AbstractMatrix{T}) where {T<:Real}
     μ = zeros(T, size(Σ, 2))
     return rmvn(n, μ, Σ)
 end
-
 
 """
     rvec(n, rho, margins)
@@ -89,15 +88,15 @@ function rvec(n, rho::AbstractMatrix{T}, margins) where {T<:Real}
     r, s = size(rho)
 
     is_correlation(rho) || throw(ArgumentError("`rho` must be a valid correlation matrix"))
-    (r == s == d) || throw(DimensionMismatch(
-        "The number of margins must match the size of the correlation matrix."))
+    (r == s == d) ||
+        throw(DimensionMismatch("The number of margins must match the size of the correlation matrix."))
 
     n = convert(Int, n)
 
     Z = rmvn_shared(n, rho)
 
     Base.Threads.@threads for i in 1:d
-        @inbounds @view(Z[:,i]) .= norm2margin(margins[i], @view(Z[:,i]))
+        @inbounds @view(Z[:, i]) .= norm2margin(margins[i], @view(Z[:, i]))
     end
 
     return sdata(Z)

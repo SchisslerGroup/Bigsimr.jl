@@ -31,7 +31,7 @@ julia> cor_randPSD(4)
   0.289011   0.190938  -0.102597   1.0
 ```
 """
-function cor_randPSD(::Type{T}, d, k=d-1) where T
+function cor_randPSD(::Type{T}, d, k=d - 1) where {T}
     d ≥ 1 || throw(ArgumentError("`d` must be greater than or equal to 1"))
     1 ≤ k < d || throw(ArgumentError("`k` must be greater than '0' and less than `d`"))
     d = convert(Int, d)
@@ -39,16 +39,15 @@ function cor_randPSD(::Type{T}, d, k=d-1) where T
 
     d == 1 && return ones(T, 1, 1)
 
-    W  = randn(T, d, k)
-    S  = W * W' + diagm(rand(T, d))
+    W = randn(T, d, k)
+    S = W * W' + diagm(rand(T, d))
     S2 = diagm(1 ./ sqrt.(diag(S)))
-    R  = S2 * S * S2
+    R = S2 * S * S2
 
     return cor_constrain!(R)
 end
 
-cor_randPSD(d, k=d-1) = cor_randPSD(Float64, d, k)
-
+cor_randPSD(d, k=d - 1) = cor_randPSD(Float64, d, k)
 
 """
     cor_randPD([T,] d, k=d-1)
@@ -81,5 +80,5 @@ julia> cor_randPD(4)
  -0.251671  -0.117748  -0.424952   1.0
 ```
 """
-cor_randPD(::Type{T}, d, k=d-1) where T = cor_fastPD!(cor_randPSD(T, d, k))
-cor_randPD(d, k=d-1) = cor_randPD(Float64, d, k)
+cor_randPD(::Type{T}, d, k=d - 1) where {T} = cor_fastPD!(cor_randPSD(T, d, k))
+cor_randPD(d, k=d - 1) = cor_randPD(Float64, d, k)

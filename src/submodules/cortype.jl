@@ -1,9 +1,4 @@
-export
-    CorType,
-    Pearson,
-    Spearman,
-    Kendall
-
+export CorType, Pearson, Spearman, Kendall
 
 """
     CorType
@@ -15,7 +10,6 @@ A type used for specifiying the type of correlation. Supported correlations are:
 - [`Kendall`](@ref)
 """
 struct CorType{T} end
-
 
 """
     Pearson

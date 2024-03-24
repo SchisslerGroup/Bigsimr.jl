@@ -1,16 +1,14 @@
 using Test, Bigsimr
 using Distributions
 
-
 include("test_macros.jl")
-
 
 @testset "Random Vector Generation" begin
     d = 3
     Σ = cor_randPD(d)
     μ = rand(d)
     @test_nothrow rmvn(100, μ, Σ)
-    @test_nothrow rmvn(100,    Σ)
+    @test_nothrow rmvn(100, Σ)
 
     # mean vector and covariance matrix dimensions must agree
     @test_throws Exception rmvn(100, rand(4), cor_randPD(3))

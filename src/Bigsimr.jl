@@ -1,7 +1,6 @@
 module Bigsimr
 include("submodules/BigsimrBase.jl")
 
-
 using Distributions: UnivariateDistribution as UD
 using Distributions: ContinuousUnivariateDistribution as CUD
 using Distributions: DiscreteUnivariateDistribution as DUD
@@ -16,7 +15,6 @@ using SharedArrays
 using Statistics: cor
 using StatsBase: corspearman, corkendall
 
-
 using .BigsimrBase:
     clampcor,
     make_symmetric!,
@@ -26,17 +24,13 @@ using .BigsimrBase:
     rmvn_shared,
     idx_subsets2
 
-
-import Statistics
+using Statistics: Statistics
 import .BigsimrBase: _cor
-
-
 
 @reexport using .BigsimrBase
 @reexport using PearsonCorrelationMatch: pearson_bounds, pearson_match
 @reexport using NearestCorrelationMatrix: nearest_cor, nearest_cor!
 @reexport using NearestCorrelationMatrix: Newton, AlternatingProjections, DirectProjection
-
 
 export
     # Correlation Methods
@@ -63,7 +57,6 @@ export
     rmvn,
     rvec
 
-
 include("cor.jl")
 include("cor_utils.jl")
 include("cor_gen.jl")
@@ -71,7 +64,6 @@ include("nearest_cor.jl")
 include("rand.jl")
 
 include("deprecated.jl")
-
 
 """
     is_correlation(X)
@@ -121,6 +113,5 @@ false
 ```
 """
 is_correlation(X) = isprecorrelation(X) && isposdef(X)
-
 
 end
