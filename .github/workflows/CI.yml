@@ -2,10 +2,10 @@ name: CI
 on:
   pull_request:
     branches:
-      - master
+      - main
   push:
     branches:
-      - master
+      - main
     tags: '*'
 jobs:
   test:
@@ -15,8 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.10'
-          - 'nightly'
+          - '1'
         os:
           - ubuntu-latest
         arch:
